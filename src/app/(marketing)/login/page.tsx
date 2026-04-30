@@ -19,7 +19,7 @@ export default function LoginPage() {
     return () => clearTimeout(timer);
   }, [error]);
   
-  const { login, loginWithGoogle } = useAuth();
+  const { login, loginAnonymously } = useAuth();
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -36,14 +36,14 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleSignIn = async () => {
+  const handleAnonymousSignIn = async () => {
     setError('');
     setLoading(true);
     try {
-      await loginWithGoogle();
+      await loginAnonymously();
       router.replace('/home');
     } catch (err: any) {
-      setError(err.message || 'Failed to sign in with Google');
+      setError(err.message || 'Failed to sign in anonymously');
     } finally {
       setLoading(false);
     }
@@ -112,11 +112,10 @@ export default function LoginPage() {
             <button 
               type="button" 
               className="flex items-center justify-center gap-2.5 p-3.5 border border-outline-variant/50 bg-transparent text-[12px] font-medium tracking-[0.06em] uppercase rounded-lg transition-colors hover:border-on-surface hover:bg-surface-container disabled:opacity-50"
-              onClick={handleGoogleSignIn} 
+              onClick={handleAnonymousSignIn} 
               disabled={loading}
             >
-              <img className="w-4 h-4" src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google logo" />
-              Google
+              Continue as Guest
             </button>
           </form>
 

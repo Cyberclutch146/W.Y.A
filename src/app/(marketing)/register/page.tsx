@@ -21,7 +21,7 @@ export default function RegisterPage() {
     return () => clearTimeout(timer);
   }, [error]);
 
-  const { register, loginWithGoogle } = useAuth();
+  const { register, loginAnonymously } = useAuth();
   const router = useRouter();
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -66,7 +66,7 @@ export default function RegisterPage() {
     }
   };
 
-  const handleGoogleSignIn = async () => {
+  const handleAnonymousSignIn = async () => {
     if (!agreed) {
       setError('You must agree to the Terms.');
       return;
@@ -74,10 +74,10 @@ export default function RegisterPage() {
     setError('');
     setLoading(true);
     try {
-      await loginWithGoogle();
+      await loginAnonymously();
       router.replace('/home');
     } catch (err: any) {
-      setError(err.message || 'Failed to sign in with Google');
+      setError(err.message || 'Failed to sign in anonymously');
     } finally {
       setLoading(false);
     }
@@ -162,17 +162,16 @@ export default function RegisterPage() {
             </button>
 
             <div className="flex items-center gap-3 my-6 text-outline text-[12px] tracking-[0.1em] uppercase before:flex-1 before:h-px before:bg-outline-variant/30 after:flex-1 after:h-px after:bg-outline-variant/30">
-              or sign up with
+              or continue without account
             </div>
 
             <button 
               type="button" 
               className="flex items-center justify-center gap-2.5 p-3.5 border border-outline-variant/50 bg-transparent text-[12px] font-medium tracking-[0.06em] uppercase rounded-lg transition-colors hover:border-on-surface hover:bg-surface-container disabled:opacity-50"
-              onClick={handleGoogleSignIn} 
+              onClick={handleAnonymousSignIn} 
               disabled={loading}
             >
-              <img className="w-4 h-4" src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google logo" />
-              Google
+              Continue as Guest
             </button>
           </form>
 

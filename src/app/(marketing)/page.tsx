@@ -8,10 +8,32 @@ import { ArrowRight, Sparkles } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useAuth } from '@/context/AuthContext';
 
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+
 export default function LandingPage() {
-  const { user, loading } = useAuth();
-  const primaryHref = '/home';
-  const primaryLabel = 'Dashboard';
+  const { user, loading, loginAnonymously } = useAuth();
+  const router = useRouter();
+  const [authLoading, setAuthLoading] = useState(false);
+  
+  const primaryHref = user ? '/home' : '#';
+  const primaryLabel = user ? 'Home' : 'Join Us';
+
+  const handleJoinUs = async (e: React.MouseEvent) => {
+    if (user) {
+      router.push('/home');
+      return;
+    }
+    e.preventDefault();
+    setAuthLoading(true);
+    try {
+      await loginAnonymously();
+      router.push('/home');
+    } catch (err) {
+      console.error('Failed to login anonymously:', err);
+      setAuthLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background text-on-background font-body relative overflow-x-hidden selection:bg-primary/20">
@@ -57,10 +79,16 @@ export default function LandingPage() {
             Empowering our neighbors through dedicated relief efforts and sustainable community support. Join NexusAid in making a difference today.
           </p>
           <div className="flex flex-wrap items-center gap-6">
-            <Link href={primaryHref} className="inline-flex items-center gap-3 px-8 py-4 bg-on-background text-background font-medium text-[13px] tracking-widest uppercase hover:bg-primary hover:text-on-primary transition-all duration-300 transform hover:-translate-y-1 shadow-[0_16px_34px_rgba(42,45,43,0.12)]">
-              {primaryLabel}
+            <button onClick={handleJoinUs} disabled={authLoading || loading} className="inline-flex items-center gap-3 px-8 py-4 bg-on-background text-background font-medium text-[13px] tracking-widest uppercase hover:bg-primary hover:text-on-primary transition-all duration-300 transform hover:-translate-y-1 shadow-[0_16px_34px_rgba(42,45,43,0.12)] disabled:opacity-70">
+              {authLoading ? 'Joining...' : primaryLabel}
               <ArrowRight size={14} />
-            </Link>
+            </button>
+            {!user && !loading && (
+              <Link href="/login" className="inline-flex items-center gap-2 px-0 py-4 bg-transparent text-on-surface-variant font-medium text-[13px] tracking-wider uppercase hover:text-on-background transition-colors group">
+                Login
+                <ArrowRight size={14} className="transform transition-transform group-hover:translate-x-1" />
+              </Link>
+            )}
           </div>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -154,10 +182,10 @@ export default function LandingPage() {
             <p className="text-on-surface-variant font-light leading-relaxed mb-10 max-w-sm relative z-10">
               Join our team of active volunteers. From sorting food to teaching classes, we have a place for you.
             </p>
-            <Link href="/register" className="inline-flex items-center gap-3 text-[12px] font-medium tracking-[0.1em] uppercase text-on-background border-b border-on-background pb-1 hover:text-tertiary hover:border-tertiary hover:gap-5 transition-all relative z-10">
+            <button onClick={handleJoinUs} disabled={authLoading || loading} className="inline-flex items-center gap-3 text-[12px] font-medium tracking-[0.1em] uppercase text-on-background border-b border-on-background pb-1 hover:text-tertiary hover:border-tertiary hover:gap-5 transition-all relative z-10 disabled:opacity-70">
               Browse Opportunities
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </Link>
+            </button>
           </motion.div>
 
           {/* Donate */}
@@ -178,10 +206,10 @@ export default function LandingPage() {
             <p className="text-on-surface-variant font-light leading-relaxed mb-10 max-w-sm relative z-10">
               Your financial support directly funds our relief programs. $50 can provide 10 hot meals for local families.
             </p>
-            <Link href="/register" className="inline-flex items-center gap-3 text-[12px] font-medium tracking-[0.1em] uppercase text-on-background border-b border-on-background pb-1 hover:text-tertiary hover:border-tertiary hover:gap-5 transition-all relative z-10">
+            <button onClick={handleJoinUs} disabled={authLoading || loading} className="inline-flex items-center gap-3 text-[12px] font-medium tracking-[0.1em] uppercase text-on-background border-b border-on-background pb-1 hover:text-tertiary hover:border-tertiary hover:gap-5 transition-all relative z-10 disabled:opacity-70">
               Start Your Donation
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </Link>
+            </button>
           </motion.div>
         </div>
       </section>
@@ -209,10 +237,16 @@ export default function LandingPage() {
             </p>
           </div>
           <div className="flex flex-col gap-4 lg:w-max lg:ml-auto">
-            <Link href={primaryHref} className="inline-flex items-center justify-center gap-2 px-12 py-5 bg-on-primary text-primary font-medium text-[13px] tracking-wider uppercase hover:bg-background transition-colors">
-              {primaryLabel}
+            <button onClick={handleJoinUs} disabled={authLoading || loading} className="inline-flex items-center justify-center gap-2 px-12 py-5 bg-on-primary text-primary font-medium text-[13px] tracking-wider uppercase hover:bg-background transition-colors disabled:opacity-70">
+              {user ? 'Just Home' : (authLoading ? 'Joining...' : 'Apply to Volunteer')}
               <ArrowRight size={14} />
-            </Link>
+            </button>
+            {!user && !loading && (
+              <Link href="/login" className="inline-flex items-center justify-center gap-2 px-12 py-5 border border-on-primary/20 text-on-primary font-medium text-[13px] tracking-wider uppercase hover:bg-white/8 transition-colors">
+                Login
+                <ArrowRight size={14} />
+              </Link>
+            )}
           </div>
         </motion.div>
       </section>

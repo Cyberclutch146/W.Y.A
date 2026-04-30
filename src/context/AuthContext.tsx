@@ -7,8 +7,7 @@ import {
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   signOut as firebaseSignOut,
-  GoogleAuthProvider,
-  signInWithPopup
+  signInAnonymously
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { subscribeToUserProfile } from '@/services/userService';
@@ -20,55 +19,92 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, pass: string) => Promise<void>;
   register: (email: string, pass: string) => Promise<FirebaseUser>;
-  loginWithGoogle: () => Promise<void>;
+  loginAnonymously: () => Promise<void>;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  // Mock user for testing without authentication
-  const mockUser = { uid: 'mock-uid-123', email: 'tester@campuspulse.com', displayName: 'Test Student' } as FirebaseUser;
-  const mockProfile: UserProfile = {
-    email: 'tester@campuspulse.com',
-    displayName: 'Test Student',
-    bio: 'Testing the app',
-    location: 'Campus',
-    phone: '1234567890',
-    skills: [],
-    equipment: [],
-    travelRadius: 5,
-    availability: 'anytime',
-    avatarUrl: '',
-    role: 'student',
-    volunteerHours: 10,
-    totalDonated: 0,
-    profileComplete: true,
-    department: 'Computer Science',
-    year: '3',
-    rollNumber: 'CS123',
-    clubs: ['Coding Club'],
-    interests: ['Technology', 'Hackathons'],
-    xp: 150,
-    badges: [],
-    eventsAttended: 2
-  };
-
-  const [user, setUser] = useState<FirebaseUser | null>(mockUser);
-  const [profile, setProfile] = useState<UserProfile | null>(mockProfile);
-  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Authentication is bypassed for now
+    let unsubscribeProfile: (() => void) | undefined;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
+      setUser(user);
+      if (user) {
+        unsubscribeProfile = subscribeToUserProfile(user.uid, async (userProfile) => {
+          if (!userProfile) {
+            // Hotfix: Auto-create a missing profile if the user account exists
+            const { createUserProfile } = await import('@/services/userService');
+            await createUserProfile(user.uid, {
+              email: user.email || '',
+              displayName: user.displayName || 'Student',
+              bio: '',
+              location: '',
+              phone: '',
+              skills: [],
+              equipment: [],
+              travelRadius: 0,
+              availability: 'anytime',
+              avatarUrl: '',
+              role: 'student',
+              volunteerHours: 0,
+              totalDonated: 0,
+              profileComplete: false,
+              department: '',
+              year: '',
+              rollNumber: '',
+              clubs: [],
+              interests: [],
+              xp: 0,
+              badges: [],
+              eventsAttended: 0
+            });
+          } else {
+            setProfile(userProfile);
+            setLoading(false);
+          }
+        });
+      } else {
+        setProfile(null);
+        if (unsubscribeProfile) {
+          unsubscribeProfile();
+        }
+        setLoading(false);
+      }
+    });
+
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeProfile) {
+        unsubscribeProfile();
+      }
+    };
   }, []);
 
-  const login = async (email: string, pass: string) => {};
-  const register = async (email: string, pass: string) => mockUser;
-  const loginWithGoogle = async () => {};
-  const logout = async () => {};
+  const login = async (email: string, pass: string) => {
+    await signInWithEmailAndPassword(auth, email, pass);
+  };
+
+  const register = async (email: string, pass: string) => {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+    return userCredential.user;
+  };
+
+  const loginAnonymously = async () => {
+    await signInAnonymously(auth);
+  };
+
+  const logout = async () => {
+    await firebaseSignOut(auth);
+  };
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, login, register, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, profile, loading, login, register, loginAnonymously, logout }}>
       {children}
     </AuthContext.Provider>
   );
