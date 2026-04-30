@@ -1,185 +1,150 @@
-# NexusAid 🤝
+<div align="center">
 
-[![Next.js](https://img.shields.io/badge/Next.js-15+-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
-[![Firebase](https://img.shields.io/badge/Firebase-Auth%20%26%20Firestore-FFCA28?style=for-the-badge&logo=firebase)](https://firebase.google.com/)
-[![Gemini AI](https://img.shields.io/badge/Gemini_AI-1.5_Flash-4285F4?style=for-the-badge&logo=google-gemini)](https://ai.google.dev/)
+# 🎓 CampusPulse
+### **The Intelligent Neural Nexus for Campus Life**
 
-**NexusAid** is a comprehensive, professional, community-centric platform engineered to streamline disaster relief, volunteer coordination, and mutual aid. It combines real-time situational awareness with intelligent matchmaking to empower communities when they need it most. Designed with a focus on speed, compassion, and automation, NexusAid empowers local communities and NGOs to organize efficiently during critical times.
+[![Next.js](https://img.shields.io/badge/Next.js-15+-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Firebase](https://img.shields.io/badge/Firebase-Realtime_Cloud-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com/)
+[![Gemini AI](https://img.shields.io/badge/Google_Gemini-1.5_Flash-4285F4?style=for-the-badge&logo=google-gemini&logoColor=white)](https://ai.google.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
----
+> [!IMPORTANT]
+> **CampusPulse is currently under active development.**
+> We are in the process of pivoting from the NexusAid disaster relief foundation to a full-scale Intelligent Campus Event Engine. Expect frequent updates, evolving features, and breaking changes as we build the future of campus engagement.
 
-## 🚀 Key Innovation Pillars
+**"Never miss a beat. Never miss a moment. Never miss what matters."**
 
-### 🛡️ Community Sentinel (Live Safety Monitoring)
-*   **Real-Time Data**: Integrates live feeds from **USGS** and **NOAA** to track environmental risks.
-*   **Situational Map**: Interactive Leaflet-based map with custom hazard overlays (Weather, Earthquakes, etc.).
-*   **Proactive Alerts**: Notifies community organizers of nearby critical signals before they escalate.
-
-### 🧠 Intelligent Matchmaking
-*   **Skill-Based Recommendations**: Proprietary scoring algorithm that matches volunteers to events based on their unique expertise (Medical, Logistics, Technical, etc.).
-*   **Match Clarity**: Dynamic "Why it's a match" insights for every recommended event.
-*   **Capacity Handling**: Optimized to show up to 6 high-relevance matches at a glance.
-
-### 📢 Event & Campaign Management
-* **Intelligent Event Creation**: Quickly set up relief campaigns or events with titles, descriptions, and specific needs. Features an AI-powered description generator to formulate compelling campaign messages.
-* **Interactive Resource Tracking**: Real-time progress tracking for funding goals and volunteer registration.
-* **Interactive Mapping**: Integrated geospatial mapping (using Leaflet & OpenStreetMap) displaying real-time proximity of events and "Sentinel" hazard overlays to users.
-
-### 🤖 AI-Native Operations
-*   **24/7 AI Guide**: A persistent Gemini-powered assistant to answer platform questions and guide volunteer signups.
-*   **Generative Event Tools**: AI-assisted generation for professional event descriptions and promotional imagery.
-*   **Smart Skill Matching**: Dynamic banners and feeds that recommend specific volunteering tasks based on user profile skills.
-
-### 💬 Real-Time Coordination & Alerts
-* **Sentinel Alert System**: Active tracking and mapping of emergency/relief zones to send immediate, automated visual notifications across the feed and dashboards.
-* **Community Chat Rooms**: Dedicated Firestore-backed real-time chat spaces for event volunteers to coordinate effectively.
-* **Centralized Notification Service**: Robust internal notification system to keep users informed about event updates, chat messages, and administrative alerts.
-
-### 🚀 Automated Bulk Communications
-* **Multi-Channel Promos**: Built-in promotion service that supports bulk parsing of `.csv` and `.xlsx` contact files.
-* **Email & SMS Automation**: Delivers automated event invitations and updates utilizing **Nodemailer** (Email) and **Twilio** (SMS) simultaneously.
-* **Firebase Audit Logs**: Ensures every promotion outcome is reliably logged within Firestore.
-
-### 🔐 Verified Volunteer Ecosystem & Profiles
-*   **Email OTP Verification**: Secure, real-world verification via **Nodemailer** and dedicated backend APIs to ensure valid participants.
-*   **Event Check-In Scanner**: Built-in QR scanner interface allowing organizers to seamlessly scan and validate volunteer digital tickets directly at the event.
-*   **Volunteer Leaderboards & Profiles**: A dedicated user profile system and a gamified "Community Heroes" leaderboard to recognize and track top contributors.
-
-### 💳 Donations & Material Pledging
-* **Razorpay Integration**: Secure, seamless in-app donation panel for funding campaigns, complete with order creation and fulfillment endpoints.
-* **Goods & Material Pledging**: Interactive forms and modals allowing users to formally pledge physical goods, supplies, or materials for specific relief events.
+[Explore the Feed](#-unified-event-discovery) • [Meet the Concierge](#-ai-native-operations) • [How it Works](#-the-campuspulse-journey) • [Setup Guide](#-deployment-blueprint)
 
 ---
 
-## 🛠 Technical Excellence
+### 🚀 The Vision
+**CampusPulse** isn't just an event app—it's an **Intelligent Recommendation Engine** designed to solve the "Fragmented Campus Problem." No more hunting through WhatsApp groups, missed posters, or forgotten emails. We leverage **Generative AI** and **Real-time Geospatial Intelligence** to bring every hackathon, cultural fest, and workshop directly to the students who care about them.
 
-| Category         | Technologies Used                                                                                   |
-| ---------------- | --------------------------------------------------------------------------------------------------- |
-| **Framework**    | [Next.js 16](https://nextjs.org/) (App Router, Turbopack) & [React 19](https://react.dev/)          |
-| **Language**     | TypeScript                                                                                          |
-| **Styling**      | [Tailwind CSS 4](https://tailwindcss.com/) & [Framer Motion](https://www.framer.com/motion/)        |
-| **Database**     | [Firebase](https://firebase.google.com/) (Firestore, Auth, Admin SDK)                               |
-| **AI Engines**   | [Google Generative AI (Gemini 1.5+)](https://ai.google.dev/) & [OpenAI API](https://openai.com/)    |
-| **Payments**     | [Razorpay](https://razorpay.com/)                                                                   |
-| **Mapping**      | [Leaflet](https://leafletjs.com/) & [React-Leaflet](https://react-leaflet.js.org/)                  |
-| **Comms/Parser** | [Twilio](https://twilio.com/), [Nodemailer](https://nodemailer.com/), CSV-Parser, Papaparse, XLSX   |
+</div>
 
 ---
 
-## 🏗 Architecture & Process Flows
+## 💎 Premium Innovation Pillars
 
-### High-Level System Architecture
-```mermaid
-graph TD
-    Client[Next.js Frontend Client] -->|API Requests| NextAPI[Next.js Serverless API Routes]
-    Client -->|Direct Read/Write| Firestore[(Firebase Firestore)]
-    Client -->|Auth State| FirebaseAuth[Firebase Authentication]
-    
-    NextAPI -->|Event Data & Logs| FirestoreAdmin[(Firebase Admin SDK)]
-    NextAPI -->|Emails| Nodemailer[Nodemailer Service]
-    NextAPI -->|SMS| Twilio[Twilio Service]
-    NextAPI -->|AI Prompts| LLM[Google Gemini / OpenAI]
-    NextAPI -->|Payments| Razorpay[Razorpay API]
-```
+### 🧠 **Neural Interest Matching**
+Forget generic lists. Our **proprietary scoring algorithm** analyzes student academic tracks, skill sets, and personal interests to deliver a hyper-personalized "Top Picks" feed.
+- **Dynamic Relevance**: See exactly *why* an event was picked for you (e.g., *"Matches your interest in 'Fullstack Development' & 'Hackathons'"*).
+- **Infinite Discovery**: Semantic search powered by **Gemini 1.5 Flash** lets you search for *intent*, not just keywords.
 
-### Event Creation & Bulk Promotion Flow
+### 🛡️ **The Campus Bulletin (Live Sentinel)**
+Repurposing high-frequency monitoring technology into a live campus pulse.
+- **Trending Now**: Visual heatmaps of event popularity based on real-time RSVP velocity.
+- **Live Broadcasts**: Instant notifications for "Happening Now" events and critical club announcements.
+- **Geospatial Intelligence**: A high-fidelity Leaflet map showing every pulse-point across the campus grid.
+
+### 📢 **Professional Organizer Suite**
+Empowering club leads with tools that usually cost thousands.
+- **AI Poster & Copy**: Generate stunning event descriptions and promotional graphics in seconds with built-in GenAI tools.
+- **Omni-Channel Promotion**: Batch-upload member lists (.csv/.xlsx) and blast invites via **Simultaneous Email & SMS**.
+- **The Analytics Edge**: Deep-dive into student engagement funnels—from view to verified check-in.
+
+### 🎟️ **The Frictionless Gateway**
+- **Digital Identity**: Secure QR-based ticketing system.
+- **In-App Scanner**: Organizers can validate attendees at the door with a single tap.
+- **Gamified Growth**: Earn **XP** and **Badges** for every pulse you join. Climb the campus leaderboard and become a legendary contributor.
+
+---
+
+## 🛠 **The Tech Stack of the Future**
+
+| Layer | Technology | Why? |
+| :--- | :--- | :--- |
+| **Framework** | **Next.js 15+ (App Router)** | For the fastest possible server-side rendering and edge deployment. |
+| **Style** | **Tailwind CSS 4.0** | Ultra-modern, utility-first design system with high-performance glassmorphism. |
+| **Brain** | **Google Gemini 1.5 Flash** | Multi-modal intelligence for semantic search and content generation. |
+| **State** | **Firebase Realtime Suite** | Instant synchronization of chats, RSVPs, and live announcements. |
+| **Comms** | **Twilio & Nodemailer** | The gold standard for reliable SMS and professional email automation. |
+| **Motion** | **Framer Motion** | Silky-smooth transitions that make the app feel alive and responsive. |
+
+---
+
+## 🏗 **The CampusPulse Journey**
+
 ```mermaid
 sequenceDiagram
-    participant Organizer
-    participant Frontend
-    participant PromotionAPI
-    participant EmailSMS (Twilio/NodeMailer)
-    participant Database
-
-    Organizer->>Frontend: Creates Event & Uploads CSV/Excel Contacts
-    Frontend->>Frontend: Parses CSV/XLSX locally or via API
-    Frontend->>PromotionAPI: Sends Batch Contacts & Message Templates
-    PromotionAPI->>EmailSMS: Dispatch Bulk Emails & SMS in parallel
-    EmailSMS-->>PromotionAPI: Delivery Status / Callbacks
-    PromotionAPI->>Database: Log successful deliveries & errors
-    Database-->>Frontend: Real-time update on delivery progress
-    Frontend-->>Organizer: Promotion Summary & Success Notifications
+    participant S as Student
+    participant AI as Gemini Engine
+    participant DB as Firebase Cloud
+    participant O as Organizer
+    
+    O->>DB: Creates "Inter-College Hackathon"
+    AI->>DB: Analyzes metadata & creates embedding
+    S->>AI: "What tech events are happening today?"
+    AI-->>S: "Top Match: Hackathon! (98% Match with your Python skills)"
+    S->>DB: RSVPs "Going"
+    DB-->>S: Generates Encrypted QR Ticket
+    DB-->>O: Updates Live RSVP Funnel
+    S->>O: Arrives at Event -> Scans QR
+    O->>DB: Attendance Verified
+    DB-->>S: +100 XP & 'Code Warrior' Badge
 ```
 
 ---
 
-## 📂 Project Architecture
+## 📂 **Inside the Engine**
 
-```text
-├── src/
-│   ├── app/                # Next.js App Router (Pages, Layouts & APIs)
-│   │   ├── (app)/          # Main App Views (Dashboard, Feed, Profile)
-│   │   ├── (marketing)/    # Public routes (Landing, Login, Register)
-│   │   └── api/            # Serverless Functions (Sentinel, Payments, AI, Promote)
-│   ├── components/         # Reusable Premium UI Components (Glassmorphism, Modals, Maps, AI Widgets)
-│   ├── context/            # Global State (AuthContext, Theme)
-│   ├── lib/                # External library configurations (Firebase, Razorpay, OpenAI)
-│   ├── services/           # Backend Logic (EventService, Email, Recommendation, SMS, AI)
-│   ├── types/              # TypeScript Interfaces
-│   ├── utils/              # Helper functions (Geo-calculations, formatters)
-│   └── styles/             # Global CSS & Tailwind Config
-├── public/                 # Static Assets & Icons
-├── firebase.json           # Firebase Deployment Config
-└── tailwind.config.ts      # Tailwind styling definitions
-```
-
----
-
-## ⚙️ Configuration & Setup
-
-### 1. Prerequisites
-- Node.js 18+
-- Firebase Project
-- Google AI (Gemini) API Key
-- Razorpay Account (Optional)
-- Twilio Account (Optional)
-
-### 2. Environment Variables
-Create a `.env` or `.env.local` file in the root directory and add your credentials. Refer to the expected variables below:
-
-```env
-# Firebase Configuration
-NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.firebasestorage.app
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
-
-# AI Integrations
-GEMINI_API_KEY=your_gemini_api_key
-OPENAI_API_KEY=your_openai_api_key
-GEMINI_API_KEY_AI_CHAT_BOT=your_gemini_api_key_for_bot
-
-# Communications (Email / SMS)
-EMAIL=your-email@gmail.com
-EMAIL_PASS=your-google-app-password
-TWILIO_SID=your_twilio_sid
-TWILIO_AUTH=your_twilio_auth_token
-TWILIO_PHONE=your_twilio_phone
-
-# Payments
-RAZORPAY_KEY_ID=your_razorpay_key_id
-RAZORPAY_KEY_SECRET=your_razorpay_secret
-```
-
-### 3. Installation
 ```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
+├── 📁 src/
+│   ├── 📁 app/               # Next.js 15 App Router & API Matrix
+│   ├── 📁 components/        # Premium UI (Glassmorphism, Maps, AI Concierge)
+│   ├── 📁 context/           # Neural Auth & Global Application State
+│   ├── 📁 services/          # The Brain (Matching Logic, Search, Comms)
+│   ├── 📁 types/             # High-Fidelity Type Definitions
+│   └── 📁 styles/            # Design System Tokens & Global CSS
+├── 📄 PIVOT_PLAN.md          # The architecture migration blueprint
+└── 📄 tailwind.config.ts     # The color and spacing DNA
 ```
 
 ---
 
-## 🛡 Security & Reliability
-- **Firestore Security Rules**: Strict access control for user data and chatrooms.
-- **Input Validation**: Server-side checks for all API routes.
-- **Error Handling**: Comprehensive logging and user-friendly error boundaries.
+## ⚙️ **Deployment Blueprint**
+
+### 1. Prime the Environment
+Create a `.env.local` and inject the following fuel:
+```env
+# Firebase Cloud
+NEXT_PUBLIC_FIREBASE_API_KEY=...
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
+
+# Intelligence
+GEMINI_API_KEY=...
+
+# Communication Matrix
+EMAIL_USER=...
+EMAIL_PASS=...
+TWILIO_SID=...
+TWILIO_AUTH=...
+```
+
+### 2. Ignite the Server
+```bash
+npm install     # Load the modules
+npm run dev     # Launch the pulse
+```
 
 ---
 
-Built with ❤️ by the NexusAid Team to foster community resilience and rapid response.
+## 🛡 **Security & Trust**
+- **Authenticated Identity**: Secure Google SSO and Email OTP verification.
+- **Server-Side Integrity**: Sensitive operations (Payments, Bulk Comms, User Updates) are handled via **Firebase Admin SDK** for maximum security.
+- **Privacy-First**: No data sharing. Your interests stay on your pulse.
+
+---
+
+<div align="center">
+
+### **Built for the ambitious. Driven by intelligence. Powering the campus.**
+
+Developed with ❤️ to bridge the gap between students and opportunities.
+
+[**Get Started Now**](https://github.com/your-repo/campuspulse) • [**Report a Bug**](https://github.com/your-repo/campuspulse/issues)
+
+</div>
