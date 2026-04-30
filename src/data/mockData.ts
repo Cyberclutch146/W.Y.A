@@ -1,10 +1,14 @@
+// ─── Mock Data for CampusPulse ───────────────────────────
+// Used for UI previews, Storybook, and fallback rendering.
+// In production, all data is fetched from Firestore.
+
 export interface User {
   id: string;
   name: string;
   role: string;
   avatar: string;
-  volunteerHours: number;
-  totalDonated: number;
+  eventsAttended: number;
+  xp: number;
 }
 
 export interface Needs {
@@ -17,6 +21,7 @@ export interface Event {
   id: string;
   title: string;
   organizer: string;
+  clubName?: string;
   location: string;
   distance: string;
   description: string;
@@ -25,6 +30,8 @@ export interface Event {
   needs: Needs;
   progress: number;
   category: string;
+  tags?: string[];
+  eventDate?: string;
 }
 
 export interface Message {
@@ -37,95 +44,107 @@ export interface Message {
 
 export const currentUser: User = {
   id: 'u1',
-  name: 'Sarah Jenkins',
-  role: 'Community Lead',
-  avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=2574&auto=format&fit=crop',
-  volunteerHours: 42,
-  totalDonated: 1500,
+  name: 'Aarav Mehta',
+  role: 'Student',
+  avatar: 'https://images.unsplash.com/photo-1529665253569-6d01c0eaf7d3?q=80&w=2685&auto=format&fit=crop',
+  eventsAttended: 12,
+  xp: 840,
 };
 
 export const mockEvents: Event[] = [
   {
     id: 'e1',
-    title: 'Downtown Winter Shelter Restock',
-    organizer: 'Rose City Relief',
-    location: 'Portland Metro Area',
-    distance: '1.2 mi away',
-    description: 'Preparing for the incoming freeze. We urgently need thermal blankets, warm socks, and volunteers to help sort and distribute items this weekend before temperatures drop below freezing.',
+    title: 'Inter-College Hackathon 2025',
+    organizer: 'IEEE RCCIIT',
+    clubName: 'IEEE Student Branch',
+    location: 'Seminar Hall, Block C',
+    distance: 'On Campus',
+    description: '36-hour hackathon open to all departments. Build something that solves a real campus problem. Solo or team up to 4. Prizes for Top 3 teams plus special sponsor awards.',
     urgency: 'high',
-    image: 'https://images.unsplash.com/photo-1593113565694-c6ccdd8dcb15?q=80&w=2669&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=2670&auto=format&fit=crop',
     needs: {
-      volunteers: { current: 15, goal: 30 },
-      goods: ['Thermal blankets', 'Warm socks', 'Jackets'],
+      volunteers: { current: 28, goal: 60 },
     },
-    progress: 65,
-    category: 'Urgent Needs',
+    progress: 46,
+    category: 'Hackathon',
+    tags: ['open to all', 'registration required', 'prizes'],
+    eventDate: '2025-08-10',
   },
   {
     id: 'e2',
-    title: 'Weekly Pantry Distribution',
-    organizer: 'PDX Food Bank',
-    location: 'Portland Metro Area',
-    distance: '3.5 mi',
-    description: 'Assisting with traffic flow, loading boxes into cars, and registering new families for our Tuesday distribution.',
+    title: 'Figma to Code: UI/UX Workshop',
+    organizer: 'Google Developer Student Club',
+    clubName: 'GDSC RCCIIT',
+    location: 'CS Lab 2, Block A',
+    distance: 'On Campus',
+    description: 'Learn the end-to-end product design pipeline. We\'ll start in Figma, prototype an app, and hand off to a React implementation. Laptops required.',
     urgency: 'normal',
-    image: 'https://images.unsplash.com/photo-1594708767771-a7502209ff51?q=80&w=2670&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=2671&auto=format&fit=crop',
     needs: {
-      volunteers: { current: 5, goal: 10 },
-      funds: { current: 200, goal: 500 },
+      volunteers: { current: 12, goal: 40 },
     },
-    progress: 40,
-    category: 'Food Drive',
+    progress: 30,
+    category: 'Workshop',
+    tags: ['bring laptop', 'open to all'],
+    eventDate: '2025-07-22',
   },
   {
     id: 'e3',
-    title: 'Park Cleanup & Planting',
-    organizer: 'Neighborhood Org',
-    location: 'Seattle Area',
-    distance: '0.8 mi',
-    description: 'Spring is here! Help us clear winter debris and plant native shrubs at Mt. Tabor. Tools provided.',
+    title: 'Tarang 2025 — Annual Cultural Fest',
+    organizer: 'Students\' Union, RCCIIT',
+    clubName: 'Cultural Committee',
+    location: 'Open Air Stage, Main Campus',
+    distance: 'On Campus',
+    description: 'Three days of music, dance, drama, fashion, and art. Participate in individual or group events across 20+ categories. Open for all colleges.',
     urgency: 'normal',
-    image: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=2574&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=2670&auto=format&fit=crop',
     needs: {
-      volunteers: { current: 25, goal: 50 },
+      volunteers: { current: 40, goal: 80 },
+      funds: { current: 12000, goal: 30000 },
     },
     progress: 50,
-    category: 'Volunteers',
+    category: 'Cultural Fest',
+    tags: ['inter-college', 'performances', 'prizes'],
+    eventDate: '2025-09-05',
   },
   {
     id: 'e4',
-    title: 'School Supply Drive 2024',
-    organizer: 'Education First',
-    location: 'Eugene/Springfield',
-    distance: 'Online',
-    description: 'Raising funds to purchase bulk backpacks and supplies for 500 local students before the fall semester.',
-    urgency: 'normal',
-    image: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=2673&auto=format&fit=crop',
+    title: 'Campus Placement Prep Seminar',
+    organizer: 'Training & Placement Cell',
+    location: 'Auditorium, Block B',
+    distance: 'On Campus',
+    description: 'Comprehensive placement prep covering resume building, aptitude strategies, group discussions, and mock technical interviews. Mandatory for final-year students.',
+    urgency: 'high',
+    image: 'https://images.unsplash.com/photo-1554774853-719586f82d77?q=80&w=2670&auto=format&fit=crop',
     needs: {
-      funds: { current: 3200, goal: 5000 },
+      volunteers: { current: 5, goal: 10 },
     },
-    progress: 64,
-    category: 'Urgent Needs',
+    progress: 50,
+    category: 'Career Fair',
+    tags: ['final year', 'free', 'registration required'],
+    eventDate: '2025-07-18',
   },
   {
     id: 'e5',
-    title: 'Community Mental Health Workshop',
-    organizer: 'NexusAid',
-    location: 'Community Center',
-    distance: '2.1 mi away',
-    description: 'A free workshop on managing stress and supporting neighbors during difficult times. No image provided, should show fallback logo.',
+    title: 'Mental Wellness Week',
+    organizer: 'CampusPulse Student Welfare',
+    location: 'Student Activity Centre',
+    distance: 'On Campus',
+    description: 'A week-long initiative including mindfulness sessions, peer support groups, creative therapy workshops, and a closing open-mic night. All sessions are free and confidential.',
     urgency: 'normal',
     image: '',
     needs: {
-      volunteers: { current: 2, goal: 10 },
+      volunteers: { current: 3, goal: 15 },
     },
     progress: 20,
-    category: 'Community',
-  }
+    category: 'Social',
+    tags: ['open to all', 'free', 'wellbeing'],
+    eventDate: '2025-08-01',
+  },
 ];
 
 export const mockMessages: Message[] = [
-  { id: 'm1', eventId: 'e1', userId: 'u2', text: 'Does anyone have a truck? We need to move palettes.', timestamp: '10:30 AM' },
-  { id: 'm2', eventId: 'e1', userId: 'u3', text: 'I can bring my F150. Be there in 20.', timestamp: '10:35 AM' },
-  { id: 'm3', eventId: 'e1', userId: 'u1', text: 'Thank you! See you at the loading dock.', timestamp: '10:38 AM' },
+  { id: 'm1', eventId: 'e1', userId: 'u2', text: 'Do we need to submit a project idea beforehand?', timestamp: '10:30 AM' },
+  { id: 'm2', eventId: 'e1', userId: 'u3', text: 'Yes, idea form closes 48 hours before the event!', timestamp: '10:35 AM' },
+  { id: 'm3', eventId: 'e1', userId: 'u1', text: 'Thanks for clarifying! Submitting ours now.', timestamp: '10:38 AM' },
 ];

@@ -1,5 +1,42 @@
 import { Timestamp } from 'firebase/firestore';
 
+// ─── Student Interests / Clubs ───────────────────────────
+export type StudentInterest =
+  | 'coding'
+  | 'design'
+  | 'music'
+  | 'sports'
+  | 'debate'
+  | 'photography'
+  | 'entrepreneurship'
+  | 'gaming'
+  | 'literature'
+  | 'film'
+  | 'dance'
+  | 'robotics'
+  | 'community service'
+  | 'mathematics'
+  | 'science'
+  | 'art'
+  | 'theatre'
+  | 'journalism';
+
+export type Department =
+  | 'Computer Science'
+  | 'Electronics'
+  | 'Mechanical'
+  | 'Civil'
+  | 'Electrical'
+  | 'Information Technology'
+  | 'Business Administration'
+  | 'Arts & Humanities'
+  | 'Law'
+  | 'Medicine'
+  | 'Architecture'
+  | 'Other';
+
+export type AcademicYear = '1st Year' | '2nd Year' | '3rd Year' | '4th Year' | 'Postgraduate';
+
 // ─── User ───────────────────────────────────────────────
 export interface UserProfile {
   id: string;
@@ -8,13 +45,24 @@ export interface UserProfile {
   bio: string;
   location: string;
   phone: string;
-  skills: string[];
-  equipment: string[];        // e.g. ["truck", "generator", "first aid kit"]
-  travelRadius: number;       // km willing to travel (0 = not set)
-  availability: string;       // "weekdays" | "weekends" | "evenings" | "anytime"
+  // Campus-specific fields
+  department: Department | '';
+  year: AcademicYear | '';
+  rollNumber: string;
+  clubs: string[];             // clubs the student is a member of
+  interests: StudentInterest[];
+  // Gamification
+  xp: number;
+  badges: string[];
+  eventsAttended: number;
+  // Legacy / kept for compatibility
+  skills: string[];            // maps to interests under the hood
+  equipment: string[];
+  travelRadius: number;
+  availability: string;
   avatarUrl: string;
-  role: string;
-  volunteerHours: number;
+  role: string;                // 'student' | 'club_admin' | 'faculty' | 'admin'
+  volunteerHours: number;      // repurposed: total event hours
   totalDonated: number;
   profileComplete: boolean;
   createdAt: Timestamp | null;
@@ -23,11 +71,28 @@ export interface UserProfile {
 
 export type UserProfileCreate = Omit<UserProfile, 'id' | 'createdAt' | 'updatedAt'>;
 
+// ─── Event Categories ────────────────────────────────────
+export type EventCategory =
+  | 'Hackathon'
+  | 'Workshop'
+  | 'Cultural Fest'
+  | 'Sports'
+  | 'Tech Talk'
+  | 'Club Meet'
+  | 'Academic'
+  | 'Career Fair'
+  | 'Concert'
+  | 'Competition'
+  | 'Seminar'
+  | 'Social'
+  | 'Volunteer'
+  | 'Other';
+
 // ─── Event ──────────────────────────────────────────────
 export interface EventNeeds {
-  volunteers?: { current: number; goal: number };
+  volunteers?: { current: number; goal: number };   // attendee count
   funds?: { current: number; goal: number };
-  goods?: string[];
+  goods?: string[];                                  // items to bring / sponsor
 }
 
 export interface CommunityEvent {
@@ -36,23 +101,44 @@ export interface CommunityEvent {
   description: string;
   organizer: string;
   organizerId: string;
-  location: string;
+  location: string;              // venue name / room number
   distance: string;
-  category: string;
+  category: EventCategory | string;
   urgency: 'high' | 'normal';
   imageUrl: string;
-  image?: string; // Fallback for inconsistent field naming in Firestore
+  image?: string;
   needs: EventNeeds;
   progress: number;
   status: 'active' | 'completed';
   lat?: number;
   lng?: number;
   eventDate?: string;
+  // Campus-specific
+  clubName?: string;             // hosting club
+  tags?: string[];               // e.g. ['open to all', 'registration required']
+  registrationLink?: string;
+  maxAttendees?: number;
   createdAt: Timestamp | null;
   updatedAt: Timestamp | null;
 }
 
 export type CommunityEventCreate = Omit<CommunityEvent, 'id' | 'createdAt' | 'updatedAt' | 'progress' | 'status'>;
+
+// ─── RSVP / Signup ──────────────────────────────────────
+export type RSVPStatus = 'interested' | 'going' | 'attended';
+
+export interface EventRSVP {
+  id: string;
+  userId: string;
+  userName: string;
+  userEmail?: string;
+  ticketId?: string;
+  status: RSVPStatus;
+  signedUpAt: Timestamp | null;
+}
+
+// Alias kept for backward compatibility with eventService.ts
+export type Signup = EventRSVP;
 
 // ─── Donation ───────────────────────────────────────────
 export interface Donation {
@@ -61,16 +147,6 @@ export interface Donation {
   userName: string;
   amount: number;
   createdAt: Timestamp | null;
-}
-
-// ─── Signup ─────────────────────────────────────────────
-export interface Signup {
-  id: string;
-  userId: string;
-  userName: string;
-  userEmail?: string;
-  ticketId?: string;
-  signedUpAt: Timestamp | null;
 }
 
 // ─── Message ────────────────────────────────────────────
@@ -88,20 +164,29 @@ export interface GoodsPledge {
   id: string;
   userId: string;
   userName: string;
-  items: string[];        // items selected from the organizer's list
-  otherItems: string;     // custom items typed by the user
+  items: string[];
+  otherItems: string;
   pledgedAt: Timestamp | null;
 }
 
 // ─── Notification ───────────────────────────────────────
-export type NotificationType = 'event_join' | 'goods_pledge' | 'event_update' | 'sentinel' | 'profile' | 'general';
+export type NotificationType =
+  | 'event_join'
+  | 'goods_pledge'
+  | 'event_update'
+  | 'bulletin'        // replaces 'sentinel'
+  | 'profile'
+  | 'general'
+  | 'xp_earned'       // gamification: XP awarded after event
+  | 'badge_unlocked'; // gamification: new badge earned
+
 export type NotificationTone = 'alert' | 'info' | 'success';
 
 export interface NotificationData {
   id: string;
   title: string;
   body: string;
-  path: string;           // destination when clicked
+  path: string;
   type: NotificationType;
   tone: NotificationTone;
   read: boolean;

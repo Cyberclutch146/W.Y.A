@@ -10,7 +10,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { getUserAvatar } from '@/lib/avatar'
 import { NotificationData } from '@/types'
 import { subscribeToNotifications, markAsRead, markAllAsRead } from '@/services/notificationService'
-import { SentinelAlert } from '@/types/sentinel'
+import { BulletinAlert } from '@/types/bulletin'
 
 const lora = Lora({ subsets: ['latin'], weight: ['400', '600', '700'] })
 
@@ -104,19 +104,19 @@ export default function NavbarTop() {
       }
 
       try {
-        const res = await fetch('/api/sentinel')
+        const res = await fetch('/api/bulletin')
         if (res.ok) {
-          const alerts: SentinelAlert[] = await res.json()
+          const alerts: BulletinAlert[] = await res.json()
           alerts
             .filter((a) => a.severity === 'Extreme' || a.severity === 'Severe')
             .slice(0, 2)
             .forEach((alert) => {
               items.push({
-                id: `sentinel-${alert.id}`,
-                title: `${alert.severity} ${alert.type.toLowerCase()} alert`,
+                id: `bulletin-${alert.id}`,
+                title: `${alert.severity} ${alert.type.toLowerCase()} bulletin`,
                 body: alert.title,
-                path: '/dashboard/sentinel',
-                type: 'sentinel',
+                path: '/dashboard/bulletin',
+                type: 'bulletin',
                 tone: 'alert',
                 read: false,
                 createdAt: null,
@@ -168,7 +168,7 @@ export default function NavbarTop() {
     { label: 'Events', path: '/feed' },
     { label: 'Organize', path: '/create' },
     { label: 'Dashboard', path: '/dashboard', exact: true },
-    { label: 'Sentinel', path: '/dashboard/sentinel' },
+    { label: 'Bulletin', path: '/dashboard/bulletin' },
     { label: 'Leaderboard', path: '/leaderboard' },
   ]
 
@@ -189,7 +189,7 @@ export default function NavbarTop() {
   const handleNotificationClick = useCallback(async (notification: NotificationData) => {
     setNotificationMenuOpen(false)
     // Mark persistent ones as read
-    if (profile?.id && !notification.id.startsWith('complete-profile') && !notification.id.startsWith('sentinel-')) {
+    if (profile?.id && !notification.id.startsWith('complete-profile') && !notification.id.startsWith('bulletin-')) {
       markAsRead(profile.id, notification.id)
     }
     router.push(notification.path)
@@ -242,7 +242,7 @@ export default function NavbarTop() {
             scrolled ? 'text-[17px]' : 'text-[22px]'
           }`}
         >
-          <span className="text-gradient-earth">NexusAid</span>
+          <span className="text-gradient-earth">CampusPulse</span>
         </button>
 
         {/* Nav Links */}
@@ -408,7 +408,7 @@ export default function NavbarTop() {
                     <button
                       onClick={() => {
                         setNotificationMenuOpen(false)
-                        router.push('/dashboard/sentinel')
+                        router.push('/dashboard/bulletin')
                       }}
                       className="mt-3 w-full rounded-[20px] px-4 py-3 text-sm font-semibold text-on-primary transition-all duration-200 hover:-translate-y-0.5"
                       style={{
@@ -416,7 +416,7 @@ export default function NavbarTop() {
                         boxShadow: '0 4px 14px rgba(59,107,74,0.22)',
                       }}
                     >
-                      Open Sentinel Center
+                      Open Campus Bulletin
                     </button>
                   </div>
                 </motion.div>

@@ -23,8 +23,8 @@ const elmsSans = Elms_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'NexusAid - Outreach & Relief',
-  description: 'Rooted in community, grown through care.',
+  title: 'CampusPulse - Campus Event Intelligence',
+  description: 'Discover, RSVP, and thrive — your campus life, supercharged.',
 };
 
 export default function RootLayout({

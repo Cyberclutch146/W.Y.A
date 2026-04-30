@@ -12,7 +12,7 @@ interface EventCardProps {
   sentinelAlerts?: SentinelAlert[];
   recommendationScore?: number;
   recommendationPercentage?: number;
-  matchedSkills?: string[];
+  matchedInterests?: string[];
 }
 
 export function EventCard({
@@ -20,7 +20,7 @@ export function EventCard({
   featured = false,
   sentinelAlerts = [],
   recommendationPercentage,
-  matchedSkills = [],
+  matchedInterests = [],
 }: EventCardProps) {
   const hasAlerts = sentinelAlerts.length > 0;
   const titleRef = useRef<HTMLHeadingElement | null>(null);
@@ -167,11 +167,11 @@ export function EventCard({
           )}
         </div>
 
-        {matchedSkills.length > 0 && (
+        {matchedInterests.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
-            {matchedSkills.slice(0, 3).map((skill) => (
+            {matchedInterests.slice(0, 3).map((interest) => (
               <span
-                key={skill}
+                key={interest}
                 className="rounded-full px-2.5 py-1 text-[11px] font-medium"
                 style={{
                   background: 'rgba(212,168,82,0.12)',
@@ -179,10 +179,10 @@ export function EventCard({
                   border: '1px solid rgba(212,168,82,0.2)',
                 }}
               >
-                {skill}
+                {interest}
               </span>
             ))}
-            {matchedSkills.length > 3 && (
+            {matchedInterests.length > 3 && (
               <span
                 className="rounded-full px-2.5 py-1 text-[11px] font-medium"
                 style={{
@@ -190,7 +190,7 @@ export function EventCard({
                   color: 'var(--color-warm-amber)',
                 }}
               >
-                +{matchedSkills.length - 3} more
+                +{matchedInterests.length - 3} more
               </span>
             )}
           </div>

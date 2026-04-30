@@ -60,7 +60,7 @@ export function keywordSearch(searchQuery: string, events: SearchableEvent[], us
 
     // User context boost
     if (userContext) {
-      if (userContext.skills?.some((s: string) => text.includes(s.toLowerCase()))) score += 3;
+      if (userContext.interests?.some((s: string) => text.includes(s.toLowerCase()))) score += 3;
       if (userContext.equipment?.some((e: string) => text.includes(e.toLowerCase()))) score += 3;
     }
 

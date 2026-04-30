@@ -12,9 +12,22 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
+let app: any;
+let auth: any;
+let db: any;
+let storage: any;
+
+if (firebaseConfig.apiKey) {
+  app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  db = getFirestore(app);
+  storage = getStorage(app);
+} else {
+  console.warn("Firebase config is missing. Authentication and database will not work.");
+  app = {};
+  auth = { currentUser: null };
+  db = {};
+  storage = {};
+}
 
 export { app, auth, db, storage };

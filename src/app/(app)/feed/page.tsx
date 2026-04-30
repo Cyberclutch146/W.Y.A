@@ -452,23 +452,23 @@ function FeedContent() {
   ];
 
   const recommendationData = (() => {
-    if (sortBy !== 'recommended' || !profile?.skills || events.length === 0) {
+    if (sortBy !== 'recommended' || (!profile?.skills && !profile?.interests) || events.length === 0) {
       return {};
     }
 
-    const recommendedEvents = getRecommendedEvents(profile.skills, events, events.length, profile.equipment || []);
+    const recommendedEvents = getRecommendedEvents(profile?.interests || profile?.skills || [], events, events.length, profile?.clubs || []);
 
     if (recommendedEvents.length === 0) {
       return {};
     }
 
     const maxScore = Math.max(...recommendedEvents.map((recommendation) => recommendation.score), 1);
-    const data: Record<string, { score: number; matchedSkills: string[]; percentage: number }> = {};
+    const data: Record<string, { score: number; matchedInterests: string[]; percentage: number }> = {};
 
     recommendedEvents.forEach((recommendation) => {
       data[recommendation.event.id] = {
         score: recommendation.score,
-        matchedSkills: recommendation.matchedSkills,
+        matchedInterests: recommendation.matchedInterests,
         percentage: Math.round((recommendation.score / maxScore) * 100),
       };
     });
@@ -986,7 +986,7 @@ function FeedContent() {
                   event={normalizedEvent}
                   sentinelAlerts={intersectingAlerts}
                   recommendationPercentage={recommendationData[event.id]?.percentage}
-                  matchedSkills={recommendationData[event.id]?.matchedSkills}
+                  matchedInterests={recommendationData[event.id]?.matchedInterests}
                 />
               );
             })}

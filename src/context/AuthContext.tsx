@@ -27,77 +27,45 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<FirebaseUser | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Mock user for testing without authentication
+  const mockUser = { uid: 'mock-uid-123', email: 'tester@campuspulse.com', displayName: 'Test Student' } as FirebaseUser;
+  const mockProfile: UserProfile = {
+    email: 'tester@campuspulse.com',
+    displayName: 'Test Student',
+    bio: 'Testing the app',
+    location: 'Campus',
+    phone: '1234567890',
+    skills: [],
+    equipment: [],
+    travelRadius: 5,
+    availability: 'anytime',
+    avatarUrl: '',
+    role: 'student',
+    volunteerHours: 10,
+    totalDonated: 0,
+    profileComplete: true,
+    department: 'Computer Science',
+    year: '3',
+    rollNumber: 'CS123',
+    clubs: ['Coding Club'],
+    interests: ['Technology', 'Hackathons'],
+    xp: 150,
+    badges: [],
+    eventsAttended: 2
+  };
+
+  const [user, setUser] = useState<FirebaseUser | null>(mockUser);
+  const [profile, setProfile] = useState<UserProfile | null>(mockProfile);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    let unsubscribeProfile: (() => void) | undefined;
-
-    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
-      setUser(user);
-      if (user) {
-        unsubscribeProfile = subscribeToUserProfile(user.uid, async (userProfile) => {
-          if (!userProfile) {
-            // Hotfix: Auto-create a missing profile if the user account exists
-            // This prevents the app from infinitely spinning on null profiles.
-            const { createUserProfile } = await import('@/services/userService');
-            await createUserProfile(user.uid, {
-              email: user.email || '',
-              displayName: user.displayName || 'Volunteer',
-              bio: '',
-              location: '',
-              phone: '',
-              skills: [],
-              equipment: [],
-              travelRadius: 0,
-              availability: 'anytime',
-              avatarUrl: '',
-              role: 'volunteer',
-              volunteerHours: 0,
-              totalDonated: 0,
-              profileComplete: false
-            });
-            // The missing snapshot will fire again upon creation.
-          } else {
-            setProfile(userProfile);
-            setLoading(false);
-          }
-        });
-      } else {
-        setProfile(null);
-        if (unsubscribeProfile) {
-          unsubscribeProfile();
-        }
-        setLoading(false);
-      }
-    });
-
-    return () => {
-      unsubscribeAuth();
-      if (unsubscribeProfile) {
-        unsubscribeProfile();
-      }
-    };
+    // Authentication is bypassed for now
   }, []);
 
-  const login = async (email: string, pass: string) => {
-    await signInWithEmailAndPassword(auth, email, pass);
-  };
-
-  const register = async (email: string, pass: string) => {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-    return userCredential.user;
-  };
-
-  const loginWithGoogle = async () => {
-    const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
-  };
-
-  const logout = async () => {
-    await firebaseSignOut(auth);
-  };
+  const login = async (email: string, pass: string) => {};
+  const register = async (email: string, pass: string) => mockUser;
+  const loginWithGoogle = async () => {};
+  const logout = async () => {};
 
   return (
     <AuthContext.Provider value={{ user, profile, loading, login, register, loginWithGoogle, logout }}>

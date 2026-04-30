@@ -212,29 +212,29 @@ export const addVolunteerSignup = async (eventId: string, userId: string, userNa
     // ── Fire notifications (best-effort, don't block the flow) ──
     try {
       const event = await getEventById(eventId);
-      if (event) {
-        // Notify the volunteer
-        await createNotification(userId, {
-          title: `You joined "${event.title}"!`,
-          body: ticketId
-            ? `Your ticket ID is ${ticketId}. See you there!`
-            : 'You\'re all set. See you at the event!',
-          path: `/event/${eventId}`,
-          type: 'event_join',
-          tone: 'success',
-        });
-
-        // Notify the organizer
-        if (event.organizerId && event.organizerId !== userId) {
-          await createNotification(event.organizerId, {
-            title: `New volunteer: ${userName}`,
-            body: `${userName} just signed up for "${event.title}".`,
-            path: `/dashboard/event/${eventId}`,
+        if (event) {
+          // Notify the attendee
+          await createNotification(userId, {
+            title: `You're registered for "${event.title}"!`,
+            body: ticketId
+              ? `Your ticket ID is ${ticketId}. See you there!`
+              : 'You\'re all set — see you at the event!',
+            path: `/event/${eventId}`,
             type: 'event_join',
-            tone: 'info',
+            tone: 'success',
           });
+
+          // Notify the organizer
+          if (event.organizerId && event.organizerId !== userId) {
+            await createNotification(event.organizerId, {
+              title: `New attendee: ${userName}`,
+              body: `${userName} just registered for "${event.title}".`,
+              path: `/dashboard/event/${eventId}`,
+              type: 'event_join',
+              tone: 'info',
+            });
+          }
         }
-      }
     } catch (notifError) {
       console.warn('Non-critical: notification dispatch failed', notifError);
     }
@@ -351,7 +351,7 @@ export const pledgeGoods = async (
       const allItems = [...items, ...(otherItems ? [otherItems] : [])];
       const itemSummary = allItems.slice(0, 3).join(', ') + (allItems.length > 3 ? ` +${allItems.length - 3} more` : '');
 
-      // Notify the volunteer
+      // Notify the attendee
       await createNotification(userId, {
         title: `Pledge confirmed for "${event.title}"`,
         body: `You're bringing: ${itemSummary}. Thank you!`,

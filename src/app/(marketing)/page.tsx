@@ -10,8 +10,8 @@ import { useAuth } from '@/context/AuthContext';
 
 export default function LandingPage() {
   const { user, loading } = useAuth();
-  const primaryHref = user ? '/home' : '/register';
-  const primaryLabel = user ? 'Home' : 'Join Us';
+  const primaryHref = '/home';
+  const primaryLabel = 'Dashboard';
 
   return (
     <div className="min-h-screen bg-background text-on-background font-body relative overflow-x-hidden selection:bg-primary/20">
@@ -61,12 +61,6 @@ export default function LandingPage() {
               {primaryLabel}
               <ArrowRight size={14} />
             </Link>
-            {!user && !loading && (
-              <Link href="/login" className="inline-flex items-center gap-2 px-0 py-4 bg-transparent text-on-surface-variant font-medium text-[13px] tracking-wider uppercase hover:text-on-background transition-colors group">
-                Login
-                <ArrowRight size={14} className="transform transition-transform group-hover:translate-x-1" />
-              </Link>
-            )}
           </div>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -216,15 +210,9 @@ export default function LandingPage() {
           </div>
           <div className="flex flex-col gap-4 lg:w-max lg:ml-auto">
             <Link href={primaryHref} className="inline-flex items-center justify-center gap-2 px-12 py-5 bg-on-primary text-primary font-medium text-[13px] tracking-wider uppercase hover:bg-background transition-colors">
-              {user ? 'Just Home' : 'Apply to Volunteer'}
+              {primaryLabel}
               <ArrowRight size={14} />
             </Link>
-            {!user && !loading && (
-              <Link href="/login" className="inline-flex items-center justify-center gap-2 px-12 py-5 border border-on-primary/20 text-on-primary font-medium text-[13px] tracking-wider uppercase hover:bg-white/8 transition-colors">
-                Login
-                <ArrowRight size={14} />
-              </Link>
-            )}
           </div>
         </motion.div>
       </section>

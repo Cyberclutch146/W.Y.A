@@ -16,10 +16,10 @@ export function SideNav() {
   
   const navItems = [
     { name: 'Feed', href: '/feed', icon: 'dashboard' },
-    { name: 'Dashboard', href: '/dashboard', icon: 'volunteer_activism' },
-    { name: 'Sentinel', href: '/dashboard/sentinel', icon: 'security' },
+    { name: 'Dashboard', href: '/dashboard', icon: 'school' },
+    { name: 'Bulletin', href: '/dashboard/bulletin', icon: 'campaign' },
     { name: 'Leaderboard', href: '/leaderboard', icon: 'emoji_events' },
-    { name: 'Create', href: '/create', icon: 'inventory_2' },
+    { name: 'Create', href: '/create', icon: 'add_circle' },
     { name: 'Profile', href: '/profile', icon: 'settings' },
   ];
 
@@ -43,11 +43,11 @@ export function SideNav() {
             boxShadow: '0 4px 14px rgba(59, 107, 74, 0.25)',
           }}
         >
-          <span className="material-symbols-outlined" style={{fontVariationSettings: "'FILL' 1"}}>energy_savings_leaf</span>
+          <span className="material-symbols-outlined" style={{fontVariationSettings: "'FILL' 1"}}>school</span>
         </div>
         <div>
-          <h1 className="font-headline text-lg font-bold tracking-tight text-gradient-earth">NexusAid</h1>
-          <p className="font-body text-xs text-on-surface-variant">Local Response Team</p>
+          <h1 className="font-headline text-lg font-bold tracking-tight text-gradient-earth">CampusPulse</h1>
+          <p className="font-body text-xs text-on-surface-variant">Student Event Hub</p>
         </div>
       </Link>
       
@@ -97,7 +97,7 @@ export function SideNav() {
           )}
           <div>
             <p className="text-sm font-semibold text-on-surface">{profile?.displayName || 'User'}</p>
-            <p className="text-xs text-on-surface-variant">{profile?.role || 'Volunteer'}</p>
+            <p className="text-xs text-on-surface-variant">{profile?.role || 'Student'}</p>
           </div>
         </Link>
       </div>
@@ -304,8 +304,8 @@ export function MobileBottomNav() {
     { name: 'Home', href: '/home', icon: 'home', exact: true },
     { name: 'Feed', href: '/feed', icon: 'dashboard', exact: true },
     { name: 'Create', href: '/create', icon: 'add_circle', exact: true },
-    { name: 'Dashboard', href: '/dashboard', icon: 'volunteer_activism', exact: true },
-    { name: 'Sentinel', href: '/dashboard/sentinel', icon: 'security' },
+    { name: 'Dashboard', href: '/dashboard', icon: 'school', exact: true },
+    { name: 'Bulletin', href: '/dashboard/bulletin', icon: 'campaign' },
   ];
 
   return (

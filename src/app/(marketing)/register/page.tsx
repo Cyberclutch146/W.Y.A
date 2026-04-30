@@ -38,7 +38,7 @@ export default function RegisterPage() {
         displayName: fullName,
         email,
         location,
-        role: 'volunteer',
+        role: 'student',
         skills: [],
         equipment: [],
         travelRadius: 0,
@@ -48,7 +48,15 @@ export default function RegisterPage() {
         avatarUrl: '',
         volunteerHours: 0,
         totalDonated: 0,
-        profileComplete: false
+        profileComplete: false,
+        department: '',
+        year: '',
+        rollNumber: '',
+        clubs: [],
+        interests: [],
+        xp: 0,
+        badges: [],
+        eventsAttended: 0
       });
       router.replace('/home');
     } catch (err: any) {
