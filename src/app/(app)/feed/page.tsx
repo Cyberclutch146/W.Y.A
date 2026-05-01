@@ -477,124 +477,76 @@ function FeedContent() {
   })();
 
   return (
-    <div className="flex-1 flex flex-col text-on-surface w-full">
+    <div className="flex-1 flex flex-col text-black w-full">
       <main className="flex-1 max-w-7xl mx-auto w-full px-3 py-4 pb-32 sm:px-4 md:p-10 md:pb-10">
-        <div className="relative z-30 mb-8 flex flex-col gap-4 animate-fade-in-up lg:flex-row lg:items-center lg:justify-between">
+
+        {/* Header */}
+        <div className="relative z-30 mb-8 flex flex-col gap-4 animate-fade-in-up lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0">
-            <p className="text-secondary font-semibold mb-1 text-sm uppercase tracking-wider">Local Events Feed</p>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif tracking-tight text-gradient-earth">Discover & Support</h2>
-            <p className="mt-3 max-w-xl text-sm leading-relaxed text-on-surface-variant sm:text-base">
-              Find local community events and support neighbors in need.
+            <div
+              className="inline-flex items-center gap-2 px-3 py-1 border-2 border-black text-xs font-black uppercase tracking-widest mb-3 bg-[#ccdcff]"
+              style={{ boxShadow: '2px 2px 0 #000' }}
+            >
+              <span className="material-symbols-outlined text-sm">explore</span>
+              Discovery Feed
+            </div>
+            <h2 className="text-4xl sm:text-5xl font-black tracking-tight text-black uppercase leading-none">
+              Discover &amp; <span className="bg-[#ffd93d] px-2 border-4 border-black">Support</span>
+            </h2>
+            <p className="mt-3 max-w-xl text-sm leading-relaxed text-black/60 font-medium">
+              Find local campus events and support your community.
             </p>
             {searchQuery && (
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                <span className="text-sm text-on-surface-variant">Showing results for</span>
-                <span
-                  className="max-w-full rounded-full px-3 py-1 text-sm font-semibold break-all"
-                  style={{ background: 'rgba(59,107,74,0.1)', color: 'var(--color-primary-base)' }}
-                >
+                <span className="text-sm text-black/60 font-medium">Results for</span>
+                <span className="border-2 border-black px-3 py-0.5 text-sm font-black bg-[#ffd93d]" style={{ boxShadow: '2px 2px 0 #000' }}>
                   &ldquo;{searchQuery}&rdquo;
                 </span>
                 {isAIPowered && (
-                  <span
-                    className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full"
-                    style={{ background: 'rgba(212,168,82,0.12)', color: 'var(--color-warm-amber)', border: '1px solid rgba(212,168,82,0.2)' }}
-                  >
-                    <Sparkles size={12} />
-                    AI-powered
+                  <span className="inline-flex items-center gap-1 text-xs font-black border-2 border-black px-2.5 py-1 bg-[#93f59c]" style={{ boxShadow: '2px 2px 0 #000' }}>
+                    <Sparkles size={12} />AI-powered
                   </span>
                 )}
-                <button onClick={() => setSearchQuery('')} className="text-xs text-on-surface-variant hover:text-error transition-colors ml-1">✕ Clear</button>
+                <button onClick={() => setSearchQuery('')} className="text-xs font-black border-2 border-black px-2 py-0.5 bg-white hover:bg-red-100 transition-colors ml-1">✕ Clear</button>
               </div>
             )}
           </div>
+
           <div className="flex w-full flex-col gap-3 lg:w-auto lg:items-end">
-            <div className="grid w-full gap-3 sm:flex sm:flex-wrap sm:items-center lg:justify-end">
+            <div className="flex w-full gap-2 sm:flex-wrap sm:items-center lg:justify-end">
               {/* View Toggle */}
-              <div
-                className="flex w-full rounded-full p-1 sm:w-auto"
-                style={{
-                  background: 'var(--glass-bg)',
-                  backdropFilter: 'blur(12px)',
-                  border: '1px solid var(--glass-border)',
-                  boxShadow: '0 2px 8px rgba(42,45,43,0.04)',
-                }}
-              >
-                <button
-                  onClick={() => setViewMode('list')}
-                  className={`flex-1 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300 sm:flex-none ${viewMode === 'list'
-                    ? 'text-on-primary'
-                    : 'text-on-surface-variant hover:text-on-surface'
-                    }`}
-                  style={viewMode === 'list' ? {
-                    background: 'linear-gradient(135deg, var(--color-primary-base), var(--color-moss))',
-                    boxShadow: '0 2px 8px rgba(59,107,74,0.25)',
-                  } : undefined}
-                >
-                  List
-                </button>
-                <button
-                  onClick={() => setViewMode('map')}
-                  className={`flex-1 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300 sm:flex-none ${viewMode === 'map'
-                    ? 'text-on-primary'
-                    : 'text-on-surface-variant hover:text-on-surface'
-                    }`}
-                  style={viewMode === 'map' ? {
-                    background: 'linear-gradient(135deg, var(--color-primary-base), var(--color-moss))',
-                    boxShadow: '0 2px 8px rgba(59,107,74,0.25)',
-                  } : undefined}
-                >
-                  Map
-                </button>
+              <div className="flex border-2 border-black" style={{ boxShadow: '2px 2px 0 #000' }}>
+                {(['list', 'map'] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    onClick={() => setViewMode(mode)}
+                    className={`px-4 py-2 text-sm font-black uppercase transition-all ${viewMode === mode ? 'bg-black text-white' : 'bg-white text-black hover:bg-[#ffd93d]'}`}
+                  >
+                    {mode}
+                  </button>
+                ))}
               </div>
+
               {/* Location Chip */}
-              <div
-                className="flex w-full items-center rounded-full px-4 py-2 sm:max-w-[250px]"
-                style={{
-                  background: 'var(--glass-bg)',
-                  backdropFilter: 'blur(12px)',
-                  border: '1px solid var(--glass-border)',
-                }}
-              >
-                <span className="material-symbols-outlined text-[var(--color-terracotta)] mr-2 text-sm shrink-0">location_on</span>
-                <span className="text-sm font-medium text-on-surface truncate" title={userLocation}>
-                  {userLocation}
-                </span>
+              <div className="flex items-center border-2 border-black px-3 py-2 bg-white flex-1 sm:flex-none sm:max-w-[220px]" style={{ boxShadow: '2px 2px 0 #000' }}>
+                <span className="material-symbols-outlined text-sm mr-2 shrink-0">location_on</span>
+                <span className="text-xs font-black uppercase truncate" title={userLocation}>{userLocation}</span>
               </div>
             </div>
 
             <div className="ml-auto flex w-auto items-center gap-2 sm:contents">
+              {/* Filter Button */}
               <div className={`relative shrink-0 ${filterMenuOpen ? 'z-50' : 'z-40'}`} ref={filterMenuRef}>
                 <button
                   onClick={() => setFilterMenuOpen((open) => !open)}
                   aria-label="Open filters"
-                  className="relative inline-flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold transition-all duration-300 hover:-translate-y-0.5 sm:h-auto sm:w-auto sm:gap-2 sm:px-4 sm:py-2"
-                  style={{
-                    background: filterMenuOpen || activeFilterCount > 0
-                      ? 'linear-gradient(135deg, var(--color-primary-base), var(--color-moss))'
-                      : 'var(--glass-bg)',
-                    color: filterMenuOpen || activeFilterCount > 0
-                      ? 'var(--color-on-primary-base)'
-                      : 'var(--color-on-surface-base)',
-                    backdropFilter: 'blur(12px)',
-                    border: filterMenuOpen || activeFilterCount > 0
-                      ? '1px solid transparent'
-                      : '1px solid var(--glass-border)',
-                    boxShadow: filterMenuOpen || activeFilterCount > 0
-                      ? '0 3px 12px rgba(59,107,74,0.25)'
-                      : '0 2px 8px rgba(42,45,43,0.04)',
-                  }}
+                  className={`relative inline-flex h-11 w-11 items-center justify-center border-2 border-black text-sm font-black transition-all sm:h-auto sm:w-auto sm:gap-2 sm:px-4 sm:py-2 uppercase ${filterMenuOpen || activeFilterCount > 0 ? 'bg-black text-white' : 'bg-white text-black hover:bg-[#ffd93d]'}`}
+                  style={{ boxShadow: filterMenuOpen || activeFilterCount > 0 ? 'none' : '2px 2px 0 #000' }}
                 >
                   <SlidersHorizontal size={16} />
                   <span className="hidden sm:inline">Filters</span>
                   {activeFilterCount > 0 && (
-                    <span
-                      className="absolute -right-1 -top-1 inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-[11px] font-bold sm:static"
-                      style={{
-                        background: filterMenuOpen || activeFilterCount > 0 ? 'rgba(255,255,255,0.18)' : 'rgba(59,107,74,0.08)',
-                        border: activeFilterCount > 0 && !filterMenuOpen ? '1px solid rgba(59,107,74,0.12)' : undefined,
-                      }}
-                    >
+                    <span className="absolute -right-1 -top-1 sm:static inline-flex min-w-5 items-center justify-center border border-white/40 bg-[#ffd93d] text-black px-1 py-0.5 text-[11px] font-black sm:bg-transparent sm:text-white">
                       {activeFilterCount}
                     </span>
                   )}
@@ -603,204 +555,89 @@ function FeedContent() {
 
                 {filterMenuOpen && (
                   <div
-                    className="fixed inset-x-3 top-20 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-50 overflow-y-auto rounded-[28px] p-4 md:absolute md:right-0 md:top-full md:bottom-auto md:mt-3 md:w-[min(24rem,calc(100vw-2rem))] md:overflow-hidden md:p-5"
-                    style={{
-                      background: 'var(--color-surface-base)',
-                      backdropFilter: 'blur(28px) saturate(1.5)',
-                      WebkitBackdropFilter: 'blur(28px) saturate(1.5)',
-                      border: '1px solid var(--glass-border)',
-                      boxShadow: 'var(--glass-shadow-lg)',
-                    }}
+                    className="fixed inset-x-3 top-20 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-50 overflow-y-auto p-4 md:absolute md:right-0 md:top-full md:bottom-auto md:mt-2 md:w-[min(24rem,calc(100vw-2rem))] md:overflow-hidden md:p-5 border-4 border-black bg-white"
+                    style={{ boxShadow: '6px 6px 0 #000' }}
                   >
                     <div className="mb-4 flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-base font-semibold text-on-surface">Filter events</p>
-                        <p className="mt-1 text-xs leading-relaxed text-on-surface-variant">Narrow the feed by urgency, support type, distance, and category.</p>
-                      </div>
+                      <p className="text-base font-black text-black uppercase">Filter Events</p>
                       <button
                         onClick={() => setFilters(DEFAULT_FILTERS)}
-                        className="shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors hover:text-primary"
-                        style={{
-                          background: 'color-mix(in srgb, var(--color-primary-base) 10%, var(--color-surface-container-low-base) 90%)',
-                          border: '1px solid color-mix(in srgb, var(--color-primary-base) 14%, var(--glass-border) 86%)',
-                        }}
+                        className="border-2 border-black px-3 py-1 text-xs font-black bg-[#ffd93d] hover:bg-black hover:text-white transition-colors uppercase"
+                        style={{ boxShadow: '2px 2px 0 #000' }}
                       >
                         Reset
                       </button>
                     </div>
 
-                    {activeFilters.length > 0 && (
-                      <div
-                        className="mb-4 rounded-2xl p-3"
-                        style={{
-                          background: 'color-mix(in srgb, var(--color-primary-base) 7%, var(--color-surface-container-low-base) 93%)',
-                          border: '1px solid color-mix(in srgb, var(--color-primary-base) 12%, var(--glass-border) 88%)',
-                        }}
-                      >
-                        <div className="mb-2 flex items-center justify-between gap-2">
-                          <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-on-surface-variant">Active filters</span>
-                          <span className="text-xs font-medium text-primary">{activeFilterCount} applied</span>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          {activeFilters.map((filterItem) => (
-                            <span
-                              key={filterItem.key}
-                              className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold"
-                              style={{
-                                background: 'color-mix(in srgb, var(--color-surface-container-lowest-base) 88%, transparent)',
-                                border: '1px solid var(--glass-border)',
-                              }}
-                            >
-                              {filterItem.label}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
                     <div className="space-y-3">
-                      <div
-                        className="rounded-[22px] p-3.5"
-                        style={{ background: 'var(--glass-bg)', border: '1px solid var(--glass-border)' }}
-                      >
-                        <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-on-surface-variant">Urgency</span>
-                        <div className="grid grid-cols-1 gap-2 min-[380px]:grid-cols-3">
-                          {[
-                            { value: 'all', label: 'All' },
-                            { value: 'high', label: 'Urgent' },
-                            { value: 'normal', label: 'Normal' },
-                          ].map((option) => {
-                            const active = filters.urgency === option.value;
+                      {/* Urgency */}
+                      <div className="border-2 border-black p-3">
+                        <span className="mb-2 block text-xs font-black uppercase tracking-wider">Urgency</span>
+                        <div className="grid grid-cols-3 gap-2">
+                          {[{ value: 'all', label: 'All' }, { value: 'high', label: 'Urgent' }, { value: 'normal', label: 'Normal' }].map((o) => {
+                            const active = filters.urgency === o.value;
                             return (
-                              <button
-                                key={option.value}
-                                onClick={() => setFilters((current) => ({ ...current, urgency: option.value as FilterState['urgency'] }))}
-                                className="rounded-2xl px-3 py-2.5 text-sm font-semibold transition-all duration-200"
-                                style={active ? {
-                                  background: 'linear-gradient(135deg, var(--color-primary-base), var(--color-moss))',
-                                  color: 'var(--color-on-primary-base)',
-                                  boxShadow: '0 3px 10px rgba(59,107,74,0.22)',
-                                } : {
-                                  background: 'color-mix(in srgb, var(--color-surface-container-lowest-base) 92%, transparent)',
-                                  color: 'var(--color-on-surface-base)',
-                                  border: '1px solid var(--glass-border)',
-                                }}
-                              >
-                                {option.label}
+                              <button key={o.value} onClick={() => setFilters((c) => ({ ...c, urgency: o.value as FilterState['urgency'] }))}
+                                className={`px-3 py-2 text-xs font-black border-2 border-black uppercase transition-all ${active ? 'bg-black text-white' : 'bg-white text-black hover:bg-[#ffd93d]'}`}>
+                                {o.label}
                               </button>
                             );
                           })}
                         </div>
                       </div>
 
-                      <div
-                        className="rounded-[22px] p-3.5"
-                        style={{ background: 'var(--glass-bg)', border: '1px solid var(--glass-border)' }}
-                      >
-                        <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-on-surface-variant">Support Needed</span>
-                        <div className="grid grid-cols-1 gap-2 min-[380px]:grid-cols-2">
-                          {[
-                            { value: 'all', label: 'Any' },
-                            { value: 'volunteers', label: 'Volunteers' },
-                            { value: 'funds', label: 'Funds' },
-                            { value: 'goods', label: 'Goods' },
-                          ].map((option) => {
-                            const active = filters.need === option.value;
-                            return (
-                              <button
-                                key={option.value}
-                                onClick={() => setFilters((current) => ({ ...current, need: option.value as FilterState['need'] }))}
-                                className="rounded-2xl px-3 py-2.5 text-sm font-semibold transition-all duration-200"
-                                style={active ? {
-                                  background: 'linear-gradient(135deg, var(--color-primary-base), var(--color-moss))',
-                                  color: 'var(--color-on-primary-base)',
-                                  boxShadow: '0 3px 10px rgba(59,107,74,0.22)',
-                                } : {
-                                  background: 'color-mix(in srgb, var(--color-surface-container-lowest-base) 92%, transparent)',
-                                  color: 'var(--color-on-surface-base)',
-                                  border: '1px solid var(--glass-border)',
-                                }}
-                              >
-                                {option.label}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-
-                      <div
-                        className="rounded-[22px] p-3.5"
-                        style={{ background: 'var(--glass-bg)', border: '1px solid var(--glass-border)' }}
-                      >
-                        <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-on-surface-variant">Distance</span>
+                      {/* Need */}
+                      <div className="border-2 border-black p-3">
+                        <span className="mb-2 block text-xs font-black uppercase tracking-wider">Support Needed</span>
                         <div className="grid grid-cols-2 gap-2">
-                          {[
-                            { value: 'all', label: 'Any distance' },
-                            { value: 'within-5', label: 'Within 5 mi' },
-                            { value: 'within-15', label: 'Within 15 mi' },
-                            { value: 'within-30', label: 'Within 30 mi' },
-                          ].map((option) => {
-                            const active = filters.distance === option.value;
+                          {[{ value: 'all', label: 'Any' }, { value: 'volunteers', label: 'Volunteers' }, { value: 'funds', label: 'Funds' }, { value: 'goods', label: 'Goods' }].map((o) => {
+                            const active = filters.need === o.value;
                             return (
-                              <button
-                                key={option.value}
-                                onClick={() => setFilters((current) => ({ ...current, distance: option.value as FilterState['distance'] }))}
-                                className="rounded-2xl px-3 py-2.5 text-sm font-semibold transition-all duration-200"
-                                style={active ? {
-                                  background: 'linear-gradient(135deg, var(--color-primary-base), var(--color-moss))',
-                                  color: 'var(--color-on-primary-base)',
-                                  boxShadow: '0 3px 10px rgba(59,107,74,0.22)',
-                                } : {
-                                  background: 'color-mix(in srgb, var(--color-surface-container-lowest-base) 92%, transparent)',
-                                  color: 'var(--color-on-surface-base)',
-                                  border: '1px solid var(--glass-border)',
-                                }}
-                              >
-                                {option.label}
+                              <button key={o.value} onClick={() => setFilters((c) => ({ ...c, need: o.value as FilterState['need'] }))}
+                                className={`px-3 py-2 text-xs font-black border-2 border-black uppercase transition-all ${active ? 'bg-black text-white' : 'bg-white text-black hover:bg-[#ffd93d]'}`}>
+                                {o.label}
                               </button>
                             );
                           })}
                         </div>
                       </div>
 
-                      <label
-                        className="block rounded-[22px] p-3.5"
-                        style={{ background: 'var(--glass-bg)', border: '1px solid var(--glass-border)' }}
-                      >
-                        <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-on-surface-variant">Category</span>
+                      {/* Distance */}
+                      <div className="border-2 border-black p-3">
+                        <span className="mb-2 block text-xs font-black uppercase tracking-wider">Distance</span>
+                        <div className="grid grid-cols-2 gap-2">
+                          {[{ value: 'all', label: 'Any' }, { value: 'within-5', label: 'Within 5 mi' }, { value: 'within-15', label: 'Within 15 mi' }, { value: 'within-30', label: 'Within 30 mi' }].map((o) => {
+                            const active = filters.distance === o.value;
+                            return (
+                              <button key={o.value} onClick={() => setFilters((c) => ({ ...c, distance: o.value as FilterState['distance'] }))}
+                                className={`px-3 py-2 text-xs font-black border-2 border-black uppercase transition-all ${active ? 'bg-black text-white' : 'bg-white text-black hover:bg-[#ffd93d]'}`}>
+                                {o.label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Category */}
+                      <div className="border-2 border-black p-3">
+                        <span className="mb-2 block text-xs font-black uppercase tracking-wider">Category</span>
                         <select
                           value={filters.category}
-                          onChange={(event) => setFilters((current) => ({ ...current, category: event.target.value }))}
-                          className="w-full rounded-2xl px-4 py-3 text-sm outline-none"
-                          style={{
-                            background: 'color-mix(in srgb, var(--color-surface-container-lowest-base) 92%, transparent)',
-                            color: 'var(--color-on-surface-base)',
-                            border: '1px solid var(--glass-border)',
-                          }}
+                          onChange={(e) => setFilters((c) => ({ ...c, category: e.target.value }))}
+                          className="w-full border-2 border-black px-3 py-2 text-sm font-black bg-white outline-none focus:ring-2 focus:ring-[#ffd93d]"
                         >
                           <option value="all">All categories</option>
-                          {categoryOptions.map((category) => (
-                            <option key={category} value={category}>{category}</option>
-                          ))}
+                          {categoryOptions.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
                         </select>
-                      </label>
+                      </div>
                     </div>
 
-                    <div
-                      className="mt-4 flex flex-col gap-3 rounded-2xl px-3.5 py-3 sm:flex-row sm:items-center sm:justify-between"
-                      style={{ background: 'color-mix(in srgb, var(--color-surface-container-high-base) 78%, transparent)' }}
-                    >
-                      <div>
-                        <p className="text-sm font-semibold text-on-surface">{sortedEvents.length} matching events</p>
-                        <p className="text-xs text-on-surface-variant">Results update instantly as you refine the feed.</p>
-                      </div>
+                    <div className="mt-4 border-2 border-black p-3 bg-[#ffd93d]/20 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <p className="text-sm font-black text-black uppercase">{sortedEvents.length} events match</p>
                       <button
                         onClick={() => setFilterMenuOpen(false)}
-                        className="w-full rounded-full px-4 py-2 text-sm font-semibold text-on-primary transition-all duration-200 hover:-translate-y-0.5 sm:w-auto"
-                        style={{
-                          background: 'linear-gradient(135deg, var(--color-primary-base), var(--color-moss))',
-                          boxShadow: '0 3px 10px rgba(59,107,74,0.22)',
-                        }}
+                        className="border-2 border-black px-4 py-2 text-sm font-black bg-black text-white hover:bg-[#ffd93d] hover:text-black transition-colors uppercase"
+                        style={{ boxShadow: '2px 2px 0 #555' }}
                       >
                         Done
                       </button>
@@ -809,26 +646,13 @@ function FeedContent() {
                 )}
               </div>
 
+              {/* Sort Button */}
               <div className={`relative shrink-0 ${filterMenuOpen ? 'z-30' : 'z-40'}`} ref={sortMenuRef}>
                 <button
                   onClick={() => setSortMenuOpen((open) => !open)}
-                  aria-label={`Open sort menu. Current sort ${sortLabel}`}
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold transition-all duration-300 hover:-translate-y-0.5 sm:h-auto sm:w-auto sm:justify-center sm:gap-2 sm:px-4 sm:py-2"
-                  style={{
-                    background: sortMenuOpen
-                      ? 'linear-gradient(135deg, var(--color-primary-base), var(--color-moss))'
-                      : 'var(--glass-bg)',
-                    color: sortMenuOpen
-                      ? 'var(--color-on-primary-base)'
-                      : 'var(--color-on-surface-base)',
-                    backdropFilter: 'blur(12px)',
-                    border: sortMenuOpen
-                      ? '1px solid transparent'
-                      : '1px solid var(--glass-border)',
-                    boxShadow: sortMenuOpen
-                      ? '0 3px 12px rgba(59,107,74,0.25)'
-                      : '0 2px 8px rgba(42,45,43,0.04)',
-                  }}
+                  aria-label={`Sort: ${sortLabel}`}
+                  className={`inline-flex h-11 w-11 items-center justify-center border-2 border-black text-sm font-black transition-all sm:h-auto sm:w-auto sm:gap-2 sm:px-4 sm:py-2 uppercase ${sortMenuOpen ? 'bg-black text-white' : 'bg-white text-black hover:bg-[#ffd93d]'}`}
+                  style={{ boxShadow: sortMenuOpen ? 'none' : '2px 2px 0 #000' }}
                 >
                   <ArrowUpDown size={16} />
                   <span className="hidden sm:inline">Sort: {sortLabel}</span>
@@ -837,46 +661,22 @@ function FeedContent() {
 
                 {sortMenuOpen && (
                   <div
-                    className="fixed inset-x-3 top-20 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-50 overflow-y-auto rounded-[28px] p-4 md:absolute md:right-0 md:top-full md:bottom-auto md:mt-3 md:w-[min(21rem,calc(100vw-2rem))] md:overflow-hidden md:p-5"
-                    style={{
-                      background: 'var(--color-surface-base)',
-                      backdropFilter: 'blur(28px) saturate(1.5)',
-                      WebkitBackdropFilter: 'blur(28px) saturate(1.5)',
-                      border: '1px solid var(--glass-border)',
-                      boxShadow: 'var(--glass-shadow-lg)',
-                    }}
+                    className="fixed inset-x-3 top-20 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-50 overflow-y-auto p-4 md:absolute md:right-0 md:top-full md:bottom-auto md:mt-2 md:w-[min(21rem,calc(100vw-2rem))] md:overflow-hidden md:p-5 border-4 border-black bg-white"
+                    style={{ boxShadow: '6px 6px 0 #000' }}
                   >
-                    <div className="mb-4">
-                      <p className="text-base font-semibold text-on-surface">Sort events</p>
-                      <p className="mt-1 text-xs leading-relaxed text-on-surface-variant">Choose how the feed should be ordered.</p>
-                    </div>
-
+                    <p className="text-base font-black text-black uppercase mb-4">Sort Events</p>
                     <div className="space-y-2">
                       {sortOptions.map((option) => {
                         const active = sortBy === option.value;
-
                         return (
                           <button
                             key={option.value}
-                            onClick={() => {
-                              setSortBy(option.value);
-                              setSortMenuOpen(false);
-                              setSortChanged(true);
-                              setTimeout(() => setSortChanged(false), 500);
-                            }}
-                            className="w-full rounded-[22px] px-4 py-3 text-left transition-all duration-200"
-                            style={active ? {
-                              background: 'linear-gradient(135deg, var(--color-primary-base), var(--color-moss))',
-                              color: 'var(--color-on-primary-base)',
-                              boxShadow: '0 3px 10px rgba(59,107,74,0.22)',
-                            } : {
-                              background: 'color-mix(in srgb, var(--color-surface-container-lowest-base) 92%, transparent)',
-                              color: 'var(--color-on-surface-base)',
-                              border: '1px solid var(--glass-border)',
-                            }}
+                            onClick={() => { setSortBy(option.value); setSortMenuOpen(false); setSortChanged(true); setTimeout(() => setSortChanged(false), 500); }}
+                            className={`w-full border-2 border-black px-4 py-3 text-left transition-all ${active ? 'bg-black text-white' : 'bg-white text-black hover:bg-[#ffd93d]'}`}
+                            style={{ boxShadow: active ? 'none' : '2px 2px 0 #000' }}
                           >
-                            <div className="text-sm font-semibold">{option.label}</div>
-                            <div className={`mt-1 text-xs leading-relaxed ${active ? 'text-on-primary/80' : 'text-on-surface-variant'}`}>{option.description}</div>
+                            <div className="text-sm font-black uppercase">{option.label}</div>
+                            <div className={`mt-0.5 text-xs font-medium ${active ? 'text-white/70' : 'text-black/50'}`}>{option.description}</div>
                           </button>
                         );
                       })}
@@ -888,98 +688,69 @@ function FeedContent() {
           </div>
         </div>
 
-        {/* Skill-Based Recommendations — only show when sorting by recommended */}
+        {/* Skill Match Banner */}
         {(sortBy === 'recommended' && !searchQuery) || bannerHiding ? (
           <div className={bannerHiding ? 'animate-slide-up' : 'animate-slide-down'}>
             <SkillMatchBanner condensed />
           </div>
         ) : null}
 
+        {/* Active Filter Chips */}
         {activeFilters.length > 0 && (
           <section className="mb-8 animate-fade-in-up delay-100">
             <div className="flex flex-wrap items-center gap-2.5">
               {activeFilters.map((filterItem) => (
                 <button
                   key={filterItem.key}
-                  onClick={() => setFilters((current) => ({ ...current, [filterItem.key]: DEFAULT_FILTERS[filterItem.key] }))}
-                  className="flex items-center gap-2 rounded-full px-3.5 py-2 text-sm font-semibold transition-all duration-300 hover:-translate-y-0.5 sm:px-4"
-                  style={{
-                    background: 'var(--glass-bg)',
-                    backdropFilter: 'blur(12px)',
-                    border: '1px solid var(--glass-border)',
-                  }}
+                  onClick={() => setFilters((c) => ({ ...c, [filterItem.key]: DEFAULT_FILTERS[filterItem.key] }))}
+                  className="flex items-center gap-2 border-2 border-black px-3 py-1.5 text-sm font-black bg-[#ccdcff] hover:bg-[#ffd93d] transition-colors uppercase"
+                  style={{ boxShadow: '2px 2px 0 #000' }}
                 >
                   {filterItem.label}
-                  <X size={14} className="text-on-surface-variant" />
+                  <X size={14} />
                 </button>
               ))}
-              <button
-                onClick={() => setFilters(DEFAULT_FILTERS)}
-                className="text-sm font-semibold text-on-surface-variant transition-colors hover:text-primary"
-              >
+              <button onClick={() => setFilters(DEFAULT_FILTERS)} className="text-sm font-black text-black/60 hover:text-black transition-colors border-b-2 border-black/30 uppercase">
                 Clear all
               </button>
             </div>
           </section>
         )}
 
+        {/* Events Grid / Map / Loading / Empty */}
         {loading || searchLoading ? (
           <div className="flex flex-col justify-center items-center py-20 gap-3">
-            <div className="relative">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-              <div className="absolute inset-0 rounded-full animate-subtle-pulse" style={{ boxShadow: '0 0 30px rgba(59,107,74,0.15)' }} />
-            </div>
+            <div className="w-12 h-12 border-4 border-black border-t-[#ffd93d] rounded-full animate-spin" />
             {searchLoading && (
-              <p className="text-sm text-on-surface-variant flex items-center gap-2 mt-2">
-                <Sparkles size={14} style={{ color: 'var(--color-warm-amber)' }} />
+              <p className="text-sm font-black flex items-center gap-2 mt-2 uppercase">
+                <Sparkles size={14} />
                 Searching with AI...
               </p>
             )}
           </div>
         ) : sortedEvents.length === 0 ? (
-          <div
-            className="rounded-2xl p-6 text-center animate-fade-in-up sm:p-10"
-            style={{
-              background: 'var(--glass-bg)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid var(--glass-border)',
-            }}
-          >
-            <span className="material-symbols-outlined text-4xl mb-4 text-primary">event_busy</span>
-            <h3 className="font-headline text-xl font-bold mb-2 text-on-surface">No events found</h3>
-            <p className="text-on-surface-variant">No events are currently scheduled matching this criteria. Be the first to create one!</p>
+          <div className="border-4 border-black p-6 text-center animate-fade-in-up bg-white sm:p-10" style={{ boxShadow: '6px 6px 0 #000' }}>
+            <span className="material-symbols-outlined text-4xl mb-4 block">event_busy</span>
+            <h3 className="font-black text-xl uppercase mb-2 text-black">No events found</h3>
+            <p className="text-black/60 font-medium">No events match this criteria. Be the first to create one!</p>
           </div>
         ) : viewMode === 'map' ? (
           <div
-            className="mt-4 h-[min(70vh,32rem)] w-full overflow-hidden rounded-2xl animate-fade-in-up md:h-[600px]"
-            style={{ border: '1px solid var(--glass-border)', boxShadow: 'var(--glass-shadow)' }}
+            className="mt-4 h-[min(70vh,32rem)] w-full overflow-hidden border-4 border-black animate-fade-in-up md:h-[600px]"
+            style={{ boxShadow: '6px 6px 0 #000' }}
           >
             <MapWrapper events={sortedEvents} alerts={alerts} />
           </div>
         ) : (
           <div className={`grid grid-cols-1 gap-4 min-[560px]:grid-cols-2 sm:gap-6 lg:grid-cols-3 ${sortChanged ? 'animate-cards-reorder' : ''}`}>
             {sortedEvents.map((event) => {
-              const imageUrl = event.imageUrl || '/images/event-placeholder.jpg';
-
-              const normalizedEvent = {
-                ...event,
-                imageUrl: imageUrl,
-              };
-
-              // Compute overlapping alerts
+              const normalizedEvent = { ...event, imageUrl: event.imageUrl || '/images/event-placeholder.jpg' };
               const intersectingAlerts = alerts.filter((alert: SentinelAlert) => {
                 if (!event.lat || !event.lng) return false;
-
-                if (alert.polygon && alert.polygon.length > 0) {
-                  return isPointInPolygon({ lat: event.lat, lng: event.lng }, alert.polygon);
-                } else if (alert.coordinates) {
-                  // 30 mile radius for point alerts
-                  const dist = getDistanceMiles(event.lat, event.lng, alert.coordinates.lat, alert.coordinates.lng);
-                  return dist <= 30;
-                }
+                if (alert.polygon && alert.polygon.length > 0) return isPointInPolygon({ lat: event.lat, lng: event.lng }, alert.polygon);
+                else if (alert.coordinates) return getDistanceMiles(event.lat, event.lng, alert.coordinates.lat, alert.coordinates.lng) <= 30;
                 return false;
               });
-
               return (
                 <EventCard
                   key={event.id}
@@ -993,27 +764,18 @@ function FeedContent() {
           </div>
         )}
 
+        {/* Load More */}
         {hasMore && !loading && !searchQuery && (
           <div className="mt-12 flex justify-center">
             <button
               onClick={loadMore}
               disabled={loadingMore}
-              className="px-8 py-3 rounded-full font-semibold text-sm transition-all duration-300 disabled:opacity-50 flex items-center gap-2 hover:-translate-y-0.5"
-              style={{
-                background: 'var(--glass-bg)',
-                backdropFilter: 'blur(16px)',
-                border: '1px solid var(--glass-border)',
-                color: 'var(--color-on-surface-base)',
-              }}
+              className="px-8 py-3 border-2 border-black font-black text-sm uppercase bg-white text-black hover:bg-[#ffd93d] transition-colors disabled:opacity-50 flex items-center gap-2"
+              style={{ boxShadow: '3px 3px 0 #000' }}
             >
               {loadingMore ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
-                  Loading...
-                </>
-              ) : (
-                'Load More Events'
-              )}
+                <><div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />Loading...</>
+              ) : 'Load More Events'}
             </button>
           </div>
         )}
