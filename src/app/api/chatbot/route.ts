@@ -114,8 +114,8 @@ export async function POST(req: Request) {
       ? `\nCURRENT SENTINEL SAFETY ALERTS IN EFFECT:\n` + sentinelAlerts.slice(0, 3).map((a: any) => `- ${a.severity} ${a.type}: ${a.title} (${String(a.description || "").slice(0, 120)})`).join("\n") + `\nAlways warn users about these active safety alerts when relevant to events.`
       : "";
 
-    const systemInstruction = `You are the NexusAid AI Assistant. 
-You are a helpful, empathetic, and encouraging assistant for a community event and volunteering platform.
+    const systemInstruction = `You are the CampusPulse AI Assistant. 
+You are a helpful, empathetic, and encouraging assistant for a campus event and volunteering platform.
 Your primary goal is to help users discover events, learn how to volunteer or donate, and guide them on organizing new events.
 
 ${userContext}

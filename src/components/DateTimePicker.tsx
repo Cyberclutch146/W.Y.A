@@ -101,7 +101,7 @@ export default function DateTimePicker({ value, onChange }: DateTimePickerProps)
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full bg-surface-container-low border border-outline-variant/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-left flex items-center justify-between transition-colors hover:bg-surface-container"
+        className="w-full border-4 border-black px-4 py-3 text-sm outline-none text-left flex items-center justify-between transition-all hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
       >
         <span className={displayValue ? 'text-on-surface font-medium' : 'text-on-surface-variant'}>
           {displayValue || 'Select Date & Time'}
@@ -110,24 +110,24 @@ export default function DateTimePicker({ value, onChange }: DateTimePickerProps)
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 top-full left-0 mt-2 p-4 bg-surface-bright rounded-2xl shadow-xl border border-outline-variant/30 w-full sm:w-[320px] animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute z-50 top-full left-0 mt-2 p-4 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] w-full sm:w-[320px]" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
           
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
             <button 
               type="button"
               onClick={handlePrevMonth}
-              className="p-1 hover:bg-surface-container rounded-lg text-on-surface-variant hover:text-on-surface transition-colors"
+              className="p-1 hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors border-2 border-black"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
-            <div className="font-semibold text-on-surface">
+            <div className="font-headline font-black text-on-surface uppercase tracking-tight">
               {monthNames[currentMonth]} {currentYear}
             </div>
             <button 
               type="button"
               onClick={handleNextMonth}
-              className="p-1 hover:bg-surface-container rounded-lg text-on-surface-variant hover:text-on-surface transition-colors"
+              className="p-1 hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors border-2 border-black"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
@@ -159,12 +159,12 @@ export default function DateTimePicker({ value, onChange }: DateTimePickerProps)
                   type="button"
                   onClick={() => handleDateSelect(day)}
                   className={`
-                    w-full aspect-square flex items-center justify-center rounded-lg text-sm transition-all
+                    w-full aspect-square flex items-center justify-center text-sm transition-all border
                     ${isSelected 
-                      ? 'bg-primary text-on-primary font-bold shadow-md shadow-primary/20 scale-105' 
+                      ? 'bg-primary text-on-primary font-black border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]' 
                       : isToday
-                        ? 'bg-primary/10 text-primary font-semibold hover:bg-primary/20'
-                        : 'text-on-surface hover:bg-surface-container font-medium'
+                        ? 'bg-primary/10 text-primary font-bold border-black'
+                        : 'text-on-surface hover:bg-surface-container font-medium border-transparent'
                     }
                   `}
                 >
@@ -174,10 +174,10 @@ export default function DateTimePicker({ value, onChange }: DateTimePickerProps)
             })}
           </div>
 
-          <div className="h-px bg-outline-variant/30 w-full mb-4" />
+          <div className="h-[2px] bg-black w-full mb-4" />
 
           {/* Time Picker */}
-          <div className="flex items-center justify-between bg-surface-container-low p-3 rounded-xl border border-outline-variant/30">
+          <div className="flex items-center justify-between p-3 border-4 border-black" style={{ background: 'var(--color-surface-container-base)' }}>
             <div className="flex items-center gap-2 text-on-surface-variant">
               <Clock className="w-4 h-4" />
               <span className="text-sm font-medium">Time</span>
@@ -186,7 +186,7 @@ export default function DateTimePicker({ value, onChange }: DateTimePickerProps)
               <select 
                 value={hours}
                 onChange={(e) => handleTimeChange('hours', e.target.value)}
-                className="bg-surface-bright border border-outline-variant/50 rounded-lg px-2 py-1 text-sm focus:outline-none focus:border-primary text-on-surface"
+                className="border-4 border-black px-2 py-1 text-sm outline-none text-on-surface" style={{ background: 'var(--color-surface-container-lowest-base)' }}
               >
                 {Array.from({ length: 24 }).map((_, i) => {
                   const val = i.toString().padStart(2, '0');
@@ -197,7 +197,7 @@ export default function DateTimePicker({ value, onChange }: DateTimePickerProps)
               <select 
                 value={minutes}
                 onChange={(e) => handleTimeChange('minutes', e.target.value)}
-                className="bg-surface-bright border border-outline-variant/50 rounded-lg px-2 py-1 text-sm focus:outline-none focus:border-primary text-on-surface"
+                className="border-4 border-black px-2 py-1 text-sm outline-none text-on-surface" style={{ background: 'var(--color-surface-container-lowest-base)' }}
               >
                 {Array.from({ length: 12 }).map((_, i) => {
                   const val = (i * 5).toString().padStart(2, '0');
@@ -211,7 +211,7 @@ export default function DateTimePicker({ value, onChange }: DateTimePickerProps)
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="w-full mt-4 bg-primary text-on-primary py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-container hover:text-on-primary-container transition-colors"
+              className="w-full mt-4 py-2.5 text-sm font-label font-black uppercase tracking-wider border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all" style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}
             >
               Confirm Date
             </button>

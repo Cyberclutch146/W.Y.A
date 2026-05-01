@@ -7,7 +7,7 @@ import { SentinelAlert } from '@/types/sentinel';
 const MapAreaComponent = dynamic(() => import('./MapArea'), { 
   ssr: false,
   loading: () => (
-    <div className="h-full w-full bg-[#f0eee9] animate-pulse rounded-2xl flex items-center justify-center text-[#1f3d2b]/40 border border-black/5 shadow-sm">
+    <div className="h-full w-full animate-pulse flex items-center justify-center text-on-surface-variant border-4 border-black" style={{ background: 'var(--color-surface-container-base)' }}>
       <div className="flex flex-col items-center gap-2">
         <svg className="animate-spin h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>

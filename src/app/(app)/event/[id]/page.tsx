@@ -108,7 +108,7 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
         },
         body: JSON.stringify({
           to: smsNumber,
-          message: `Hi! You are invited to join "${event.title}" on NexusAid. Location: ${event.location}. Please open the platform to volunteer or support this event.`,
+          message: `Hi! You are invited to join "${event.title}" on CampusPulse. Location: ${event.location}. Please open the platform to volunteer or support this event.`,
           url: window.location.href     
         }),
       });
@@ -134,13 +134,7 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
   if (loading) {
     return (
       <main className="flex-1 p-6 md:p-10 max-w-7xl mx-auto w-full pb-28 md:pb-10 flex justify-center items-center">
-        <div className="relative">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-          <div
-            className="absolute inset-0 rounded-full animate-subtle-pulse"
-            style={{ boxShadow: '0 0 30px rgba(59,107,74,0.15)' }}
-          />
-        </div>
+        <div className="w-12 h-12 border-4 border-black border-t-transparent animate-spin" />
       </main>
     );
   }
@@ -172,27 +166,21 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
 
   return (
     <main className="flex-1 p-4 md:p-10 max-w-7xl mx-auto w-full pb-28 md:pb-10">
-      <div className="mb-6 animate-fade-in-up">
+      <div className="mb-6">
         <Link
           href="/feed"
-          className="inline-flex items-center text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors"
+          className="inline-flex items-center gap-2 text-sm font-label font-bold uppercase tracking-wider text-on-surface-variant hover:text-on-surface transition-colors px-3 py-2 border-2 border-black/30 hover:border-black hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all duration-150"
+          style={{ background: 'var(--color-surface-container-base)' }}
         >
-          <span className="material-symbols-outlined text-[18px] mr-1">
-            arrow_back
-          </span>
+          <span className="material-symbols-outlined text-[18px]">arrow_back</span>
           Back to Feed
         </Link>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1">
-          <div
-            className="w-full h-64 md:h-96 rounded-[24px] overflow-hidden mb-8 relative animate-fade-in-up"
-            style={{
-              boxShadow: 'var(--glass-shadow-lg)',
-              border: '1px solid var(--glass-border)',
-            }}
-          >
+          {/* Hero Image */}
+          <div className="w-full h-64 md:h-96 overflow-hidden mb-8 relative border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
             <Image
               src={event.imageUrl || event.image || '/logo.svg'}
               alt={event.title || 'Event'}
@@ -201,106 +189,90 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
             />
           </div>
 
-          <div className="mb-8 animate-fade-in-up delay-100">
-            <div className="flex items-center gap-2 mb-4">
+          {/* Event Info */}
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-4 flex-wrap">
               <span
-                className="material-symbols-outlined text-[20px] p-1.5 rounded-full"
-                style={{
-                  background: 'rgba(59,107,74,0.1)',
-                  color: 'var(--color-primary-base)',
-                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-label font-bold uppercase tracking-[0.14em] border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                style={{ background: 'var(--color-secondary-container-base)', color: 'var(--color-on-secondary-container-base)' }}
               >
-                verified
-              </span>
-              <span className="text-base font-bold text-on-surface-variant">
+                <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
                 {event.organizer}
               </span>
-              <span className="text-on-surface-variant/40 mx-1">•</span>
-              <div className="flex items-center text-on-surface-variant text-sm font-medium">
-                <span className="material-symbols-outlined text-[16px] mr-1">
-                  location_on
-                </span>
+              <span
+                className="inline-flex items-center gap-1 px-3 py-1.5 text-[10px] font-label font-bold uppercase tracking-[0.14em] border-2 border-black"
+                style={{ background: 'var(--color-surface-container-base)' }}
+              >
+                <span className="material-symbols-outlined text-sm">location_on</span>
                 {event.distance}
-              </div>
+              </span>
             </div>
 
-            <h1 className="font-headline text-3xl md:text-5xl font-bold text-on-surface mb-4 leading-tight tracking-tight">
+            <h1 className="font-headline font-black text-3xl md:text-5xl uppercase tracking-tight text-on-surface mb-4 leading-none">
               {event.title}
             </h1>
 
             <p className="text-on-surface-variant text-base leading-relaxed max-w-2xl mb-6">
-              Join neighbors in supporting this local initiative and stay informed about any nearby safety alerts.
+              Join your campus in supporting this initiative and stay informed about any nearby safety alerts.
             </p>
 
+            {/* Admin Controls */}
             {isAdmin && (
               <div
-                className="mb-6 p-4 rounded-[20px] flex items-center justify-between"
-                style={{
-                  background: 'rgba(184,50,48,0.05)',
-                  border: '1px solid rgba(184,50,48,0.15)',
-                }}
+                className="mb-6 p-4 flex items-center justify-between border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                style={{ background: 'var(--color-error-container-base)' }}
               >
                 <div>
-                  <p className="text-red-800 dark:text-red-300 font-bold text-sm uppercase tracking-wider">
+                  <p className="font-label font-black text-sm uppercase tracking-wider" style={{ color: 'var(--color-on-error-container-base)' }}>
                     Admin Controls
                   </p>
-                  <p className="text-red-600 dark:text-red-400 text-sm">
-                    You have administrative privileges to manage this event.
+                  <p className="text-sm opacity-80" style={{ color: 'var(--color-on-error-container-base)' }}>
+                    You have administrative privileges.
                   </p>
                 </div>
 
                 <button
                   onClick={handleDeleteEvent}
-                  className="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2"
-                  style={{ boxShadow: '0 3px 12px rgba(220,38,38,0.25)' }}
+                  className="px-5 py-2.5 font-label font-black text-sm uppercase tracking-wider border-4 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 flex items-center gap-2 bg-red-600 text-white"
                 >
                   <Trash2 size={18} />
-                  Delete Event
+                  Delete
                 </button>
               </div>
             )}
 
+            {/* Safety Alerts */}
             {intersectingAlerts.length > 0 && (
               <div
-                className="mb-6 p-5 rounded-[20px]"
-                style={{
-                  background: 'rgba(212,168,82,0.06)',
-                  border: '1px solid rgba(212,168,82,0.2)',
-                  boxShadow: '0 4px 16px rgba(212,168,82,0.06)',
-                }}
+                className="mb-6 p-5 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                style={{ background: 'var(--color-tertiary-container-base)' }}
               >
-                <div
-                  className="flex items-center gap-2 font-bold mb-3"
-                  style={{ color: 'var(--color-warm-amber)' }}
-                >
+                <div className="flex items-center gap-2 font-headline font-black uppercase tracking-tight mb-3 text-on-surface">
                   <AlertTriangle size={20} />
-                  <h3 className="text-lg">Sentinel Safety Awareness</h3>
+                  <h3 className="text-lg">Safety Alerts</h3>
                 </div>
 
                 <div className="space-y-3">
                   {intersectingAlerts.map((alert) => (
                     <div
                       key={alert.id}
-                      className="flex flex-col sm:flex-row sm:items-start gap-3 p-3 rounded-xl"
-                      style={{
-                        background: 'var(--glass-bg)',
-                        border: '1px solid var(--glass-border)',
-                      }}
+                      className="flex flex-col sm:flex-row sm:items-start gap-3 p-3 border-2 border-black"
+                      style={{ background: 'var(--color-surface-container-base)' }}
                     >
                       <span
-                        className={`px-2.5 py-1 text-xs font-bold rounded-lg whitespace-nowrap w-fit ${
+                        className={`px-2.5 py-1 text-[10px] font-label font-black uppercase tracking-wider whitespace-nowrap w-fit border-2 border-black ${
                           alert.severity === 'Extreme'
-                            ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+                            ? 'bg-red-500 text-white'
                             : alert.severity === 'Severe'
-                              ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300'
-                              : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
+                              ? 'bg-orange-400 text-black'
+                              : 'bg-amber-300 text-black'
                         }`}
                       >
                         {alert.severity} • {alert.type}
                       </span>
 
                       <div className="flex-1">
-                        <p className="text-sm font-semibold text-on-surface mb-0.5">
+                        <p className="text-sm font-body font-bold text-on-surface mb-0.5">
                           {alert.title}
                         </p>
                         <p className="text-xs text-on-surface-variant line-clamp-2">
@@ -311,32 +283,26 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
                   ))}
                 </div>
 
-                <p
-                  className="text-xs font-medium mt-4 flex items-center gap-1.5 p-2.5 rounded-lg"
-                  style={{
-                    background: 'rgba(212,168,82,0.08)',
-                    color: 'var(--color-warm-amber)',
-                  }}
-                >
+                <p className="text-xs font-label font-bold uppercase tracking-wider mt-4 flex items-center gap-1.5 p-2.5 border-2 border-black text-on-surface" style={{ background: 'var(--color-surface-container-base)' }}>
                   <Info size={14} className="flex-shrink-0" />
-                  Please exercise caution if you plan to attend. Conditions may change rapidly.
+                  Please exercise caution if you plan to attend.
                 </p>
               </div>
             )}
 
-            <p className="text-on-surface-variant text-lg leading-relaxed mb-6">
+            <p className="text-on-surface-variant text-lg leading-relaxed mb-6 font-body">
               {event.description}
             </p>
 
             {/* Social Sharing */}
             <div className="flex flex-wrap items-center gap-3 mb-6">
-              <span className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">
+              <span className="text-[10px] font-label font-black uppercase tracking-[0.14em] text-on-surface-variant">
                 Share:
               </span>
 
               <a
                 href={`https://wa.me/?text=${encodeURIComponent(
-                  `🌿 Check out "${event.title}" on NexusAid!\n\n${event.description?.slice(
+                  `🚀 Check out "${event.title}" on CampusPulse!\n\n${event.description?.slice(
                     0,
                     120
                   )}...\n\n📍 ${event.location}\n\n👉 ${
@@ -345,40 +311,31 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all hover:-translate-y-0.5 active:scale-95"
-                style={{
-                  background: 'rgba(37, 211, 102, 0.1)',
-                  color: '#25D366',
-                  border: '1px solid rgba(37, 211, 102, 0.2)',
-                }}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-label font-bold uppercase tracking-wider border-2 border-black hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all duration-150 bg-green-400 text-black"
               >
                 WhatsApp
               </a>
 
               <a
                 href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
-                  `🌿 Check out "${event.title}" — a community initiative at ${event.location}! #NexusAid #Community`
+                  `🚀 Check out "${event.title}" — a campus event at ${event.location}! #CampusPulse`
                 )}&url=${encodeURIComponent(
                   typeof window !== 'undefined' ? window.location.href : ''
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all hover:-translate-y-0.5 active:scale-95"
-                style={{
-                  background: 'rgba(29, 161, 242, 0.1)',
-                  color: '#1DA1F2',
-                  border: '1px solid rgba(29, 161, 242, 0.2)',
-                }}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-label font-bold uppercase tracking-wider border-2 border-black hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all duration-150 bg-sky-400 text-black"
               >
                 Post on X
               </a>
             </div>
 
-            {/* SMS Invite */}
+            {/* Social Sharing */}
           </div>
 
+          {/* Progress Bar */}
           {event.needs?.funds && (
-            <div className="mb-10 premium-glass p-6 animate-fade-in-up delay-200">
+            <div className="mb-10 p-6 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" style={{ background: 'var(--color-surface-container-base)' }}>
               <ProgressBar
                 current={event.needs.funds.current}
                 goal={event.needs.funds.goal}
@@ -387,7 +344,8 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
             </div>
           )}
 
-          <div className="mt-10 animate-fade-in-up delay-300">
+          {/* Chat & Leaderboard */}
+          <div className="mt-10">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <ChatBox eventId={event.id} />
               <VolunteerLeaderboard eventId={event.id} />
@@ -395,7 +353,8 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
           </div>
         </div>
 
-        <div className="w-full lg:w-[400px] flex-shrink-0 animate-fade-in-up delay-200">
+        {/* Sidebar — Donation Panel */}
+        <div className="w-full lg:w-[400px] flex-shrink-0">
           <DonationPanel
             eventId={event.id}
             eventTitle={event.title}

@@ -10,8 +10,7 @@ const TEAM_MEMBERS = [
     summary: 'Leads backend architecture, managing databases, APIs, and map integrations to ensure scalable AI powered features for reliable system performance.',
     linkedin: 'https://www.linkedin.com/in/swagata-ganguly-453aa6327',
     github: 'https://github.com/Cyberclutch146',
-    gradient: 'linear-gradient(135deg, rgba(194,113,91,0.18), rgba(231,162,144,0.08))',
-    accentColor: 'var(--color-terracotta)',
+    bg: '--color-tertiary-container-base',
   },
   {
     name: 'Anuvab Das',
@@ -19,8 +18,7 @@ const TEAM_MEMBERS = [
     summary: 'Drives UI/UX design, implements payment system integration, and refines backend logic for seamless user experience and performance.',
     linkedin: 'https://www.linkedin.com/in/anv-dev/',
     github: 'https://github.com/Stewy8506',
-    gradient: 'linear-gradient(135deg, rgba(59,107,74,0.18), rgba(96,160,118,0.08))',
-    accentColor: 'var(--color-primary-base)',
+    bg: '--color-primary-container-base',
   },
   {
     name: 'Debadree Sekhar Das',
@@ -28,8 +26,7 @@ const TEAM_MEMBERS = [
     summary: 'Develops and integrates AI-driven features, powering intelligent search, content generation, and contextual automation across the platform.',
     linkedin: 'https://www.linkedin.com/in/swagata-ganguly-453aa6327',
     github: 'https://github.com/Cyberclutch146',
-    gradient: 'linear-gradient(135deg, rgba(212,168,82,0.18), rgba(139,109,46,0.08))',
-    accentColor: 'var(--color-warm-amber)',
+    bg: '--color-secondary-container-base',
   },
   {
     name: 'Dhritiman Siva',
@@ -37,8 +34,7 @@ const TEAM_MEMBERS = [
     summary: 'Builds and maintains core backend services including authentication, messaging systems, email workflows, and server-side operations.',
     linkedin: 'https://www.linkedin.com/in/dhritiman-siva-8501b9324/',
     github: 'https://github.com/Dhritiman-Siva',
-    gradient: 'linear-gradient(135deg, rgba(127,164,146,0.2), rgba(93,135,118,0.08))',
-    accentColor: 'var(--color-sage)',
+    bg: '--color-primary-container-base',
   }
 ]
 
@@ -47,46 +43,38 @@ const VALUES = [
     icon: Users,
     title: 'Community First',
     desc: 'Every interaction is built to reduce friction between people who need help and people ready to step in.',
-    tone: 'rgba(59,107,74,0.12)',
-    accent: 'var(--color-primary-base)',
+    bg: '--color-primary-container-base',
   },
   {
     icon: Globe,
     title: 'Local, Not Distant',
     desc: 'We focus on neighborhood-scale coordination so support stays immediate, visible, and actionable.',
-    tone: 'rgba(212,168,82,0.12)',
-    accent: 'var(--color-warm-amber)',
+    bg: '--color-secondary-container-base',
   },
   {
     icon: Shield,
     title: 'Trust Through Clarity',
     desc: 'Transparent organizers, visible needs, and live safety context help people act with confidence.',
-    tone: 'rgba(194,113,91,0.12)',
-    accent: 'var(--color-terracotta)',
+    bg: '--color-tertiary-container-base',
   },
 ]
 
-// --- Sub-components for better structure ---
+// --- Sub-components ---
 
 function ValueCard({ card, index }: { card: typeof VALUES[0], index: number }) {
   return (
     <div
-      className="rounded-[28px] p-7 transition-all duration-300 hover:-translate-y-1.5 animate-fade-in-up"
-      style={{
-        background: 'var(--glass-bg-strong)',
-        border: '1px solid var(--glass-border)',
-        boxShadow: 'var(--glass-shadow)',
-        animationDelay: `${200 + index * 100}ms`,
-      }}
+      className="p-6 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150"
+      style={{ background: `var(${card.bg})` }}
     >
       <div
-        className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6"
-        style={{ background: card.tone, color: card.accent }}
+        className="w-14 h-14 flex items-center justify-center mb-6 border-4 border-black"
+        style={{ background: 'var(--color-surface-container-lowest-base)' }}
       >
-        <card.icon size={28} />
+        <card.icon size={28} className="text-on-surface" />
       </div>
-      <h3 className="text-xl font-semibold text-on-surface mb-3">{card.title}</h3>
-      <p className="text-on-surface-variant leading-relaxed">{card.desc}</p>
+      <h3 className="font-headline font-black text-xl uppercase tracking-tight text-on-surface mb-3">{card.title}</h3>
+      <p className="text-on-surface-variant leading-relaxed font-body">{card.desc}</p>
     </div>
   )
 }
@@ -94,51 +82,43 @@ function ValueCard({ card, index }: { card: typeof VALUES[0], index: number }) {
 function TeamMemberCard({ member, index }: { member: typeof TEAM_MEMBERS[0], index: number }) {
   return (
     <div
-      className="group relative overflow-hidden rounded-[28px] transition-all duration-300 hover:-translate-y-1.5 animate-fade-in-up"
-      style={{
-        background: 'var(--glass-bg-strong)',
-        border: '1px solid var(--glass-border)',
-        boxShadow: 'var(--glass-shadow)',
-        animationDelay: `${300 + index * 100}ms`,
-      }}
+      className="group overflow-hidden border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 flex flex-col h-full"
+      style={{ background: 'var(--color-surface-container-lowest-base)' }}
     >
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: member.gradient }} />
+      {/* Top accent bar */}
+      <div className="h-3 border-b-4 border-black" style={{ background: `var(${member.bg})` }} />
 
-      <div className="relative z-10 flex flex-col h-full p-6">
+      <div className="flex flex-col h-full p-6">
         <div className="flex items-start justify-between gap-3">
           <div
-            className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-bold text-on-surface"
-            style={{
-              background: 'var(--glass-bg)',
-              border: '1px solid var(--glass-border)',
-              boxShadow: '0 4px 14px rgba(42,45,43,0.06)',
-            }}
+            className="w-14 h-14 flex items-center justify-center text-2xl font-headline font-black text-on-surface border-4 border-black"
+            style={{ background: `var(${member.bg})` }}
           >
             {member.name.charAt(0)}
           </div>
           <span
-            className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em]"
-            style={{ background: 'rgba(255,255,255,0.46)', color: member.accentColor, border: '1px solid var(--glass-border)' }}
+            className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-label font-bold uppercase tracking-[0.14em] border-2 border-black"
+            style={{ background: 'var(--color-surface-container-base)' }}
           >
             Core
           </span>
         </div>
 
-        <h3 className="mt-6 text-lg font-semibold text-on-surface">{member.name}</h3>
-        <p className="mt-1 text-sm font-semibold" style={{ color: member.accentColor }}>
+        <h3 className="mt-5 text-lg font-headline font-black uppercase tracking-tight text-on-surface">{member.name}</h3>
+        <p className="mt-1 text-sm font-label font-bold uppercase tracking-wider text-on-surface-variant">
           {member.role}
         </p>
-        <p className="mt-4 text-sm leading-relaxed text-on-surface-variant flex-1">
+        <p className="mt-4 text-sm leading-relaxed text-on-surface-variant flex-1 font-body">
           {member.summary}
         </p>
 
-        <div className="mt-6 flex items-center gap-3 pt-4" style={{ borderTop: '1px solid var(--glass-border)' }}>
+        <div className="mt-6 flex items-center gap-3 pt-4 border-t-2 border-black">
           <a
             href={member.linkedin}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5"
-            style={{ background: 'var(--glass-bg)', color: 'var(--color-on-surface-base)', border: '1px solid var(--glass-border)' }}
+            className="inline-flex items-center gap-2 px-3 py-2 text-sm font-label font-bold uppercase tracking-wider border-2 border-black hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all duration-150 text-on-surface"
+            style={{ background: 'var(--color-surface-container-base)' }}
             title="LinkedIn Profile"
           >
             <Briefcase size={16} />
@@ -148,8 +128,8 @@ function TeamMemberCard({ member, index }: { member: typeof TEAM_MEMBERS[0], ind
             href={member.github.includes('github.com') ? member.github : `https://${member.github}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5"
-            style={{ background: 'var(--glass-bg)', color: 'var(--color-on-surface-base)', border: '1px solid var(--glass-border)' }}
+            className="inline-flex items-center gap-2 px-3 py-2 text-sm font-label font-bold uppercase tracking-wider border-2 border-black hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all duration-150 text-on-surface"
+            style={{ background: 'var(--color-surface-container-base)' }}
             title="GitHub Profile"
           >
             <Code size={16} />
@@ -168,83 +148,60 @@ export default function AboutPage() {
     <main className="flex-1 p-4 md:p-10 max-w-7xl mx-auto w-full pb-24">
       <button
         onClick={() => router.back()}
-        className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-on-surface-variant font-semibold mb-10 hover:text-on-surface transition-all animate-fade-in-up"
-        style={{ background: 'var(--glass-bg)', border: '1px solid var(--glass-border)' }}
+        className="inline-flex items-center gap-2 px-4 py-2 text-on-surface-variant font-label font-bold uppercase tracking-wider mb-10 border-2 border-black hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all duration-150"
+        style={{ background: 'var(--color-surface-container-base)' }}
       >
         <ArrowLeft size={18} />
         Back
       </button>
 
-      <section
-        className="relative overflow-hidden rounded-[32px] p-6 md:p-8 lg:p-10 animate-fade-in-up"
-        style={{
-          background: 'var(--glass-bg-strong)',
-          backdropFilter: 'blur(24px) saturate(1.35)',
-          WebkitBackdropFilter: 'blur(24px) saturate(1.35)',
-          border: '1px solid var(--glass-border)',
-          boxShadow: 'var(--glass-shadow-lg)',
-        }}
-      >
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: `
-              radial-gradient(circle at 14% 18%, rgba(59,107,74,0.16), transparent 28%),
-              radial-gradient(circle at 84% 20%, rgba(212,168,82,0.14), transparent 24%),
-              linear-gradient(135deg, rgba(255,255,255,0.06), transparent 55%)
-            `,
-          }}
-        />
-
+      {/* Hero Section */}
+      <section className="relative overflow-hidden border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 md:p-8 lg:p-10" style={{ background: 'var(--color-primary-container-base)' }}>
         <div className="relative z-10 grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)] lg:items-end">
           <div>
             <div
-              className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em]"
-              style={{ background: 'rgba(59,107,74,0.08)', color: 'var(--color-primary-base)', border: '1px solid rgba(59,107,74,0.12)' }}
+              className="inline-flex items-center gap-2 px-3 py-1.5 text-[10px] font-label font-bold uppercase tracking-[0.16em] border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] mb-5"
+              style={{ background: 'var(--color-surface-container-lowest-base)' }}
             >
               <HeartHandshake size={14} />
               Our mission
             </div>
 
-            <h1 className="mt-5 text-4xl md:text-5xl lg:text-6xl font-serif tracking-tight text-gradient-earth">
-              Building calmer, faster community response.
+            <h1 className="font-headline font-black text-4xl md:text-5xl lg:text-6xl uppercase tracking-tight text-on-surface leading-none">
+              Building calmer, faster campus response.
             </h1>
 
-            <p className="mt-4 max-w-3xl text-lg md:text-xl text-on-surface-variant leading-relaxed">
-              NexusAid helps communities organize support, surface urgent needs, and respond with more clarity when time matters most.
+            <p className="mt-4 max-w-3xl text-lg md:text-xl text-on-surface-variant leading-relaxed font-body">
+              CampusPulse helps students organize events, surface urgent needs, and respond with more clarity when time matters most.
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3">
-              <span className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold" style={{ background: 'var(--glass-bg)', border: '1px solid var(--glass-border)' }}>
-                <Sparkles size={15} style={{ color: 'var(--color-warm-amber)' }} />
-                Human-centered coordination
+              <span className="inline-flex items-center gap-2 px-4 py-2 text-sm font-label font-bold uppercase tracking-wider border-2 border-black" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
+                <Sparkles size={15} />
+                Student-centered
               </span>
-              <span className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold" style={{ background: 'var(--glass-bg)', border: '1px solid var(--glass-border)' }}>
-                <Shield size={15} style={{ color: 'var(--color-primary-base)' }} />
-                Trusted local action
+              <span className="inline-flex items-center gap-2 px-4 py-2 text-sm font-label font-bold uppercase tracking-wider border-2 border-black" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
+                <Shield size={15} />
+                Trusted action
               </span>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             {[
-              { label: 'Designed For', value: 'Local response', tone: 'rgba(59,107,74,0.12)', accent: 'var(--color-primary-base)' },
-              { label: 'Core Focus', value: 'Urgent relief', tone: 'rgba(212,168,82,0.12)', accent: 'var(--color-warm-amber)' },
-              { label: 'Approach', value: 'Direct support', tone: 'rgba(194,113,91,0.12)', accent: 'var(--color-terracotta)' },
-              { label: 'Experience', value: 'Premium by design', tone: 'rgba(127,164,146,0.14)', accent: 'var(--color-sage)' },
+              { label: 'Designed For', value: 'Campus life' },
+              { label: 'Core Focus', value: 'Event coordination' },
+              { label: 'Approach', value: 'Direct support' },
+              { label: 'Experience', value: 'Premium by design' },
             ].map((item) => (
               <div
                 key={item.label}
-                className="rounded-[22px] p-4"
-                style={{
-                  background: 'var(--glass-bg)',
-                  border: '1px solid var(--glass-border)',
-                  boxShadow: 'var(--glass-shadow)',
-                }}
+                className="p-4 border-4 border-black"
+                style={{ background: 'var(--color-surface-container-lowest-base)' }}
               >
-                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-on-surface-variant">{item.label}</p>
-                <p className="mt-2 text-xl md:text-2xl font-semibold tracking-tight" style={{ color: item.accent }}>{item.value}</p>
-                <div className="mt-3 h-1.5 rounded-full" style={{ background: item.tone }} />
+                <p className="text-[10px] font-label font-bold uppercase tracking-[0.14em] text-on-surface-variant">{item.label}</p>
+                <p className="mt-2 text-xl md:text-2xl font-headline font-black tracking-tight text-on-surface">{item.value}</p>
+                <div className="mt-3 h-2 border-2 border-black" style={{ background: 'var(--color-secondary-container-base)' }} />
               </div>
             ))}
           </div>
@@ -252,10 +209,11 @@ export default function AboutPage() {
       </section>
 
 
-      <section className="mt-10 animate-fade-in-up delay-200">
+      {/* Values */}
+      <section className="mt-10">
         <div className="mb-6">
-          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-on-surface-variant">Principles</p>
-          <h2 className="mt-2 text-3xl md:text-4xl font-serif tracking-tight text-gradient-earth">The values behind every interaction.</h2>
+          <p className="text-[10px] font-label font-bold uppercase tracking-[0.16em] text-on-surface-variant">Principles</p>
+          <h2 className="mt-2 font-headline font-black text-3xl md:text-4xl uppercase tracking-tight text-on-surface">The values behind every interaction.</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -265,12 +223,13 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="mt-14 pt-10 animate-fade-in-up delay-300" style={{ borderTop: '1px solid var(--glass-border)' }}>
+      {/* Team */}
+      <section className="mt-14 pt-10 border-t-4 border-black">
         <div className="mb-8">
-          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-on-surface-variant">The team</p>
-          <h2 className="mt-2 text-3xl md:text-4xl font-serif tracking-tight text-gradient-earth">The people shaping the platform.</h2>
-          <p className="mt-3 text-on-surface-variant text-lg max-w-2xl">
-            A focused team of builders working across interface design, intelligence, systems, and local response tooling.
+          <p className="text-[10px] font-label font-bold uppercase tracking-[0.16em] text-on-surface-variant">The team</p>
+          <h2 className="mt-2 font-headline font-black text-3xl md:text-4xl uppercase tracking-tight text-on-surface">The people shaping the platform.</h2>
+          <p className="mt-3 text-on-surface-variant text-lg max-w-2xl font-body">
+            A focused team of builders working across interface design, intelligence, systems, and campus tooling.
           </p>
         </div>
 
@@ -281,30 +240,24 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* CTA */}
       <section
-        className="mt-12 rounded-[30px] p-6 md:p-8 animate-fade-in-up delay-500"
-        style={{
-          background: 'linear-gradient(135deg, rgba(59,107,74,0.12), rgba(139,109,46,0.08), var(--glass-bg-strong))',
-          border: '1px solid var(--glass-border)',
-          boxShadow: 'var(--glass-shadow)',
-        }}
+        className="mt-12 p-6 md:p-8 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"
+        style={{ background: 'var(--color-secondary-container-base)' }}
       >
         <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
           <div className="max-w-2xl">
-            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-on-surface-variant">Join the mission</p>
-            <h2 className="mt-2 text-3xl md:text-4xl font-serif tracking-tight text-gradient-earth">Turn local intent into coordinated action.</h2>
-            <p className="mt-3 text-on-surface-variant leading-relaxed">
-              Explore live events, volunteer where you can help most, and build stronger community response together.
+            <p className="text-[10px] font-label font-bold uppercase tracking-[0.16em] text-on-surface-variant">Join the mission</p>
+            <h2 className="mt-2 font-headline font-black text-3xl md:text-4xl uppercase tracking-tight text-on-surface">Turn campus intent into coordinated action.</h2>
+            <p className="mt-3 text-on-surface-variant leading-relaxed font-body">
+              Explore live events, volunteer where you can help most, and build stronger campus connections together.
             </p>
           </div>
 
           <button
             onClick={() => router.push('/feed')}
-            className="inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-on-primary transition-all duration-300 hover:-translate-y-0.5"
-            style={{
-              background: 'linear-gradient(135deg, var(--color-primary-base), var(--color-moss))',
-              boxShadow: '0 4px 14px rgba(59,107,74,0.24)',
-            }}
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 font-label font-black text-sm uppercase tracking-wider border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150"
+            style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}
           >
             Explore the platform
             <ArrowUpRight size={16} />

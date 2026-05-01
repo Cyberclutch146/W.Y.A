@@ -7,8 +7,8 @@ import AIChatWidget from '@/components/AIChatWidget';
 import AppAccessGate from '@/components/AppAccessGate';
 
 export const metadata: Metadata = {
-  title: 'Home - Outreach & Relief',
-  description: 'NexusAid - Local Response Team',
+  title: 'Home - CampusPulse',
+  description: 'CampusPulse - Campus Event & Volunteering Platform',
 };
 
 export default function AppLayout({

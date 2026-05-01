@@ -118,7 +118,7 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
         <div className="flex gap-2">
           <input
             type="text"
-            className="flex-1 bg-surface-container-low border border-outline-variant/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-on-surface"
+            className="flex-1 border-4 border-black px-4 py-3 text-sm outline-none text-on-surface focus:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
             placeholder="Search for a location..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -128,7 +128,7 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
             type="button"
             onClick={handleSearch}
             disabled={isSearching}
-            className="bg-secondary text-on-secondary px-4 py-3 rounded-xl font-medium hover:bg-secondary/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+            className="px-4 py-3 font-label font-bold text-sm uppercase tracking-wider border-4 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {isSearching ? (
               <span className="material-symbols-outlined animate-spin">progress_activity</span>
@@ -140,7 +140,7 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
         </div>
       </div>
 
-      <div className="h-[300px] w-full rounded-2xl overflow-hidden border border-outline-variant/30 shadow-inner relative z-0">
+      <div className="h-[300px] w-full overflow-hidden border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] relative z-0">
         <MapContainer
           center={position || [37.7749, -122.4194]}
           zoom={position ? 15 : 12}
@@ -158,7 +158,7 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
             </>
           )}
         </MapContainer>
-        <div className="absolute bottom-2 left-2 z-[400] bg-surface-container/80 backdrop-blur-sm px-2 py-1 rounded text-[10px] text-on-surface-variant pointer-events-none">
+        <div className="absolute bottom-2 left-2 z-[400] px-2 py-1 text-[10px] text-on-surface-variant pointer-events-none font-label font-bold uppercase tracking-wider border-2 border-black" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
           Click on map to pick location
         </div>
       </div>

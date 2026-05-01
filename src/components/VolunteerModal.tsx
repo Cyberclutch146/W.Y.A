@@ -175,43 +175,58 @@ export function VolunteerModal({
     return `${baseUrl}&text=${text}&details=${details}&location=${location}&dates=${dates}`;
   })();
 
+  const inputClass = "w-full px-4 py-3.5 border-4 border-black bg-transparent text-sm font-body outline-none transition-all focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:translate-x-[-2px] focus:translate-y-[-2px] placeholder:text-on-surface-variant/50";
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-md animate-in fade-in duration-300"
+        className="absolute inset-0 bg-black/70"
         onClick={onClose}
       />
       
-      <div className="relative bg-surface-bright w-full max-w-md rounded-[32px] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
-        {/* Header decoration */}
-        <div className="h-2 bg-gradient-to-r from-primary via-tertiary to-secondary" />
-        
-        <div className="p-8 md:p-10">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="font-headline text-2xl md:text-3xl font-bold text-on-surface tracking-tight">
-              {step === 'form' ? 'Be a Hero' : 'You\'re All Set!'}
+      <div
+        className="relative w-full max-w-md overflow-hidden border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
+        style={{ background: 'var(--color-surface-container-lowest-base)' }}
+      >
+        {/* Header bar */}
+        <div
+          className="px-6 py-4 border-b-4 border-black flex items-center justify-between"
+          style={{ background: 'var(--color-primary-container-base)' }}
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 flex items-center justify-center border-2 border-black" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
+              <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>
+                {step === 'form' ? 'volunteer_activism' : 'verified'}
+              </span>
+            </div>
+            <h2 className="font-headline font-black text-lg uppercase tracking-tight" style={{ color: 'var(--color-on-primary-container-base)' }}>
+              {step === 'form' ? 'Be a Hero' : "You're All Set!"}
             </h2>
-            <button 
-              onClick={onClose}
-              className="p-2 hover:bg-surface-variant rounded-full transition-all hover:rotate-90 active:scale-90"
-            >
-              <span className="material-symbols-outlined text-2xl">close</span>
-            </button>
           </div>
+          <button 
+            onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center border-2 border-black hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all duration-150"
+            style={{ background: 'var(--color-error-container-base)' }}
+          >
+            <span className="material-symbols-outlined text-base">close</span>
+          </button>
+        </div>
 
+        <div className="p-6 md:p-8">
           {step === 'form' ? (
-            <form onSubmit={handleRegister} className="space-y-6">
-              <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-secondary uppercase tracking-widest ml-1" htmlFor="name">
+            <form onSubmit={handleRegister} className="space-y-5">
+              <div>
+                <label className="block text-[10px] font-label font-bold uppercase tracking-[0.14em] text-on-surface mb-2" htmlFor="vol-name">
                   Full Name
                 </label>
-                <div className="relative group">
-                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors">person</span>
+                <div className="relative">
+                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">person</span>
                   <input
-                    id="name"
+                    id="vol-name"
                     type="text"
                     required
-                    className="w-full bg-surface-container-low border border-outline-variant/50 rounded-2xl pl-12 pr-4 py-3.5 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
+                    className={`${inputClass} pl-10`}
+                    style={{ background: 'var(--color-surface-container-base)' }}
                     placeholder="John Doe"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -219,18 +234,19 @@ export function VolunteerModal({
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-secondary uppercase tracking-widest ml-1" htmlFor="email">
+              <div>
+                <label className="block text-[10px] font-label font-bold uppercase tracking-[0.14em] text-on-surface mb-2" htmlFor="vol-email">
                   Email Address
                 </label>
                 <div className="flex gap-2">
-                  <div className="relative flex-1 group">
-                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors">mail</span>
+                  <div className="relative flex-1">
+                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">mail</span>
                     <input
-                      id="email"
+                      id="vol-email"
                       type="email"
                       required
-                      className="w-full bg-surface-container-low border border-outline-variant/50 rounded-2xl pl-12 pr-4 py-3.5 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
+                      className={`${inputClass} pl-10`}
+                      style={{ background: 'var(--color-surface-container-base)' }}
                       placeholder="john@example.com"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -240,33 +256,35 @@ export function VolunteerModal({
                     type="button"
                     onClick={handleSendOtp}
                     disabled={sendingOtp || !formData.email}
-                    className="px-5 bg-secondary text-on-secondary rounded-2xl font-bold text-sm hover:opacity-90 transition-all disabled:opacity-50 active:scale-95 whitespace-nowrap shadow-sm shadow-secondary/20"
+                    className="px-4 font-label font-black text-xs uppercase tracking-wider border-4 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 disabled:opacity-50 whitespace-nowrap"
+                    style={{ background: 'var(--color-secondary-container-base)', color: 'var(--color-on-secondary-container-base)' }}
                   >
                     {sendingOtp ? '...' : 'Verify'}
                   </button>
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-secondary uppercase tracking-widest ml-1" htmlFor="otp">
+              <div>
+                <label className="block text-[10px] font-label font-bold uppercase tracking-[0.14em] text-on-surface mb-2" htmlFor="vol-otp">
                   Verification Code
                 </label>
-                <div className="relative group">
-                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors">lock</span>
+                <div className="relative">
+                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">lock</span>
                   <input
-                    id="otp"
+                    id="vol-otp"
                     type="text"
                     required
                     maxLength={6}
-                    className="w-full bg-surface-container-low border border-outline-variant/50 rounded-2xl pl-12 pr-4 py-3.5 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-mono tracking-[0.5em] text-center text-lg"
+                    className={`${inputClass} pl-10 font-mono tracking-[0.5em] text-center text-lg`}
+                    style={{ background: 'var(--color-surface-container-base)' }}
                     placeholder="000000"
                     value={formData.otp}
                     onChange={(e) => setFormData({ ...formData, otp: e.target.value.replace(/\D/g, '') })}
                   />
                 </div>
                 {otpSent && (
-                  <p className="text-[10px] text-primary font-bold uppercase tracking-wider mt-1 ml-1 animate-pulse">
-                    Code sent! Check your email inbox.
+                  <p className="text-[10px] font-label font-bold uppercase tracking-wider mt-2 px-3 py-1.5 border-2 border-black inline-block" style={{ background: 'var(--color-secondary-container-base)', color: 'var(--color-on-secondary-container-base)' }}>
+                    ✓ Code sent! Check inbox.
                   </p>
                 )}
               </div>
@@ -274,66 +292,65 @@ export function VolunteerModal({
               <button
                 type="submit"
                 disabled={loading || !otpSent}
-                className="w-full bg-primary text-on-primary py-4 rounded-2xl font-bold shadow-xl shadow-primary/20 hover:bg-primary-container hover:text-on-primary-container transition-all active:scale-[0.98] disabled:opacity-50 disabled:grayscale mt-4 flex items-center justify-center gap-2"
+                className="w-full py-4 font-label font-black text-sm uppercase tracking-wider border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 mt-2"
+                style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}
               >
                 {loading ? (
                   <>
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <div className="w-5 h-5 border-3 border-black/30 border-t-black animate-spin" />
                     Processing...
                   </>
                 ) : (
                   <>
-                    <span className="material-symbols-outlined">volunteer_activism</span>
-                    Confirm Registration
+                    <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>volunteer_activism</span>
+                    Confirm Registration →
                   </>
                 )}
               </button>
             </form>
           ) : (
-            <div className="text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="mb-8 relative inline-block">
-                <div className="bg-primary/10 p-5 rounded-full relative z-10">
-                  <span className="material-symbols-outlined text-5xl text-primary animate-bounce">verified_user</span>
-                </div>
-                <div className="absolute inset-0 bg-primary/20 rounded-full animate-ping scale-125 opacity-20" />
+            <div className="text-center">
+              {/* Success icon */}
+              <div className="mb-6 inline-flex items-center justify-center w-16 h-16 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" style={{ background: 'var(--color-secondary-container-base)' }}>
+                <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>verified_user</span>
               </div>
               
-              <h3 className="text-2xl font-bold text-on-surface mb-3 tracking-tight">Registration Confirmed</h3>
-              <p className="text-on-surface-variant text-base mb-8 leading-relaxed">
-                Thank you for joining <br />
-                <span className="font-bold text-primary text-lg">{eventTitle}</span>
+              <h3 className="font-headline font-black text-xl uppercase tracking-tight text-on-surface mb-2">Registration Confirmed</h3>
+              <p className="text-on-surface-variant text-sm mb-6">
+                Thank you for joining<br />
+                <span className="font-headline font-black text-base uppercase text-on-surface">{eventTitle}</span>
               </p>
 
-              <div className="bg-surface-container-low p-6 rounded-[24px] border border-outline-variant/30 mb-8 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
-                  <span className="material-symbols-outlined text-6xl">qr_code_2</span>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4 mb-6 relative z-10">
-                  <div className="text-left">
-                    <span className="block text-[10px] uppercase tracking-widest font-black text-secondary mb-1">Queue Pos</span>
-                    <span className="text-xl font-bold text-on-surface">#{enrolledCount + 1}</span>
+              {/* Ticket Card */}
+              <div className="border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-5 mb-6 text-left" style={{ background: 'var(--color-surface-container-base)' }}>
+                <div className="grid grid-cols-2 gap-4 mb-5">
+                  <div>
+                    <span className="block text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant mb-1">Queue Pos</span>
+                    <span className="text-xl font-headline font-black text-on-surface">#{enrolledCount + 1}</span>
                   </div>
                   <div className="text-right">
-                    <span className="block text-[10px] uppercase tracking-widest font-black text-secondary mb-1">Time</span>
+                    <span className="block text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant mb-1">Time</span>
                     <span className="text-sm font-bold text-on-surface leading-tight block">{eventTime}</span>
                   </div>
                 </div>
 
-                <div className="bg-white p-5 rounded-2xl inline-block shadow-lg mb-4 border border-outline-variant/10 hover:scale-105 transition-transform cursor-pointer">
-                  <img src={qrUrl} alt="Ticket QR Code" className="w-36 h-36" />
+                <div className="flex justify-center mb-4">
+                  <div className="bg-white p-4 border-4 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] inline-block hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 cursor-pointer">
+                    <img src={qrUrl} alt="Ticket QR Code" className="w-32 h-32" />
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-center gap-2">
-                  <code className="bg-surface-container-high px-4 py-2 rounded-xl text-primary font-mono font-bold tracking-widest text-sm">
+                  <code className="px-4 py-2 text-sm font-mono font-black tracking-widest border-2 border-black" style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}>
                     {ticketId}
                   </code>
                   <button 
                     onClick={copyTicketId}
-                    className="p-2 hover:bg-surface-container-high rounded-lg text-secondary transition-colors"
+                    className="p-2 border-2 border-black hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all duration-150"
+                    style={{ background: 'var(--color-secondary-container-base)' }}
                     title="Copy ID"
                   >
-                    <span className="material-symbols-outlined text-lg">content_copy</span>
+                    <span className="material-symbols-outlined text-sm">content_copy</span>
                   </button>
                 </div>
               </div>
@@ -342,9 +359,10 @@ export function VolunteerModal({
                 <a 
                   href={qrUrl} 
                   download={`volunteer-ticket-${ticketId}.png`}
-                  className="flex items-center justify-center gap-2 w-full bg-primary text-on-primary py-4 rounded-2xl font-bold shadow-lg shadow-primary/20 hover:bg-primary-container hover:text-on-primary-container transition-all"
+                  className="flex items-center justify-center gap-2 w-full py-3.5 font-label font-black text-sm uppercase tracking-wider border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150"
+                  style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}
                 >
-                  <span className="material-symbols-outlined">download</span>
+                  <span className="material-symbols-outlined text-lg">download</span>
                   Save Digital Ticket
                 </a>
 
@@ -352,9 +370,10 @@ export function VolunteerModal({
                   href={calendarUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 w-full bg-surface-container-high text-on-surface-variant py-4 rounded-2xl font-bold hover:bg-surface-variant hover:text-on-surface transition-all"
+                  className="flex items-center justify-center gap-2 w-full py-3.5 font-label font-bold text-sm uppercase tracking-wider border-4 border-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all duration-150 text-on-surface"
+                  style={{ background: 'var(--color-surface-container-base)' }}
                 >
-                  <span className="material-symbols-outlined">calendar_add_on</span>
+                  <span className="material-symbols-outlined text-lg">calendar_add_on</span>
                   Sync to Calendar
                 </a>
               </div>

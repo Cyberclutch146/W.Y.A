@@ -73,7 +73,6 @@ export function DonationPanel({
     setLoading(true);
     
     try {
-      // Create payment order on server
       const response = await fetch('/api/create-payment-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -90,7 +89,6 @@ export function DonationPanel({
         throw new Error('Failed to create payment order');
       }
       
-      // Open Razorpay checkout
       const razorpay = new window.Razorpay({
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         order_id: order.id,
@@ -103,7 +101,6 @@ export function DonationPanel({
           email: user.email || '',
         },
         handler: async (paymentResponse: any) => {
-          // Payment successful - update donation in database
           try {
             await updateDonation(eventId, donationAmount);
             setPledged(true);
@@ -146,136 +143,167 @@ export function DonationPanel({
     onActionComplete?.();
   };
 
+  const tabStyle = (isActive: boolean, accentVar: string) => ({
+    background: isActive ? `var(${accentVar})` : 'transparent',
+    color: isActive ? 'var(--color-on-primary-container-base)' : undefined,
+  });
+
   return (
     <>
-      <div className="bg-surface-bright rounded-2xl p-6 md:p-8 shadow-sm border border-outline-variant/30 sticky top-24">
-        <h3 className="font-headline text-xl font-bold text-on-surface mb-6">How You Can Help</h3>
-        
-        <div className="flex gap-2 mb-6 border-b border-outline-variant/30 pb-2">
+      <div
+        className="border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] sticky top-24 overflow-hidden"
+        style={{ background: 'var(--color-surface-container-lowest-base)' }}
+      >
+        {/* Header */}
+        <div className="px-6 py-4 border-b-4 border-black" style={{ background: 'var(--color-tertiary-container-base)' }}>
+          <h3 className="font-headline font-black text-lg uppercase tracking-tight flex items-center gap-2" style={{ color: 'var(--color-on-tertiary-container-base)' }}>
+            <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
+            How You Can Help
+          </h3>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex border-b-4 border-black">
           {needs.funds && (
             <button 
               onClick={() => setActiveTab('funds')}
-              className={`pb-2 px-2 text-sm font-semibold transition-colors border-b-2 ${activeTab === 'funds' ? 'border-primary text-primary' : 'border-transparent text-secondary hover:text-on-surface'}`}
+              className={`flex-1 py-3 text-[11px] font-label font-black uppercase tracking-wider border-r-2 border-black/30 transition-all duration-150 ${activeTab === 'funds' ? '' : 'hover:bg-surface-container'}`}
+              style={tabStyle(activeTab === 'funds', '--color-primary-container-base')}
             >
-              Donate Funds
+              💰 Funds
             </button>
           )}
           {needs.volunteers && (
             <button 
               onClick={() => setActiveTab('volunteers')}
-              className={`pb-2 px-2 text-sm font-semibold transition-colors border-b-2 ${activeTab === 'volunteers' ? 'border-tertiary text-tertiary' : 'border-transparent text-secondary hover:text-on-surface'}`}
+              className={`flex-1 py-3 text-[11px] font-label font-black uppercase tracking-wider border-r-2 border-black/30 transition-all duration-150 ${activeTab === 'volunteers' ? '' : 'hover:bg-surface-container'}`}
+              style={tabStyle(activeTab === 'volunteers', '--color-secondary-container-base')}
             >
-              Volunteer Time
+              🙋 Volunteer
             </button>
           )}
           {needs.goods && (
             <button 
               onClick={() => setActiveTab('goods')}
-              className={`pb-2 px-2 text-sm font-semibold transition-colors border-b-2 ${activeTab === 'goods' ? 'border-primary text-primary' : 'border-transparent text-secondary hover:text-on-surface'}`}
+              className={`flex-1 py-3 text-[11px] font-label font-black uppercase tracking-wider transition-all duration-150 ${activeTab === 'goods' ? '' : 'hover:bg-surface-container'}`}
+              style={tabStyle(activeTab === 'goods', '--color-tertiary-container-base')}
             >
-              Contribute Goods
+              📦 Goods
             </button>
           )}
         </div>
 
-        {activeTab === 'funds' && needs.funds && (
-          <div className="animate-fade-in text-center">
-            <p className="text-on-surface-variant text-sm flex mb-6 text-left">
-              Your donation goes directly to the organizer to fulfill the goals of this event.
-            </p>
-            
-            {/* Donation Amount Slider */}
-            <div className="mb-6">
-              <label className="text-sm font-medium text-on-surface block mb-2">
-                Donation Amount
-              </label>
-              <div className="flex items-center gap-4">
-                <input
-                  type="range"
-                  min="50"
-                  max="2000"
-                  step="50"
-                  value={donationAmount}
-                  onChange={(e) => setDonationAmount(Number(e.target.value))}
-                  className="flex-1 h-2 bg-surface-variant rounded-lg appearance-none cursor-pointer accent-primary"
-                />
-                <span className="text-lg font-bold text-primary min-w-[70px] text-right">
-                  ₹{donationAmount}
-                </span>
+        {/* Content */}
+        <div className="p-6">
+          {activeTab === 'funds' && needs.funds && (
+            <div>
+              <p className="text-on-surface-variant text-sm mb-6 text-left">
+                Your donation goes directly to the organizer to fulfill the goals of this event.
+              </p>
+              
+              {/* Donation Amount Slider */}
+              <div className="mb-6">
+                <label className="text-[10px] font-label font-bold uppercase tracking-[0.14em] text-on-surface block mb-3">
+                  Choose Amount
+                </label>
+                <div className="flex items-center gap-4">
+                  <input
+                    type="range"
+                    min="50"
+                    max="2000"
+                    step="50"
+                    value={donationAmount}
+                    onChange={(e) => setDonationAmount(Number(e.target.value))}
+                    className="flex-1 h-2 bg-surface-variant appearance-none cursor-pointer accent-black"
+                    style={{ accentColor: 'var(--color-on-surface-base)' }}
+                  />
+                  <span
+                    className="text-lg font-headline font-black min-w-[80px] text-center px-3 py-1.5 border-4 border-black"
+                    style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}
+                  >
+                    ₹{donationAmount}
+                  </span>
+                </div>
+                <div className="flex justify-between text-[10px] font-label font-bold uppercase tracking-wider text-on-surface-variant mt-2">
+                  <span>₹50</span>
+                  <span>₹2000</span>
+                </div>
               </div>
-              <div className="flex justify-between text-xs text-on-surface-variant mt-1">
-                <span>₹50</span>
-                <span>₹2000</span>
-              </div>
+
+              {!pledged ? (
+                <button 
+                  onClick={handleDonate}
+                  disabled={loading || !user}
+                  className="w-full py-4 font-label font-black text-sm uppercase tracking-wider border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 active:scale-[0.98] disabled:opacity-50"
+                  style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}
+                >
+                  {loading ? 'Processing...' : user ? `Donate ₹${donationAmount} Now →` : 'Sign in to Donate'}
+                </button>
+              ) : (
+                <div className="flex items-center justify-center gap-2 py-4 font-label font-black text-sm uppercase tracking-wider border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" style={{ background: 'var(--color-secondary-container-base)', color: 'var(--color-on-secondary-container-base)' }}>
+                  <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                  Thank you for your donation!
+                </div>
+              )}
             </div>
+          )}
 
-            {!pledged ? (
-              <button 
-                onClick={handleDonate}
-                disabled={loading || !user}
-                className="w-full bg-primary text-on-primary py-3.5 rounded-xl font-bold shadow hover:bg-primary-container hover:text-on-primary-container transition-colors active:scale-[0.98] disabled:opacity-50"
-              >
-                {loading ? 'Processing...' : user ? `Donate ₹${donationAmount} Now` : 'Sign in to Donate'}
-              </button>
-            ) : (
-              <div className="bg-primary-fixed text-on-primary-fixed p-4 rounded-xl flex items-center justify-center gap-2 font-semibold">
-                <span className="material-symbols-outlined">check_circle</span>
-                Thank you for your donation!
-              </div>
-            )}
-          </div>
-        )}
+          {activeTab === 'volunteers' && needs.volunteers && (
+            <div>
+              <p className="text-on-surface-variant text-sm mb-6">
+                Sign up for a shift. The organizer will contact you with details and waivers if necessary.
+              </p>
+              {!pledged ? (
+                <button 
+                  onClick={handleVolunteerClick}
+                  disabled={loading || !user}
+                  className="w-full py-4 font-label font-black text-sm uppercase tracking-wider border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 active:scale-[0.98] disabled:opacity-50"
+                  style={{ background: 'var(--color-secondary-container-base)', color: 'var(--color-on-secondary-container-base)' }}
+                >
+                  {user ? '🙋 Sign Up to Volunteer →' : 'Sign in to Volunteer'}
+                </button>
+              ) : (
+                <div className="flex items-center justify-center gap-2 py-4 font-label font-black text-sm uppercase tracking-wider border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" style={{ background: 'var(--color-secondary-container-base)', color: 'var(--color-on-secondary-container-base)' }}>
+                  <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>how_to_reg</span>
+                  You are signed up!
+                </div>
+              )}
+            </div>
+          )}
 
-        {activeTab === 'volunteers' && needs.volunteers && (
-          <div className="animate-fade-in">
-            <p className="text-on-surface-variant text-sm mb-6">
-              Sign up for a shift. The organizer will contact you with details and waivers if necessary.
-            </p>
-            {!pledged ? (
-              <button 
-                onClick={handleVolunteerClick}
-                disabled={loading || !user}
-                className="w-full bg-tertiary text-on-tertiary py-3.5 rounded-xl font-bold shadow hover:bg-tertiary-container hover:text-on-tertiary-container transition-colors active:scale-[0.98] disabled:opacity-50"
-              >
-                {user ? 'Sign Up to Volunteer' : 'Sign in to Volunteer'}
-              </button>
-            ) : (
-              <div className="bg-tertiary-fixed text-on-tertiary-fixed p-4 rounded-xl flex items-center justify-center gap-2 font-semibold">
-                <span className="material-symbols-outlined">how_to_reg</span>
-                You are signed up!
-              </div>
-            )}
-          </div>
-        )}
-
-        {activeTab === 'goods' && needs.goods && (
-          <div className="animate-fade-in">
-            <p className="text-on-surface-variant text-sm mb-4">
-              We are looking for these specific items in new or gently used condition:
-            </p>
-            <ul className="list-disc pl-5 mb-6 text-sm text-on-surface font-medium space-y-1">
-              {needs.goods.map((item, idx) => (
-                <li key={idx}>{item}</li>
-              ))}
-            </ul>
-            {!goodsPledged ? (
-              <button 
-                onClick={() => {
-                  if (!user) { toast.info('Please sign in to contribute'); return; }
-                  setIsGoodsPledgeModalOpen(true);
-                }}
-                className="w-full border-2 border-primary text-primary py-3 rounded-xl font-bold hover:bg-primary/5 transition-colors active:scale-[0.98]"
-              >
-                I Can Bring Something
-              </button>
-            ) : (
-              <div className="bg-primary-fixed/20 text-primary p-4 rounded-xl flex items-center justify-center gap-2 font-semibold border border-primary/30">
-                <span className="material-symbols-outlined">check_circle</span>
-                Thank you for pledging!
-              </div>
-            )}
-          </div>
-        )}
+          {activeTab === 'goods' && needs.goods && (
+            <div>
+              <p className="text-on-surface-variant text-sm mb-4">
+                We are looking for these specific items:
+              </p>
+              <ul className="space-y-2 mb-6">
+                {needs.goods.map((item, idx) => (
+                  <li key={idx} className="flex items-center gap-2 text-sm font-body font-bold text-on-surface">
+                    <span className="w-2 h-2 bg-black inline-block flex-shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              {!goodsPledged ? (
+                <button 
+                  onClick={() => {
+                    if (!user) { toast.info('Please sign in to contribute'); return; }
+                    setIsGoodsPledgeModalOpen(true);
+                  }}
+                  className="w-full py-4 font-label font-black text-sm uppercase tracking-wider border-4 border-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all duration-150 active:scale-[0.98] text-on-surface"
+                  style={{ background: 'var(--color-surface-container-base)' }}
+                >
+                  📦 I Can Bring Something
+                </button>
+              ) : (
+                <div className="flex items-center justify-center gap-2 py-4 font-label font-black text-sm uppercase tracking-wider border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" style={{ background: 'var(--color-tertiary-container-base)', color: 'var(--color-on-tertiary-container-base)' }}>
+                  <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                  Thank you for pledging!
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       <VolunteerModal 
