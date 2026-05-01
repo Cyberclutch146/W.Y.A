@@ -14,7 +14,6 @@ import { getUserProfile, updateUserProfile } from '@/services/userService'
 import { motion } from 'framer-motion'
 import { SquigglyDivider } from '@/components/SquigglyDivider'
 import { LiveBadge } from '@/components/LiveBadge'
-import { FloatingStickers } from '@/components/FloatingStickers'
 
 export default function HomePage() {
   const router = useRouter()
@@ -142,7 +141,6 @@ export default function HomePage() {
 
   return (
     <main className="flex-1 flex flex-col text-on-surface w-full pb-32 md:pb-0 relative overflow-x-hidden">
-      <FloatingStickers count={6} />
       <div className="max-w-7xl mx-auto w-full relative z-10">
 
         {/* Header */}

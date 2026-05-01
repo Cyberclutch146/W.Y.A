@@ -304,11 +304,6 @@ body::after {
   100% { background-position: 200% 0; }
 }
 
-/* Neo-brutalist specific animations */
-@keyframes stickerBounce {
-  0%, 100% { transform: rotate(var(--sticker-rotate, -3deg)) scale(1); }
-  50% { transform: rotate(var(--sticker-rotate, -3deg)) scale(1.06); }
-}
 
 @keyframes brutalShake {
   0%, 100% { transform: translateX(0); }
@@ -540,33 +535,6 @@ body::after {
     letter-spacing: -0.02em;
   }
 
-  /* ── Sticker decorative elements ── */
-  .neo-sticker {
-    @apply inline-flex items-center gap-1.5 px-3 py-1.5 font-bold uppercase tracking-wider text-xs;
-    border: 3px solid #000000;
-    box-shadow: 3px 3px 0px 0px rgba(0,0,0,1);
-    animation: stickerBounce 3s ease-in-out infinite;
-  }
-
-  .neo-sticker-yellow {
-    background: var(--color-primary-container-base);
-    color: var(--color-on-primary-container-base);
-  }
-
-  .neo-sticker-green {
-    background: var(--color-secondary-container-base);
-    color: var(--color-on-secondary-container-base);
-  }
-
-  .neo-sticker-blue {
-    background: var(--color-tertiary-container-base);
-    color: var(--color-on-tertiary-container-base);
-  }
-
-  .neo-sticker-red {
-    background: var(--color-error-container-base);
-    color: var(--color-on-error-container-base);
-  }
 
   /* ── Tags / category pills ── */
   .neo-tag {
@@ -610,9 +578,6 @@ body::after {
   }
   .animate-subtle-pulse {
     animation: subtlePulse 2s ease-in-out infinite;
-  }
-  .animate-sticker-bounce {
-    animation: stickerBounce 3s ease-in-out infinite;
   }
   .animate-brutal-shake {
     animation: brutalShake 0.4s ease-in-out;
