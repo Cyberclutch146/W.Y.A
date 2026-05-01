@@ -9,8 +9,8 @@ import { CommunityEvent } from '@/types'
 import { SentinelAlert } from '@/types/sentinel'
 import MapWrapper from '@/components/MapWrapper'
 import { EventCard } from '@/components/EventCard'
-import { getRecommendedEvents } from '@/services/recommendationService'
-import { getUserProfile } from '@/services/userService'
+import { getRecommendedEvents, getMatchPercentage } from '@/services/recommendationService'
+import { getUserProfile, updateUserProfile } from '@/services/userService'
 import { motion } from 'framer-motion'
 import { SquigglyDivider } from '@/components/SquigglyDivider'
 import { LiveBadge } from '@/components/LiveBadge'
@@ -53,10 +53,9 @@ export default function HomePage() {
     }
   }, [featured?.organizerId])
 
-  const recommendedEvents = getRecommendedEvents(profile?.skills ?? [], events, 4, profile?.equipment ?? [])
-    .map(({ event }) => event)
-    .filter(event => event.id !== featured?.id)
-    .slice(0, 3)
+  const recommendedEvents = profile 
+    ? getRecommendedEvents(profile, events, 6)
+    : []
 
   const handleContactOrganizer = (eventTitle: string) => {
     if (organizerEmail) {
@@ -65,6 +64,20 @@ export default function HomePage() {
       alert('Organizer contact information is currently unavailable.')
     }
   }
+
+  const handleDismissRecommendation = async (eventId: string) => {
+    if (!profile) return;
+    try {
+      const currentDismissed = profile.dismissedEventIds || [];
+      if (!currentDismissed.includes(eventId)) {
+        await updateUserProfile(profile.id, {
+          dismissedEventIds: [...currentDismissed, eventId]
+        });
+      }
+    } catch (err) {
+      console.error('Failed to dismiss recommendation:', err);
+    }
+  };
 
   const formatDate = (ts: CommunityEvent['createdAt']) => {
     if (!ts) return 'TBD'
@@ -312,14 +325,20 @@ export default function HomePage() {
                 </button>
               </div>
               <div className="grid grid-cols-1 gap-4 min-[560px]:grid-cols-2 md:gap-6 lg:grid-cols-3">
-                {recommendedEvents.map((evt, index) => (
+                {recommendedEvents.map((item, index) => (
                   <motion.div
-                    key={evt.id}
+                    key={item.event.id}
                     initial={{ opacity: 0, y: 30, rotate: -2 }}
                     animate={{ opacity: 1, y: 0, rotate: 0 }}
                     transition={{ delay: index * 0.08, type: "spring", stiffness: 200 }}
                   >
-                    <EventCard event={evt} />
+                    <EventCard 
+                      event={item.event} 
+                      recommendationPercentage={getMatchPercentage(item.score)}
+                      matchedInterests={item.matchedInterests}
+                      reasons={item.reasons}
+                      onDismiss={handleDismissRecommendation}
+                    />
                   </motion.div>
                 ))}
               </div>

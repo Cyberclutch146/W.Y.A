@@ -51,6 +51,10 @@ export interface UserProfile {
   rollNumber: string;
   clubs: string[];             // clubs the student is a member of
   interests: StudentInterest[];
+  // Recommendation Engine tracking
+  rsvpEventIds: string[];      // IDs of events the user has joined
+  savedEventIds: string[];     // IDs of events the user has bookmarked
+  dismissedEventIds: string[]; // IDs of events the user explicitly dismissed
   // Gamification
   xp: number;
   badges: string[];
@@ -67,6 +71,18 @@ export interface UserProfile {
   profileComplete: boolean;
   createdAt: Timestamp | null;
   updatedAt: Timestamp | null;
+}
+
+export interface RecommendationReason {
+  type: 'interest' | 'department' | 'club' | 'history' | 'social' | 'urgency' | 'ai';
+  label: string;
+}
+
+export interface ScoredEvent {
+  event: CommunityEvent;
+  score: number;
+  matchedInterests: string[];
+  reasons: RecommendationReason[];
 }
 
 export type UserProfileCreate = Omit<UserProfile, 'id' | 'createdAt' | 'updatedAt'>;

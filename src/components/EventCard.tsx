@@ -13,6 +13,8 @@ interface EventCardProps {
   recommendationScore?: number;
   recommendationPercentage?: number;
   matchedInterests?: string[];
+  reasons?: { type: string; label: string }[];
+  onDismiss?: (eventId: string) => void;
 }
 
 // Category → color mapping for brutalist tags
@@ -35,10 +37,20 @@ export function EventCard({
   sentinelAlerts = [],
   recommendationPercentage,
   matchedInterests = [],
+  reasons = [],
+  onDismiss,
 }: EventCardProps) {
   const hasAlerts = sentinelAlerts.length > 0;
   const titleRef = useRef<HTMLHeadingElement | null>(null);
   const [descriptionLineClamp, setDescriptionLineClamp] = useState(featured ? 3 : 2);
+  const [isDismissing, setIsDismissing] = useState(false);
+
+  const handleDismiss = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDismissing(true);
+    setTimeout(() => onDismiss?.(event.id), 300);
+  };
 
   useEffect(() => {
     if (featured || !titleRef.current) return;
@@ -55,6 +67,10 @@ export function EventCard({
     resizeObserver.observe(titleElement);
     return () => { resizeObserver.disconnect(); };
   }, [event.title, featured]);
+
+  if (isDismissing) {
+    return <div className="h-full min-h-[400px] border-4 border-dashed border-black/20 animate-pulse" />;
+  }
 
   const categoryStyle = CATEGORY_COLORS[event.category as string] ?? CATEGORY_COLORS.default;
   const isUrgent = event.urgency === 'high';
@@ -124,8 +140,19 @@ export function EventCard({
           style={{ transform: 'translateZ(0)' }}
         />
         <div className="absolute left-3 right-14 top-3 sm:left-4 sm:top-4">{badge}</div>
+        
+        {onDismiss && (
+          <button 
+            onClick={handleDismiss}
+            className="absolute right-3 top-3 w-8 h-8 flex items-center justify-center border-2 border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[var(--color-error-container-base)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all z-30"
+            title="Not interested"
+          >
+            <span className="material-symbols-outlined text-sm">close</span>
+          </button>
+        )}
+
         {hasAlerts && (
-          <div className="absolute right-3 top-3 sm:right-4 sm:top-4">
+          <div className="absolute right-3 top-14 sm:right-4 sm:top-16">
             <span className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold text-white border-2 border-black" style={{ background: 'var(--color-error-base)' }}>
               <span className="material-symbols-outlined text-[11px]">warning</span>
               Alert
@@ -143,13 +170,23 @@ export function EventCard({
           </div>
           {recommendationPercentage !== undefined && (
             <div
-              className="inline-flex w-fit items-center gap-1.5 px-3 py-1 text-xs font-bold border-2 border-black"
+              className="inline-flex w-fit items-center gap-1.5 px-3 py-1 text-xs font-bold border-2 border-black animate-pulse-slow"
               style={{ background: 'var(--color-secondary-container-base)', color: 'var(--color-on-secondary-container-base)' }}
             >
-              <span>⚡ {recommendationPercentage}% match</span>
+              <span className="material-symbols-outlined text-xs">auto_awesome</span>
+              <span>{recommendationPercentage}% Match</span>
             </div>
           )}
         </div>
+
+        {reasons.length > 0 && (
+          <p className="text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5"
+             style={{ color: reasons[0].type === 'social' ? 'var(--pop-acid-lime)' : 'var(--pop-electric-purple)' }}>
+            <span className="w-1.5 h-1.5 rounded-full" 
+                  style={{ background: reasons[0].type === 'social' ? 'var(--pop-acid-lime)' : 'var(--pop-electric-purple)' }} />
+            {reasons[0].label}
+          </p>
+        )}
 
         {matchedInterests.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
