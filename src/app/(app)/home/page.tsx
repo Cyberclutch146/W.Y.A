@@ -11,6 +11,10 @@ import MapWrapper from '@/components/MapWrapper'
 import { EventCard } from '@/components/EventCard'
 import { getRecommendedEvents } from '@/services/recommendationService'
 import { getUserProfile } from '@/services/userService'
+import { motion } from 'framer-motion'
+import { SquigglyDivider } from '@/components/SquigglyDivider'
+import { LiveBadge } from '@/components/LiveBadge'
+import { FloatingStickers } from '@/components/FloatingStickers'
 
 export default function HomePage() {
   const router = useRouter()
@@ -74,6 +78,14 @@ export default function HomePage() {
   const volGoal = featured?.needs?.volunteers?.goal ?? 1
   const volPercent = Math.min(Math.round((volCurrent / volGoal) * 100), 100)
 
+  const getGreeting = () => {
+    const hour = new Date().getHours()
+    if (hour < 12) return { text: 'Good morning', emoji: '☀️' }
+    if (hour < 18) return { text: 'Good afternoon', emoji: '☕' }
+    return { text: 'Good evening', emoji: '🌙' }
+  }
+  const greeting = getGreeting()
+
   if (loading) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center min-h-[60vh]">
@@ -116,19 +128,18 @@ export default function HomePage() {
   }
 
   return (
-    <main className="flex-1 flex flex-col text-on-surface w-full pb-32 md:pb-10">
-      <div className="max-w-7xl mx-auto w-full">
+    <main className="flex-1 flex flex-col text-on-surface w-full pb-32 md:pb-0 relative overflow-x-hidden">
+      <FloatingStickers count={6} />
+      <div className="max-w-7xl mx-auto w-full relative z-10">
 
         {/* Header */}
-        <div className="px-6 md:px-8 mt-8 md:mt-12 flex flex-col gap-6 lg:flex-row lg:items-center justify-between pb-8 border-b-4 border-black">
+        <div className="px-6 md:px-8 mt-8 md:mt-12 flex flex-col gap-6 lg:flex-row lg:items-end justify-between pb-8">
           <div className="max-w-3xl">
+            <p className="font-label font-bold text-sm uppercase tracking-widest text-[var(--pop-electric-purple)] mb-2">
+              {greeting.text}, {profile?.displayName?.split(' ')[0] || 'Student'} {greeting.emoji}
+            </p>
             <h1 className="font-headline font-black text-4xl md:text-5xl uppercase tracking-tight text-on-background">
-              <span
-                className="px-3 pb-1 mr-2 inline-block border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-                style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}
-              >
-                Live
-              </span>
+              <LiveBadge className="mr-3 scale-110 origin-bottom" />
               Campus Events
             </h1>
             <p className="mt-3 text-on-surface-variant leading-relaxed max-w-xl">
@@ -141,6 +152,24 @@ export default function HomePage() {
             style={{ background: 'var(--color-secondary-container-base)', color: 'var(--color-on-secondary-container-base)' }}
           >
             <Plus size={16} /> Drop an Event
+          </button>
+        </div>
+
+        <SquigglyDivider />
+
+        {/* Quick Actions */}
+        <div className="px-6 md:px-8 flex flex-wrap gap-3 mt-6 mb-2">
+          <button onClick={() => router.push('/feed?q=Music')} className="px-4 py-2 font-bold text-sm uppercase tracking-wide border-2 border-black bg-[var(--pop-hot-pink)] text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">
+            🎸 Music
+          </button>
+          <button onClick={() => router.push('/feed?q=Sports')} className="px-4 py-2 font-bold text-sm uppercase tracking-wide border-2 border-black bg-[var(--pop-acid-lime)] text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">
+            ⚽ Sports
+          </button>
+          <button onClick={() => router.push('/feed?q=Tech')} className="px-4 py-2 font-bold text-sm uppercase tracking-wide border-2 border-black bg-[var(--pop-sky-cyan)] text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">
+            💻 Tech
+          </button>
+          <button onClick={() => router.push('/feed?q=Party')} className="px-4 py-2 font-bold text-sm uppercase tracking-wide border-2 border-black bg-[var(--pop-electric-purple)] text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">
+            🎉 Party
           </button>
         </div>
 
@@ -219,40 +248,85 @@ export default function HomePage() {
                 <Mail size={16} />
               </button>
             </div>
+
+            {/* Latest Activity Sidebar */}
+            <div className="border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-5" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
+              <h3 className="font-headline font-black text-sm uppercase tracking-tight text-on-surface mb-4 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full animate-pulse bg-[var(--pop-acid-lime)] border border-black"></span>
+                Live Activity
+              </h3>
+              <div className="flex flex-col gap-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full border-2 border-black flex items-center justify-center font-bold text-xs bg-[var(--pop-sky-cyan)]">J</div>
+                  <div>
+                    <p className="text-sm font-bold text-on-surface">Jason M.</p>
+                    <p className="text-xs text-on-surface-variant">RSVP'd to {featured?.title || 'an event'}</p>
+                    <p className="text-[10px] text-on-surface-variant font-bold mt-1 opacity-60 uppercase">2 mins ago</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full border-2 border-black flex items-center justify-center font-bold text-xs bg-[var(--pop-hot-pink)]">S</div>
+                  <div>
+                    <p className="text-sm font-bold text-on-surface">Sarah T.</p>
+                    <p className="text-xs text-on-surface-variant">Earned 50 XP in Tech</p>
+                    <p className="text-[10px] text-on-surface-variant font-bold mt-1 opacity-60 uppercase">12 mins ago</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full border-2 border-black flex items-center justify-center font-bold text-xs bg-[var(--pop-electric-purple)]">M</div>
+                  <div>
+                    <p className="text-sm font-bold text-on-surface">Mike R.</p>
+                    <p className="text-xs text-on-surface-variant">Created a new event</p>
+                    <p className="text-[10px] text-on-surface-variant font-bold mt-1 opacity-60 uppercase">1 hr ago</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+      </div>
 
         {/* Map Section */}
-        <div className="px-6 md:px-10 mt-14 pb-4">
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="font-headline font-black text-2xl uppercase tracking-tight text-on-background">Explore on Map</h2>
-          </div>
-          <div className="h-[400px] w-full overflow-hidden border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-            <MapWrapper events={events} alerts={alerts} />
+        <div className="mt-14 py-12 w-full bg-[var(--pop-sky-cyan)] bg-pattern-crosshatch border-y-4 border-black relative z-10">
+          <div className="max-w-7xl mx-auto w-full px-6 md:px-10">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="font-headline font-black text-2xl uppercase tracking-tight text-black">Explore on Map</h2>
+            </div>
+            <div className="h-[400px] w-full overflow-hidden border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-white">
+              <MapWrapper events={events} alerts={alerts} />
+            </div>
           </div>
         </div>
 
         {/* Recommended */}
         {recommendedEvents.length > 0 && (
-          <div className="px-6 md:px-10 mt-16 pb-10">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="font-headline font-black text-2xl uppercase tracking-tight text-on-background">Recommended for You</h2>
-              <button
-                onClick={() => router.push('/feed')}
-                className="font-label font-bold text-sm uppercase tracking-wider text-on-surface-variant hover:text-on-surface transition-colors"
-              >
-                View All →
-              </button>
-            </div>
-            <div className="grid grid-cols-1 gap-4 min-[560px]:grid-cols-2 md:gap-6 lg:grid-cols-3">
-              {recommendedEvents.map((evt) => (
-                <EventCard key={evt.id} event={evt} />
-              ))}
+          <div className="py-16 w-full bg-pattern-graph relative z-10">
+            <div className="max-w-7xl mx-auto w-full px-6 md:px-10">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="font-headline font-black text-2xl uppercase tracking-tight text-on-background">Recommended for You</h2>
+                <button
+                  onClick={() => router.push('/feed')}
+                  className="font-label font-bold text-sm uppercase tracking-wider text-on-surface-variant hover:text-on-surface transition-colors border-b-2 border-transparent hover:border-black"
+                >
+                  View All →
+                </button>
+              </div>
+              <div className="grid grid-cols-1 gap-4 min-[560px]:grid-cols-2 md:gap-6 lg:grid-cols-3">
+                {recommendedEvents.map((evt, index) => (
+                  <motion.div
+                    key={evt.id}
+                    initial={{ opacity: 0, y: 30, rotate: -2 }}
+                    animate={{ opacity: 1, y: 0, rotate: 0 }}
+                    transition={{ delay: index * 0.08, type: "spring", stiffness: 200 }}
+                  >
+                    <EventCard event={evt} />
+                  </motion.div>
+                ))}
+              </div>
             </div>
           </div>
         )}
 
-      </div>
     </main>
   )
 }

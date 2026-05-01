@@ -2,7 +2,8 @@
 
 import { useState, useEffect, Suspense, useRef, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { EventCard } from '@/components/EventCard';
+import { motion } from 'framer-motion';
+import { EventCard, CATEGORY_COLORS } from '@/components/EventCard';
 import { getEvents } from '@/services/eventService';
 import MapWrapper from '@/components/MapWrapper';
 import SkillMatchBanner from '@/components/SkillMatchBanner';
@@ -699,17 +700,19 @@ function FeedContent() {
         {activeFilters.length > 0 && (
           <section className="mb-8 animate-fade-in-up delay-100">
             <div className="flex flex-wrap items-center gap-2.5">
-              {activeFilters.map((filterItem) => (
+              {activeFilters.map((filterItem) => {
+                const bg = filterItem.key === 'category' ? (CATEGORY_COLORS[filters.category]?.bg || '#ccdcff') : '#ccdcff';
+                return (
                 <button
                   key={filterItem.key}
                   onClick={() => setFilters((c) => ({ ...c, [filterItem.key]: DEFAULT_FILTERS[filterItem.key] }))}
-                  className="flex items-center gap-2 border-2 border-black px-3 py-1.5 text-sm font-black bg-[#ccdcff] hover:bg-[#ffd93d] transition-colors uppercase"
-                  style={{ boxShadow: '2px 2px 0 #000' }}
+                  className="flex items-center gap-2 border-2 border-black px-3 py-1.5 text-sm font-black transition-colors uppercase hover:brightness-90 text-black"
+                  style={{ boxShadow: '2px 2px 0 #000', backgroundColor: bg.startsWith('var(') ? undefined : bg, ...(bg.startsWith('var(') ? { background: bg } : {}) }}
                 >
                   {filterItem.label}
                   <X size={14} />
                 </button>
-              ))}
+              )})}
               <button onClick={() => setFilters(DEFAULT_FILTERS)} className="text-sm font-black text-black/60 hover:text-black transition-colors border-b-2 border-black/30 uppercase">
                 Clear all
               </button>
@@ -743,7 +746,7 @@ function FeedContent() {
           </div>
         ) : (
           <div className={`grid grid-cols-1 gap-4 min-[560px]:grid-cols-2 sm:gap-6 lg:grid-cols-3 ${sortChanged ? 'animate-cards-reorder' : ''}`}>
-            {sortedEvents.map((event) => {
+            {sortedEvents.map((event, index) => {
               const normalizedEvent = { ...event, imageUrl: event.imageUrl || '/images/event-placeholder.jpg' };
               const intersectingAlerts = alerts.filter((alert: SentinelAlert) => {
                 if (!event.lat || !event.lng) return false;
@@ -752,13 +755,19 @@ function FeedContent() {
                 return false;
               });
               return (
-                <EventCard
+                <motion.div
                   key={event.id}
-                  event={normalizedEvent}
-                  sentinelAlerts={intersectingAlerts}
-                  recommendationPercentage={recommendationData[event.id]?.percentage}
-                  matchedInterests={recommendationData[event.id]?.matchedInterests}
-                />
+                  initial={{ opacity: 0, y: 30, rotate: -2 }}
+                  animate={{ opacity: 1, y: 0, rotate: 0 }}
+                  transition={{ delay: index * 0.05, type: "spring", stiffness: 200 }}
+                >
+                  <EventCard
+                    event={normalizedEvent}
+                    sentinelAlerts={intersectingAlerts}
+                    recommendationPercentage={recommendationData[event.id]?.percentage}
+                    matchedInterests={recommendationData[event.id]?.matchedInterests}
+                  />
+                </motion.div>
               );
             })}
           </div>

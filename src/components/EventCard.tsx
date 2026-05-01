@@ -16,17 +16,17 @@ interface EventCardProps {
 }
 
 // Category → color mapping for brutalist tags
-const CATEGORY_COLORS: Record<string, { bg: string; color: string }> = {
-  Music:       { bg: 'var(--color-primary-container-base)',   color: 'var(--color-on-primary-container-base)' },
-  Art:         { bg: 'var(--color-tertiary-container-base)',  color: 'var(--color-on-tertiary-container-base)' },
-  Sports:      { bg: 'var(--color-secondary-container-base)', color: 'var(--color-on-secondary-container-base)' },
-  Tech:        { bg: 'var(--color-tertiary-container-base)',  color: 'var(--color-on-tertiary-container-base)' },
-  Cultural:    { bg: 'var(--color-primary-container-base)',   color: 'var(--color-on-primary-container-base)' },
-  Networking:  { bg: 'var(--color-secondary-container-base)', color: 'var(--color-on-secondary-container-base)' },
-  Academic:    { bg: 'var(--color-tertiary-container-base)',  color: 'var(--color-on-tertiary-container-base)' },
-  Party:       { bg: 'var(--color-error-container-base)',     color: 'var(--color-on-error-container-base)' },
-  Athletics:   { bg: 'var(--color-secondary-container-base)', color: 'var(--color-on-secondary-container-base)' },
-  default:     { bg: 'var(--color-surface-container-base)',   color: 'var(--color-on-surface-base)' },
+export const CATEGORY_COLORS: Record<string, { bg: string; color: string }> = {
+  Music:       { bg: 'var(--pop-hot-pink)',       color: '#000000' },
+  Art:         { bg: 'var(--pop-electric-purple)',color: '#000000' },
+  Sports:      { bg: 'var(--pop-acid-lime)',      color: '#000000' },
+  Tech:        { bg: 'var(--pop-sky-cyan)',       color: '#000000' },
+  Cultural:    { bg: 'var(--pop-neon-orange)',    color: '#000000' },
+  Networking:  { bg: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' },
+  Academic:    { bg: 'var(--color-tertiary-container-base)', color: 'var(--color-on-tertiary-container-base)' },
+  Party:       { bg: 'var(--pop-hot-pink)',       color: '#000000' },
+  Athletics:   { bg: 'var(--pop-acid-lime)',      color: '#000000' },
+  default:     { bg: 'var(--color-surface-container-base)', color: 'var(--color-on-surface-base)' },
 };
 
 export function EventCard({
@@ -71,7 +71,7 @@ export function EventCard({
   if (featured) {
     return (
       <article
-        className="group overflow-hidden border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-150 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+        className="group overflow-hidden border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-150 hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] hover:scale-[1.01] relative z-10 hover:z-20 animate-border-rainbow"
         style={{ background: 'var(--color-surface-container-lowest-base)' }}
       >
         <div className="relative h-56 overflow-hidden sm:h-64 md:h-72 border-b-4 border-black">
@@ -112,7 +112,7 @@ export function EventCard({
 
   return (
     <article
-      className="group flex h-full flex-col overflow-hidden border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-150 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+      className="group flex h-full flex-col overflow-hidden border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-150 hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] hover:scale-[1.02] relative z-10 hover:z-20"
       style={{ background: 'var(--color-surface-container-lowest-base)' }}
     >
       <div className="relative h-40 overflow-hidden min-[430px]:h-44 sm:h-56 border-b-4 border-black">

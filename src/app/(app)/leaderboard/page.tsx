@@ -5,6 +5,7 @@ import { getGlobalLeaderboard, getLeaderboardStats, LeaderboardEntry } from '@/s
 import { getUserAvatar } from '@/lib/avatar';
 import Image from 'next/image';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 
 export default function LeaderboardPage() {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
@@ -140,8 +141,21 @@ export default function LeaderboardPage() {
                 const pc = podiumColors[podiumIndex];
                 const isFirst = podiumIndex === 0;
                 return (
-                  <div key={entry.id} className={`flex flex-col items-center ${isFirst ? 'w-32 md:w-40' : 'w-24 md:w-32'}`}>
-                    <div className="text-3xl md:text-4xl mb-2">{pc.icon}</div>
+                  <motion.div 
+                    key={entry.id} 
+                    className={`flex flex-col items-center justify-end ${isFirst ? 'w-32 md:w-40' : 'w-24 md:w-32'}`}
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 + (podiumIndex * 0.15), type: "spring", stiffness: 200, damping: 20 }}
+                  >
+                    <motion.div 
+                      className="text-3xl md:text-4xl mb-2"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.6 + (podiumIndex * 0.15), type: "spring", bounce: 0.5 }}
+                    >
+                      {pc.icon}
+                    </motion.div>
                     <div
                       className={`${isFirst ? 'w-20 h-20 md:w-24 md:h-24' : 'w-14 h-14 md:w-16 md:h-16'} border-4 border-black flex items-center justify-center font-black text-xl overflow-hidden`}
                       style={{ background: pc.bg, boxShadow: '4px 4px 0 #000' }}
@@ -159,8 +173,14 @@ export default function LeaderboardPage() {
                     </div>
                     <p className={`${isFirst ? 'text-sm' : 'text-xs'} font-black text-black text-center truncate w-full mt-2`}>{entry.displayName}</p>
                     <p className="text-xs text-black/60 font-bold font-mono">{getStatValue(entry, activeTab)}</p>
-                    <div className={`w-full ${pc.podiumH} mt-2 border-4 border-b-0 border-black`} style={{ background: pc.bg, boxShadow: '4px 0 0 #000' }} />
-                  </div>
+                    <motion.div 
+                      className={`w-full ${pc.podiumH} mt-2 border-4 border-b-0 border-black origin-bottom`} 
+                      style={{ background: pc.bg, boxShadow: '4px 0 0 #000' }} 
+                      initial={{ scaleY: 0 }}
+                      animate={{ scaleY: 1 }}
+                      transition={{ delay: 0.4 + (podiumIndex * 0.15), duration: 0.5, type: "spring" }}
+                    />
+                  </motion.div>
                 );
               })}
             </div>
@@ -198,13 +218,31 @@ export default function LeaderboardPage() {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-black text-black truncate">{entry.displayName}</p>
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="text-sm font-black text-black truncate">{entry.displayName}</p>
+                        {/* Rank change indicator (mocked) */}
+                        <span className={`text-[10px] font-bold ${index % 3 === 0 ? 'text-green-600' : index % 3 === 1 ? 'text-red-600' : 'text-gray-400'}`}>
+                          {index % 3 === 0 ? '▲ 2' : index % 3 === 1 ? '▼ 1' : '—'}
+                        </span>
+                        {/* Achievement badges (mocked) */}
+                        <div className="flex gap-1 ml-1">
+                          {Array.from({ length: Math.max(1, (entry.impactScore % 4)) }).map((_, i) => (
+                             <div key={i} className="w-3 h-3 rounded-full border border-black" style={{ background: ['#FF6B9D', '#B5FF4D', '#4DD0E1', '#ffd93d'][i % 4] }}></div>
+                          ))}
+                        </div>
+                      </div>
+                      
                       {entry.location && (
-                        <p className="text-xs text-black/50 font-medium flex items-center gap-1">
+                        <p className="text-xs text-black/50 font-medium flex items-center gap-1 mb-1">
                           <span className="material-symbols-outlined text-[12px]">location_on</span>
                           {entry.location}
                         </p>
                       )}
+                      
+                      {/* XP Bar Visualization */}
+                      <div className="h-1.5 w-full max-w-[200px] bg-black/10 border border-black mt-1.5">
+                        <div className="h-full border-r border-black" style={{ width: `${Math.min(100, (entry.impactScore / (sortedEntries[0]?.impactScore || 1)) * 100)}%`, background: 'var(--pop-acid-lime)' }}></div>
+                      </div>
                     </div>
                     <div className="text-right flex-shrink-0">
                       <p className="text-sm font-black text-black bg-[#93f59c] px-2 py-0.5 border-2 border-black inline-block">

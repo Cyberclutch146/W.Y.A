@@ -7,11 +7,13 @@ import { ArrowRight, Zap, Users, Calendar, Trophy } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
+import { FloatingStickers } from '@/components/FloatingStickers';
+import { CountUp } from '@/components/CountUp';
 
 const STATS = [
-  { label: 'Active Events', value: '248+', icon: 'calendar_today', color: 'var(--color-primary-container-base)', onColor: 'var(--color-on-primary-container-base)' },
-  { label: 'Students', value: '12K+', icon: 'groups', color: 'var(--color-secondary-container-base)', onColor: 'var(--color-on-secondary-container-base)' },
-  { label: 'Campus Clubs', value: '80+', icon: 'school', color: 'var(--color-tertiary-container-base)', onColor: 'var(--color-on-tertiary-container-base)' },
+  { label: 'Active Events', value: 248, suffix: '+', icon: 'calendar_today', color: 'var(--color-primary-container-base)', onColor: 'var(--color-on-primary-container-base)' },
+  { label: 'Students', value: 12, suffix: 'K+', icon: 'groups', color: 'var(--color-secondary-container-base)', onColor: 'var(--color-on-secondary-container-base)' },
+  { label: 'Campus Clubs', value: 80, suffix: '+', icon: 'school', color: 'var(--color-tertiary-container-base)', onColor: 'var(--color-on-tertiary-container-base)' },
 ];
 
 const FEATURES = [
@@ -21,6 +23,14 @@ const FEATURES = [
 ];
 
 const MARQUEE = ['🎸 Battle of the Bands', '🏆 Hackathon 2025', '🎨 Art Fest', '⚽ Inter-House Soccer', '🍕 Food Festival', '🎭 Drama Night', '💡 TEDx Talks', '🎮 Gaming Tournament'];
+
+const TESTIMONIALS = [
+  '"Best way to find free food on campus!" — Sarah T.',
+  '"I met my co-founder at a hackathon I found here." — James K.',
+  '"Finally, I know what\'s happening on weekends." — Priya R.',
+  '"Got 500 XP just for showing up to the chess club." — Alex M.',
+  '"The leaderboard is dangerously addictive." — Sam D.',
+];
 
 export default function LandingPage() {
   const { user, loading, loginAnonymously } = useAuth();
@@ -58,30 +68,41 @@ export default function LandingPage() {
 
       {/* HERO */}
       <section className="relative z-10 min-h-[88vh] grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-0">
+        <div className="absolute inset-0 -z-10 bg-[image:var(--gradient-party)] opacity-[0.2] mix-blend-multiply dark:mix-blend-screen bg-[length:400%_400%] animate-gradient-xy" />
+        <FloatingStickers count={12} />
         <motion.div initial={{ opacity: 0, x: -40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7, ease: 'easeOut' }} className="flex flex-col justify-center px-8 md:px-14 lg:px-20 py-16">
           <span className="inline-flex items-center gap-2 px-4 py-2 text-[11px] font-label font-bold uppercase tracking-[0.2em] border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] w-fit mb-8" style={{ background: 'var(--color-secondary-container-base)', color: 'var(--color-on-secondary-container-base)' }}>
             <Zap size={13} /> Student Event Intelligence
           </span>
           <h1 className="font-headline font-black text-5xl md:text-7xl lg:text-[88px] leading-[0.95] uppercase tracking-tighter text-on-background mb-8">
             Your Campus,<br />
-            <span className="px-4 pb-1 inline-block border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] skew-x-[-2deg]" style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}>Alive.</span>
+            <span className="px-4 pb-1 inline-block border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] skew-x-[-2deg]" style={{ background: 'var(--pop-acid-lime)', color: 'black' }}>Alive.</span>
           </h1>
           <p className="text-on-surface-variant text-base md:text-lg leading-relaxed max-w-md mb-10">Discover events, RSVP in one tap, earn points for showing up, and own your campus social life.</p>
           <div className="flex flex-wrap items-center gap-4 mb-12">
-            <button onClick={handleJoinUs} disabled={authLoading || loading} className="flex items-center gap-3 px-8 py-4 font-label font-black text-base uppercase tracking-wider border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[4px] hover:translate-y-[4px] hover:shadow-none transition-all duration-150 disabled:opacity-60" style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}>
-              {authLoading ? 'Joining...' : user ? 'Go to Home' : 'Get Started'} <ArrowRight size={18} />
-            </button>
+            <div className="relative group">
+              <div className="absolute -inset-1 bg-[image:var(--gradient-party)] blur-md opacity-70 group-hover:opacity-100 transition duration-200 animate-gradient-xy"></div>
+              <button onClick={handleJoinUs} disabled={authLoading || loading} className="relative flex items-center gap-3 px-8 py-4 font-label font-black text-base uppercase tracking-wider border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[4px] hover:translate-y-[4px] hover:shadow-none transition-all duration-150 disabled:opacity-60" style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}>
+                {authLoading ? 'Joining...' : user ? 'Go to Home' : 'Get Started'} <ArrowRight size={18} />
+              </button>
+            </div>
             {!user && !loading && (
               <Link href="/login" className="flex items-center gap-2 px-8 py-4 font-label font-bold text-sm uppercase tracking-wider border-4 border-black hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-150 text-on-surface">Sign In</Link>
             )}
           </div>
           <div className="flex flex-wrap gap-3">
-            {STATS.map((s) => (
-              <div key={s.label} className="flex items-center gap-2 px-4 py-2 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" style={{ background: s.color, color: s.onColor }}>
+            {STATS.map((s, i) => (
+              <motion.div 
+                key={s.label} 
+                className="flex items-center gap-2 px-4 py-2 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] cursor-pointer" 
+                style={{ background: s.color, color: s.onColor }}
+                whileHover={{ scale: 1.05, rotate: i % 2 === 0 ? 3 : -3 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>{s.icon}</span>
-                <span className="font-headline font-black text-sm">{s.value}</span>
+                <CountUp to={s.value as number} suffix={s.suffix} className="font-headline font-black text-sm" />
                 <span className="font-label text-[11px] uppercase font-bold opacity-75">{s.label}</span>
-              </div>
+              </motion.div>
             ))}
           </div>
         </motion.div>
@@ -122,11 +143,20 @@ export default function LandingPage() {
       </section>
 
       {/* MARQUEE */}
-      <div className="relative z-10 border-y-4 border-black py-3 overflow-hidden" style={{ background: 'var(--color-secondary-container-base)' }}>
-        <div className="flex animate-marquee gap-8 whitespace-nowrap">
-          {[...MARQUEE, ...MARQUEE].map((item, i) => (
-            <span key={i} className="font-headline font-black text-sm uppercase tracking-widest px-2">{item} <span className="opacity-40 mx-2">◆</span></span>
-          ))}
+      <div className="relative z-10 border-y-4 border-black py-3 overflow-hidden flex flex-col gap-0 bg-black">
+        <div className="py-3 w-full" style={{ background: 'var(--pop-acid-lime)' }}>
+          <div className="flex animate-marquee gap-8 whitespace-nowrap">
+            {[...MARQUEE, ...MARQUEE].map((item, i) => (
+              <span key={`m1-${i}`} className="font-headline font-black text-sm uppercase tracking-widest px-2 text-black">{item} <span className="opacity-40 mx-2">◆</span></span>
+            ))}
+          </div>
+        </div>
+        <div className="py-3 w-full border-t-4 border-black" style={{ background: 'var(--pop-electric-purple)' }}>
+          <div className="flex animate-marquee-reverse gap-8 whitespace-nowrap">
+            {[...TESTIMONIALS, ...TESTIMONIALS].map((item, i) => (
+              <span key={`m2-${i}`} className="font-headline font-black text-sm uppercase tracking-widest px-2 text-black">{item} <span className="opacity-40 mx-2">★</span></span>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -153,8 +183,8 @@ export default function LandingPage() {
       </section>
 
       {/* CTA */}
-      <section className="relative z-10 border-y-4 border-black py-24 px-8 md:px-14 overflow-hidden" style={{ background: 'var(--color-primary-container-base)' }}>
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'repeating-linear-gradient(0deg, black 0px, black 1px, transparent 1px, transparent 40px), repeating-linear-gradient(90deg, black 0px, black 1px, transparent 1px, transparent 40px)' }} />
+      <section className="relative z-10 border-y-4 border-black py-24 px-8 md:px-14 overflow-hidden" style={{ background: 'var(--pop-hot-pink)' }}>
+        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'repeating-linear-gradient(45deg, black 0px, black 2px, transparent 2px, transparent 12px)' }} />
         <div className="relative z-10 max-w-4xl mx-auto flex flex-col lg:flex-row lg:items-center lg:justify-between gap-12">
           <div>
             <p className="font-label font-bold text-[11px] uppercase tracking-[0.2em] text-on-surface/60 mb-4">Ready to plug in?</p>
@@ -182,7 +212,9 @@ export default function LandingPage() {
 
       <style>{`
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        @keyframes marquee-reverse { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } }
         .animate-marquee { animation: marquee 28s linear infinite; }
+        .animate-marquee-reverse { animation: marquee-reverse 35s linear infinite; }
       `}</style>
     </div>
   );
