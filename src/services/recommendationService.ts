@@ -167,22 +167,45 @@ export function getRecommendedEvents(
         reasons.push({ type: 'club', label: `From a club you follow` });
       }
 
-      // 5. Social Proof & Popularity - 10% Weight
+      // 5. Social Proof & Departmental Trending - 15% Weight
       const attendees = event.needs?.volunteers?.current || 0;
       if (attendees > 5) {
-        const socialBoost = Math.min(15, Math.floor(attendees / 3));
-        score += socialBoost;
-        if (socialBoost > 10) {
+        let socialBoost = Math.min(20, Math.floor(attendees / 2));
+        
+        // Boost if trending in their specific department
+        const isDeptAffinity = profile.department && (DEPT_AFFINITY_MAP[profile.department] || []).some(kw => 
+          eventText.includes(kw.toLowerCase())
+        );
+
+        if (isDeptAffinity && attendees > 10) {
+          socialBoost += 10;
+          reasons.push({ type: 'social', label: `Trending in ${profile.department}` });
+        } else if (socialBoost > 12) {
           reasons.push({ type: 'social', label: `Trending on campus` });
         }
+        score += socialBoost;
       }
 
-      // 6. Recency Boost
+      // 6. Academic Rhythm (Temporal Awareness)
+      const now = new Date();
+      const month = now.getMonth(); // 0-11
+      const isExamSeason = [4, 5, 10, 11].includes(month); // May, June, Nov, Dec
+      const isFestivalSeason = [1, 2, 8, 9].includes(month); // Feb, Mar, Sept, Oct
+
+      if (isExamSeason && (eventText.includes('study') || eventText.includes('revision') || eventText.includes('workshop'))) {
+        score += 15;
+        reasons.push({ type: 'urgency', label: `Perfect for Exam Prep` });
+      } else if (isFestivalSeason && (eventCategory.includes('fest') || eventCategory.includes('concert'))) {
+        score += 15;
+        reasons.push({ type: 'urgency', label: `Seasonal Highlight` });
+      }
+
+      // 7. Recency Boost
       if (event.createdAt) {
         const hoursOld = (Date.now() - event.createdAt.toMillis()) / (1000 * 60 * 60);
         if (hoursOld < 48) {
           score += 10;
-          reasons.push({ type: 'urgency', label: `New Discovery` });
+          reasons.push({ type: 'urgency', label: `Just Posted` });
         }
       }
 

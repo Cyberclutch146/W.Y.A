@@ -100,7 +100,7 @@ export function EventCard({
           />
           {/* Overlay gradient */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-          <div className="absolute bottom-4 left-4 flex flex-wrap gap-2 sm:bottom-6 sm:left-6">
+          <div className="absolute bottom-4 left-4 flex flex-wrap gap-2 sm:bottom-6 sm:left-6 items-center">
             {badge}
             {hasAlerts && (
               <span className="inline-flex items-center gap-1 px-3 py-1 text-[11px] font-bold text-white border-2 border-black" style={{ background: 'var(--color-error-base)' }}>
@@ -108,7 +108,41 @@ export function EventCard({
                 Alert Zone
               </span>
             )}
+            {recommendationPercentage !== undefined && (
+              <div
+                className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold border-2 border-black animate-pulse-slow"
+                style={{ background: 'var(--color-secondary-container-base)', color: 'var(--color-on-secondary-container-base)' }}
+              >
+                <span className="material-symbols-outlined text-xs">auto_awesome</span>
+                <span>{recommendationPercentage}% Match</span>
+              </div>
+            )}
           </div>
+          {reasons.length > 0 && (
+            <div className="absolute right-4 top-4 flex flex-col gap-2 z-30">
+               {reasons.slice(0, 1).map((reason, idx) => (
+                  <div 
+                    key={idx}
+                    className="flex items-center gap-2 px-3 py-1.5 border-2 border-black w-fit shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
+                    style={{ 
+                      background: reason.type === 'social' ? 'var(--pop-acid-lime)' : 
+                                  reason.type === 'urgency' ? 'var(--pop-neon-orange)' :
+                                  reason.type === 'interest' ? 'var(--pop-sky-cyan)' :
+                                  'var(--pop-electric-purple)',
+                      color: '#000000'
+                    }}
+                  >
+                    <span className="material-symbols-outlined text-[16px]">
+                      {reason.type === 'social' ? 'trending_up' : 
+                       reason.type === 'urgency' ? 'alarm' :
+                       reason.type === 'interest' ? 'favorite' :
+                       'auto_awesome'}
+                    </span>
+                    <span className="text-[11px] font-black uppercase tracking-tight">{reason.label}</span>
+                  </div>
+                ))}
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col gap-4 px-5 pb-5 pt-5 sm:gap-5 sm:px-7 sm:pb-7 sm:pt-6">
@@ -180,15 +214,32 @@ export function EventCard({
         </div>
 
         {reasons.length > 0 && (
-          <p className="text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5"
-             style={{ color: reasons[0].type === 'social' ? 'var(--pop-acid-lime)' : 'var(--pop-electric-purple)' }}>
-            <span className="w-1.5 h-1.5 rounded-full" 
-                  style={{ background: reasons[0].type === 'social' ? 'var(--pop-acid-lime)' : 'var(--pop-electric-purple)' }} />
-            {reasons[0].label}
-          </p>
+          <div className="flex flex-col gap-1.5">
+            {reasons.slice(0, 1).map((reason, idx) => (
+              <div 
+                key={idx}
+                className="flex items-center gap-2 px-3 py-1.5 border-2 border-black w-fit animate-in fade-in slide-in-from-left-2 duration-500"
+                style={{ 
+                  background: reason.type === 'social' ? 'var(--pop-acid-lime)' : 
+                              reason.type === 'urgency' ? 'var(--pop-neon-orange)' :
+                              reason.type === 'interest' ? 'var(--pop-sky-cyan)' :
+                              'var(--pop-electric-purple)',
+                  color: '#000000'
+                }}
+              >
+                <span className="material-symbols-outlined text-[14px]">
+                  {reason.type === 'social' ? 'trending_up' : 
+                   reason.type === 'urgency' ? 'alarm' :
+                   reason.type === 'interest' ? 'favorite' :
+                   'auto_awesome'}
+                </span>
+                <span className="text-[10px] font-black uppercase tracking-tight leading-none">{reason.label}</span>
+              </div>
+            ))}
+          </div>
         )}
 
-        {matchedInterests.length > 0 && (
+        {matchedInterests.length > 0 && reasons.length === 0 && (
           <div className="flex flex-wrap gap-1.5">
             {matchedInterests.slice(0, 3).map((interest) => (
               <span
