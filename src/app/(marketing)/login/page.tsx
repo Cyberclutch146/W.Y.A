@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { motion } from 'framer-motion';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -50,86 +51,153 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-6 bg-background text-on-background selection:bg-primary/20">
-      <div className="w-full max-w-5xl bg-surface border border-outline-variant/30 grid grid-cols-1 md:grid-cols-2 rounded-[20px] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.08)] hover:shadow-[0_30px_80px_rgba(0,0,0,0.12)] dark:shadow-none transition-shadow duration-500">
+    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-6 text-on-background relative" style={{ background: 'var(--color-background-base)' }}>
+      {/* Dot grid background */}
+      <div className="fixed inset-0 pointer-events-none z-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle, #00000033 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="relative z-10 w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden"
+        style={{ background: 'var(--color-surface-container-lowest-base)' }}
+      >
         
-        {/* Left Side (Image) */}
-        <div className="relative hidden md:block h-full">
-          <img 
-            className="w-full h-full object-cover brightness-90 dark:brightness-75"
-            src="https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?auto=format&fit=crop&q=80" 
-            alt="Volunteers"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent"></div>
+        {/* Left Side — Brutalist Collage Panel */}
+        <div className="relative hidden md:flex flex-col border-r-4 border-black overflow-hidden">
+          {/* Top block */}
+          <div className="flex-1 p-8 flex flex-col justify-between border-b-4 border-black" style={{ background: 'var(--color-primary-container-base)' }}>
+            <div>
+              <p className="font-headline font-black text-xs uppercase tracking-[0.2em] opacity-60 mb-2">Welcome Back To</p>
+              <h2 className="font-headline font-black text-4xl uppercase tracking-tight leading-none">
+                Campus<br />Pulse
+              </h2>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 w-fit border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" style={{ background: 'var(--color-secondary-container-base)', color: 'var(--color-on-secondary-container-base)' }}>
+              <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
+              <span className="font-label font-black text-sm uppercase">Your events await</span>
+            </div>
+          </div>
+          {/* Middle block */}
+          <div className="flex-1 p-6 flex flex-col justify-center border-b-4 border-black" style={{ background: 'var(--color-secondary-container-base)' }}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 flex items-center justify-center border-4 border-black" style={{ background: 'var(--color-tertiary-container-base)' }}>
+                <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>groups</span>
+              </div>
+              <div>
+                <p className="font-headline font-black text-sm uppercase">12K+ Students</p>
+                <p className="font-body text-xs text-on-surface-variant">Already on the pulse</p>
+              </div>
+            </div>
+            <div className="h-3 w-full border-4 border-black overflow-hidden" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
+              <div className="h-full" style={{ width: '84%', background: 'var(--color-on-secondary-container-base)' }} />
+            </div>
+          </div>
+          {/* Bottom block */}
+          <div className="flex-1 p-6" style={{ background: 'var(--color-tertiary-container-base)' }}>
+            <p className="font-headline font-black text-xs uppercase tracking-[0.2em] mb-3">🔥 Hot Right Now</p>
+            {['🎸 Battle of Bands', '🏆 Hackathon 2025', '🎨 Art Week'].map((item) => (
+              <div key={item} className="flex items-center gap-2 mb-2">
+                <span className="w-1.5 h-1.5 bg-black inline-block" />
+                <span className="font-body text-sm font-bold">{item}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Right Side (Form) */}
-        <div className="flex flex-col justify-start p-12 md:p-16 lg:p-24">
-          <Link href="/" className="mb-8 inline-flex items-center gap-2 text-[12px] font-medium tracking-[0.12em] uppercase text-on-surface-variant transition-colors hover:text-primary">
+        {/* Right Side — Login Form */}
+        <div className="flex flex-col justify-center p-8 md:p-12 lg:p-16">
+          <Link href="/" className="mb-6 inline-flex items-center gap-2 text-[11px] font-label font-bold uppercase tracking-[0.14em] text-on-surface-variant transition-all hover:text-on-surface hover:translate-x-[-2px]">
             ← Back to homepage
           </Link>
-          <h1 className="font-serif text-5xl font-light leading-tight mb-3 text-on-surface">Welcome back.</h1>
-          <p className="font-serif text-[34px] italic text-primary mb-6">
-            We're glad you're here.
-          </p>
-          <p className="text-on-surface-variant text-[15px] mb-12 max-w-[380px]">
-            Continue your journey of impact with NexusAid.
+
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 text-[10px] font-label font-bold uppercase tracking-[0.16em] border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] w-fit mb-6" style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}>
+            <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>login</span>
+            Sign In
+          </div>
+
+          <h1 className="font-headline font-black text-4xl md:text-5xl uppercase tracking-tight text-on-surface leading-none mb-3">
+            Welcome<br />
+            <span className="px-2 pb-0.5 inline-block border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}>Back.</span>
+          </h1>
+          <p className="text-on-surface-variant text-sm mb-8 max-w-[380px] leading-relaxed">
+            Continue your campus journey with CampusPulse.
           </p>
 
-          <form onSubmit={handleLogin} className="flex flex-col">
-            <input
-              className="w-full pt-[18px] pb-2.5 border-b border-outline-variant/50 bg-transparent text-[14px] outline-none mb-7 transition-colors focus:border-primary focus:shadow-[0_2px_0_0_var(--color-primary)] placeholder:text-outline"
-              type="email"
-              placeholder="Email address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={loading}
-              required
-            />
+          <form onSubmit={handleLogin} className="flex flex-col gap-5">
+            <div>
+              <label className="block text-[10px] font-label font-bold uppercase tracking-[0.14em] text-on-surface mb-2">Email</label>
+              <input
+                className="w-full px-4 py-3.5 border-4 border-black bg-transparent text-sm font-body outline-none transition-all focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:translate-x-[-2px] focus:translate-y-[-2px] placeholder:text-on-surface-variant/50"
+                style={{ background: 'var(--color-surface-container-base)' }}
+                type="email"
+                placeholder="you@campus.edu"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={loading}
+                required
+              />
+            </div>
 
-            <input
-              className="w-full pt-[18px] pb-2.5 border-b border-outline-variant/50 bg-transparent text-[14px] outline-none mb-7 transition-colors focus:border-primary focus:shadow-[0_2px_0_0_var(--color-primary)] placeholder:text-outline"
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={loading}
-              required
-            />
+            <div>
+              <label className="block text-[10px] font-label font-bold uppercase tracking-[0.14em] text-on-surface mb-2">Password</label>
+              <input
+                className="w-full px-4 py-3.5 border-4 border-black bg-transparent text-sm font-body outline-none transition-all focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:translate-x-[-2px] focus:translate-y-[-2px] placeholder:text-on-surface-variant/50"
+                style={{ background: 'var(--color-surface-container-base)' }}
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={loading}
+                required
+              />
+            </div>
 
             <button 
-              className="w-full p-4 bg-on-surface text-surface text-[13px] tracking-[0.14em] uppercase rounded-md transition-all hover:bg-primary hover:shadow-lg active:shadow-inner disabled:opacity-50"
+              className="w-full py-4 font-label font-black text-sm uppercase tracking-wider border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 active:scale-[0.98] disabled:opacity-50 mt-2"
+              style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}
               type="submit" 
               disabled={loading}
             >
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading ? 'Signing in...' : 'Sign In →'}
             </button>
 
-            <div className="flex items-center gap-3 my-8 text-outline text-[12px] tracking-[0.1em] uppercase before:flex-1 before:h-px before:bg-outline-variant/30 after:flex-1 after:h-px after:bg-outline-variant/30">
-              or
+            <div className="flex items-center gap-3 my-2 text-on-surface-variant text-[10px] font-label font-bold uppercase tracking-[0.14em]">
+              <div className="flex-1 h-[3px] bg-black" />
+              <span>or</span>
+              <div className="flex-1 h-[3px] bg-black" />
             </div>
 
             <button 
               type="button" 
-              className="flex items-center justify-center gap-2.5 p-3.5 border border-outline-variant/50 bg-transparent text-[12px] font-medium tracking-[0.06em] uppercase rounded-lg transition-colors hover:border-on-surface hover:bg-surface-container disabled:opacity-50"
+              className="flex items-center justify-center gap-2 py-3.5 font-label font-bold text-sm uppercase tracking-wider border-4 border-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all duration-150 text-on-surface disabled:opacity-50"
+              style={{ background: 'var(--color-surface-container-base)' }}
               onClick={handleAnonymousSignIn} 
               disabled={loading}
             >
+              <span className="material-symbols-outlined text-base">person_off</span>
               Continue as Guest
             </button>
           </form>
 
-          <div className="mt-8 text-[13px] text-on-surface-variant">
-            New here? <Link href="/register" className="text-on-surface underline hover:text-primary transition-colors">Create an account</Link>
+          <div className="mt-8 text-sm text-on-surface-variant font-body">
+            New here?{' '}
+            <Link href="/register" className="font-bold text-on-surface underline decoration-4 underline-offset-4 hover:text-primary transition-colors uppercase">
+              Create Account
+            </Link>
           </div>
         </div>
-
-      </div>
+      </motion.div>
 
       {error && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-on-surface text-surface px-5 py-3.5 text-[13px] tracking-[0.04em] rounded-lg shadow-2xl z-50 animate-in slide-in-from-bottom-5">
-          {error}
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3.5 text-sm font-label font-bold uppercase tracking-wider z-50 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+          style={{ background: 'var(--color-error-container-base)', color: 'var(--color-on-error-container-base)' }}
+        >
+          ⚠ {error}
+        </motion.div>
       )}
     </div>
   );
