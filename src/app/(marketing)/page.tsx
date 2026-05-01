@@ -1,255 +1,189 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import Image from 'next/image';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, Zap, Users, Calendar, Trophy } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useAuth } from '@/context/AuthContext';
-
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+
+const STATS = [
+  { label: 'Active Events', value: '248+', icon: 'calendar_today', color: 'var(--color-primary-container-base)', onColor: 'var(--color-on-primary-container-base)' },
+  { label: 'Students', value: '12K+', icon: 'groups', color: 'var(--color-secondary-container-base)', onColor: 'var(--color-on-secondary-container-base)' },
+  { label: 'Campus Clubs', value: '80+', icon: 'school', color: 'var(--color-tertiary-container-base)', onColor: 'var(--color-on-tertiary-container-base)' },
+];
+
+const FEATURES = [
+  { icon: 'dashboard', title: 'Discovery Feed', desc: 'Browse personalized events based on your interests and clubs.', bg: 'var(--color-primary-container-base)', num: '01' },
+  { icon: 'emoji_events', title: 'Earn Points', desc: 'RSVP, bring friends, and climb the campus leaderboard.', bg: 'var(--color-secondary-container-base)', num: '02' },
+  { icon: 'add_circle', title: 'Host Events', desc: 'Create, promote, and manage campus events in minutes.', bg: 'var(--color-tertiary-container-base)', num: '03' },
+];
+
+const MARQUEE = ['🎸 Battle of the Bands', '🏆 Hackathon 2025', '🎨 Art Fest', '⚽ Inter-House Soccer', '🍕 Food Festival', '🎭 Drama Night', '💡 TEDx Talks', '🎮 Gaming Tournament'];
 
 export default function LandingPage() {
   const { user, loading, loginAnonymously } = useAuth();
   const router = useRouter();
   const [authLoading, setAuthLoading] = useState(false);
-  
-  const primaryHref = user ? '/home' : '#';
-  const primaryLabel = user ? 'Home' : 'Join Us';
 
   const handleJoinUs = async (e: React.MouseEvent) => {
-    if (user) {
-      router.push('/home');
-      return;
-    }
+    if (user) { router.push('/home'); return; }
     e.preventDefault();
     setAuthLoading(true);
-    try {
-      await loginAnonymously();
-      router.push('/home');
-    } catch (err) {
-      console.error('Failed to login anonymously:', err);
-      setAuthLoading(false);
-    }
+    try { await loginAnonymously(); router.push('/home'); }
+    catch (err) { console.error('Failed to login anonymously:', err); setAuthLoading(false); }
   };
 
   return (
-    <div className="min-h-screen bg-background text-on-background font-body relative overflow-x-hidden selection:bg-primary/20">
-      {/* Grain texture overlay */}
-      <div className="fixed inset-0 pointer-events-none opacity-[0.03] mix-blend-overlay z-50 dark:opacity-[0.05]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 512 512\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.75\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")' }}></div>
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute left-[-8%] top-[-4%] h-72 w-72 rounded-full bg-primary/12 blur-3xl" />
-        <div className="absolute right-[-10%] top-[10%] h-80 w-80 rounded-full bg-tertiary/12 blur-3xl" />
-        <div className="absolute bottom-[12%] left-[18%] h-64 w-64 rounded-full bg-primary/8 blur-3xl" />
-      </div>
+    <div className="min-h-screen text-on-background font-body relative overflow-x-hidden" style={{ background: 'var(--color-background-base)' }}>
+      {/* Dot grid */}
+      <div className="fixed inset-0 pointer-events-none z-0 opacity-30" style={{ backgroundImage: 'radial-gradient(circle, #00000033 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+
+      {/* NAVBAR */}
+      <header className="relative z-50 flex items-center justify-between px-6 md:px-12 py-4 border-b-4 border-black" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
+        <Link href="/" className="group flex items-center gap-3">
+          <span className="px-4 py-2 font-headline font-black text-lg uppercase tracking-tight border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] group-hover:translate-x-[2px] group-hover:translate-y-[2px] group-hover:shadow-none transition-all duration-150" style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}>CampusPulse</span>
+        </Link>
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
+          {!user && !loading && (
+            <Link href="/login" className="px-5 py-2.5 font-label font-bold text-sm uppercase tracking-wider border-4 border-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all duration-150 text-on-surface">Login</Link>
+          )}
+          <button onClick={handleJoinUs} disabled={authLoading || loading} className="px-6 py-2.5 font-label font-black text-sm uppercase tracking-wider border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 disabled:opacity-60" style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}>
+            {authLoading ? 'Loading...' : user ? 'Open App →' : 'Join Free →'}
+          </button>
+        </div>
+      </header>
 
       {/* HERO */}
-      <section className="min-h-screen grid grid-cols-1 lg:grid-cols-2 relative">
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="flex flex-col justify-center px-8 md:px-16 lg:px-20 relative z-10 py-12"
-        >
-          <div className="absolute top-8 left-8 right-8 md:left-16 md:right-16 lg:left-20 lg:right-20 flex items-start justify-between">
-            <Link href="/" className="flex items-center gap-3">
-              <div>
-                <p
-                  className="text-[30px] font-semibold tracking-tight text-on-background"
-                  style={{ fontFamily: 'var(--font-elms-sans), "Segoe UI", sans-serif' }}
-                >
-                  NexusAid Platform
-                </p>
-              </div>
-            </Link>
-            <ThemeToggle />
-          </div>
-          <span className="text-[11px] font-medium tracking-[0.18em] uppercase text-tertiary mb-8 flex items-center gap-3 mt-12 md:mt-0">
-            <span className="w-8 h-[1px] bg-tertiary"></span>
-            Community Relief Initiative
+      <section className="relative z-10 min-h-[88vh] grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-0">
+        <motion.div initial={{ opacity: 0, x: -40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7, ease: 'easeOut' }} className="flex flex-col justify-center px-8 md:px-14 lg:px-20 py-16">
+          <span className="inline-flex items-center gap-2 px-4 py-2 text-[11px] font-label font-bold uppercase tracking-[0.2em] border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] w-fit mb-8" style={{ background: 'var(--color-secondary-container-base)', color: 'var(--color-on-secondary-container-base)' }}>
+            <Zap size={13} /> Student Event Intelligence
           </span>
-          <h1 className="font-serif text-5xl md:text-7xl lg:text-[88px] font-light leading-[1.05] tracking-tight text-on-background mb-10">
-            Rooted in<br />
-            community,<br />
-            <em className="italic text-primary">grown through care.</em>
+          <h1 className="font-headline font-black text-5xl md:text-7xl lg:text-[88px] leading-[0.95] uppercase tracking-tighter text-on-background mb-8">
+            Your Campus,<br />
+            <span className="px-4 pb-1 inline-block border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] skew-x-[-2deg]" style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}>Alive.</span>
           </h1>
-          <p className="text-on-surface-variant text-base md:text-lg font-light leading-relaxed max-w-md mb-14">
-            Empowering our neighbors through dedicated relief efforts and sustainable community support. Join NexusAid in making a difference today.
-          </p>
-          <div className="flex flex-wrap items-center gap-6">
-            <button onClick={handleJoinUs} disabled={authLoading || loading} className="inline-flex items-center gap-3 px-8 py-4 bg-on-background text-background font-medium text-[13px] tracking-widest uppercase hover:bg-primary hover:text-on-primary transition-all duration-300 transform hover:-translate-y-1 shadow-[0_16px_34px_rgba(42,45,43,0.12)] disabled:opacity-70">
-              {authLoading ? 'Joining...' : primaryLabel}
-              <ArrowRight size={14} />
+          <p className="text-on-surface-variant text-base md:text-lg leading-relaxed max-w-md mb-10">Discover events, RSVP in one tap, earn points for showing up, and own your campus social life.</p>
+          <div className="flex flex-wrap items-center gap-4 mb-12">
+            <button onClick={handleJoinUs} disabled={authLoading || loading} className="flex items-center gap-3 px-8 py-4 font-label font-black text-base uppercase tracking-wider border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[4px] hover:translate-y-[4px] hover:shadow-none transition-all duration-150 disabled:opacity-60" style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}>
+              {authLoading ? 'Joining...' : user ? 'Go to Home' : 'Get Started'} <ArrowRight size={18} />
             </button>
             {!user && !loading && (
-              <Link href="/login" className="inline-flex items-center gap-2 px-0 py-4 bg-transparent text-on-surface-variant font-medium text-[13px] tracking-wider uppercase hover:text-on-background transition-colors group">
-                Login
-                <ArrowRight size={14} className="transform transition-transform group-hover:translate-x-1" />
-              </Link>
+              <Link href="/login" className="flex items-center gap-2 px-8 py-4 font-label font-bold text-sm uppercase tracking-wider border-4 border-black hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-150 text-on-surface">Sign In</Link>
             )}
           </div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.35 }}
-            className="mt-8 flex flex-wrap gap-3"
-          >
-            <div className="rounded-full border border-outline-variant/40 bg-surface/70 px-4 py-2 text-xs uppercase tracking-[0.16em] text-on-surface-variant backdrop-blur-sm">
-              Live coordination
-            </div>
-            <div className="rounded-full border border-outline-variant/40 bg-surface/70 px-4 py-2 text-xs uppercase tracking-[0.16em] text-on-surface-variant backdrop-blur-sm">
-              Volunteer matching
-            </div>
-            <div className="rounded-full border border-outline-variant/40 bg-surface/70 px-4 py-2 text-xs uppercase tracking-[0.16em] text-on-surface-variant backdrop-blur-sm">
-              Local impact
-            </div>
-          </motion.div>
+          <div className="flex flex-wrap gap-3">
+            {STATS.map((s) => (
+              <div key={s.label} className="flex items-center gap-2 px-4 py-2 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" style={{ background: s.color, color: s.onColor }}>
+                <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>{s.icon}</span>
+                <span className="font-headline font-black text-sm">{s.value}</span>
+                <span className="font-label text-[11px] uppercase font-bold opacity-75">{s.label}</span>
+              </div>
+            ))}
+          </div>
         </motion.div>
-        <motion.div 
-          initial={{ opacity: 0, scale: 1.05 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
-          className="relative h-[60vh] lg:h-full overflow-hidden"
-        >
-          <Image
-            src="https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?auto=format&fit=crop&q=80"
-            alt="Community hands"
-            fill
-            className="object-cover saturate-[0.85] brightness-90 dark:brightness-75 hover:scale-105 transition-transform duration-[8s] ease-out"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-br from-background/30 dark:from-background/60 to-transparent pointer-events-none" />
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.45 }}
-            className="absolute right-6 top-6 rounded-2xl border border-white/15 bg-black/30 px-5 py-4 text-white backdrop-blur-md"
-          >
-            <p className="text-[10px] uppercase tracking-[0.2em] text-white/70">Response Pulse</p>
-            <p className="mt-1 text-lg font-medium">Fast-moving, calm, local</p>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.55 }}
-            className="absolute bottom-6 left-6 rounded-2xl border border-white/15 bg-white/10 px-5 py-4 text-white backdrop-blur-md"
-          >
-            <p className="text-[10px] uppercase tracking-[0.2em] text-white/70">Built for action</p>
-            <p className="mt-1 text-sm leading-6 max-w-xs text-white/90">Discover events, coordinate help, and keep communities informed in one place.</p>
-          </motion.div>
+
+        {/* Right collage panel */}
+        <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="relative hidden lg:flex flex-col border-l-4 border-black overflow-hidden">
+          <div className="flex-1 relative overflow-hidden border-b-4 border-black p-6 flex flex-col justify-between" style={{ background: 'var(--color-primary-container-base)' }}>
+            <div>
+              <p className="font-headline font-black text-xs uppercase tracking-[0.2em] opacity-60 mb-1">Now Trending</p>
+              <p className="font-headline font-black text-2xl uppercase">Battle of the Bands 🎸</p>
+              <p className="font-body text-sm text-on-surface-variant mt-1">Main Auditorium · Fri 8 PM</p>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 w-fit border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" style={{ background: 'var(--color-secondary-container-base)', color: 'var(--color-on-secondary-container-base)' }}>
+              <Trophy size={16} /><span className="font-label font-black text-sm uppercase">+50 XP</span>
+            </div>
+          </div>
+          <div className="flex-1 relative overflow-hidden border-b-4 border-black p-6 flex flex-col justify-between" style={{ background: 'var(--color-secondary-container-base)' }}>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 flex items-center justify-center border-4 border-black" style={{ background: 'var(--color-tertiary-container-base)' }}>
+                <Users size={18} />
+              </div>
+              <div>
+                <p className="font-headline font-black text-sm uppercase">234 Students RSVP'd</p>
+                <p className="font-body text-xs text-on-surface-variant">Hackathon 2025</p>
+              </div>
+            </div>
+            <div className="h-3 w-full border-4 border-black overflow-hidden" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
+              <div className="h-full" style={{ width: '72%', background: 'var(--color-on-secondary-container-base)' }} />
+            </div>
+          </div>
+          <div className="flex-1 relative overflow-hidden p-6" style={{ background: 'var(--color-tertiary-container-base)' }}>
+            <p className="font-headline font-black text-xs uppercase tracking-[0.2em] mb-3">This Week</p>
+            {['🎨 Art Fest', '⚽ Soccer Finals', '🍕 Food Carnival'].map((item) => (
+              <div key={item} className="flex items-center gap-2 mb-2"><Calendar size={12} /><span className="font-body text-sm">{item}</span></div>
+            ))}
+          </div>
         </motion.div>
       </section>
 
-      {/* WAYS TO HELP */}
-      <section className="py-32 px-8 md:px-16 lg:px-20 max-w-[1400px] mx-auto overflow-hidden">
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6 }}
-          className="mb-20"
-        >
-          <div className="flex items-center gap-4 text-[11px] font-medium tracking-[0.18em] uppercase text-tertiary mb-6">
-            <span>Ways to Help</span>
-            <span className="flex-1 h-[1px] bg-outline-variant max-w-[80px]"></span>
-          </div>
-          <h2 className="font-serif text-4xl md:text-6xl font-light leading-tight tracking-tight text-on-background max-w-2xl mb-6">
-            Every gesture<br /><em className="italic text-primary">shapes the community.</em>
-          </h2>
-          <p className="text-on-surface-variant font-light leading-relaxed max-w-lg">
-            Whether you have time, resources, or skills to share, every contribution helps our community grow stronger.
-          </p>
-        </motion.div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px] bg-outline-variant/30">
-          {/* Volunteer */}
-          <motion.div 
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="bg-surface p-10 md:p-16 relative overflow-hidden group transition-colors hover:bg-surface-container"
-          >
-            <div className="absolute top-0 left-0 w-1 h-0 bg-tertiary transition-all duration-500 group-hover:h-full"></div>
-            <span className="absolute top-8 right-10 font-serif text-8xl md:text-[120px] font-light text-outline-variant/30 dark:text-outline-variant/10 tracking-tighter transition-colors group-hover:text-outline-variant/50 pointer-events-none select-none">01</span>
-            
-            <svg className="w-12 h-12 mb-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
-              <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8l-2-2a2 2 0 0 0-2.83 0l.83.83L6 19a5 5 0 0 0 5 3h2a5 5 0 0 0 5-5v-5a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v1"/>
-            </svg>
-            <h3 className="font-serif text-3xl text-on-background mb-4 relative z-10">Volunteer Your Time</h3>
-            <p className="text-on-surface-variant font-light leading-relaxed mb-10 max-w-sm relative z-10">
-              Join our team of active volunteers. From sorting food to teaching classes, we have a place for you.
-            </p>
-            <button onClick={handleJoinUs} disabled={authLoading || loading} className="inline-flex items-center gap-3 text-[12px] font-medium tracking-[0.1em] uppercase text-on-background border-b border-on-background pb-1 hover:text-tertiary hover:border-tertiary hover:gap-5 transition-all relative z-10 disabled:opacity-70">
-              Browse Opportunities
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </button>
-          </motion.div>
+      {/* MARQUEE */}
+      <div className="relative z-10 border-y-4 border-black py-3 overflow-hidden" style={{ background: 'var(--color-secondary-container-base)' }}>
+        <div className="flex animate-marquee gap-8 whitespace-nowrap">
+          {[...MARQUEE, ...MARQUEE].map((item, i) => (
+            <span key={i} className="font-headline font-black text-sm uppercase tracking-widest px-2">{item} <span className="opacity-40 mx-2">◆</span></span>
+          ))}
+        </div>
+      </div>
 
-          {/* Donate */}
-          <motion.div 
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="bg-surface p-10 md:p-16 relative overflow-hidden group transition-colors hover:bg-surface-container"
-          >
-            <div className="absolute top-0 left-0 w-1 h-0 bg-tertiary transition-all duration-500 group-hover:h-full"></div>
-            <span className="absolute top-8 right-10 font-serif text-8xl md:text-[120px] font-light text-outline-variant/30 dark:text-outline-variant/10 tracking-tighter transition-colors group-hover:text-outline-variant/50 pointer-events-none select-none">02</span>
-            
-            <svg className="w-12 h-12 mb-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-            </svg>
-            <h3 className="font-serif text-3xl text-on-background mb-4 relative z-10">Support Financially</h3>
-            <p className="text-on-surface-variant font-light leading-relaxed mb-10 max-w-sm relative z-10">
-              Your financial support directly funds our relief programs. $50 can provide 10 hot meals for local families.
-            </p>
-            <button onClick={handleJoinUs} disabled={authLoading || loading} className="inline-flex items-center gap-3 text-[12px] font-medium tracking-[0.1em] uppercase text-on-background border-b border-on-background pb-1 hover:text-tertiary hover:border-tertiary hover:gap-5 transition-all relative z-10 disabled:opacity-70">
-              Start Your Donation
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </button>
-          </motion.div>
+      {/* FEATURES */}
+      <section className="relative z-10 py-24 px-8 md:px-14 lg:px-20 max-w-7xl mx-auto">
+        <div className="mb-16">
+          <div className="inline-flex items-center gap-2 px-4 py-2 text-[11px] font-label font-bold uppercase tracking-[0.2em] border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mb-6" style={{ background: 'var(--color-tertiary-container-base)', color: 'var(--color-on-tertiary-container-base)' }}>How It Works</div>
+          <h2 className="font-headline font-black text-4xl md:text-6xl uppercase tracking-tight text-on-background leading-tight max-w-2xl">
+            Everything you need to<br /><span style={{ color: 'var(--color-primary-container-base)', WebkitTextStroke: '2px black' }}>dominate campus life</span>
+          </h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-4 border-black">
+          {FEATURES.map((f, i) => (
+            <div key={f.num} className={`relative p-10 hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-150 ${i < FEATURES.length - 1 ? 'border-r-4 border-black' : ''}`} style={{ background: f.bg }}>
+              <span className="absolute top-6 right-8 font-headline font-black text-6xl opacity-20 select-none">{f.num}</span>
+              <div className="w-14 h-14 flex items-center justify-center border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mb-8" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
+                <span className="material-symbols-outlined text-[22px] text-on-surface" style={{ fontVariationSettings: "'FILL' 1" }}>{f.icon}</span>
+              </div>
+              <h3 className="font-headline font-black text-2xl uppercase text-on-surface mb-3">{f.title}</h3>
+              <p className="font-body text-sm leading-relaxed text-on-surface-variant">{f.desc}</p>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* CTA */}
-      <section className="bg-primary text-on-primary py-32 px-8 md:px-16 lg:px-20 relative overflow-hidden">
-        <div className="absolute -top-24 -right-24 w-[500px] h-[500px] rounded-full border border-on-primary/10 pointer-events-none"></div>
-        <div className="absolute -bottom-40 right-20 w-[380px] h-[380px] rounded-full border border-on-primary/5 pointer-events-none"></div>
-        
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8 }}
-          className="max-w-[1240px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center relative z-10"
-        >
+      <section className="relative z-10 border-y-4 border-black py-24 px-8 md:px-14 overflow-hidden" style={{ background: 'var(--color-primary-container-base)' }}>
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'repeating-linear-gradient(0deg, black 0px, black 1px, transparent 1px, transparent 40px), repeating-linear-gradient(90deg, black 0px, black 1px, transparent 1px, transparent 40px)' }} />
+        <div className="relative z-10 max-w-4xl mx-auto flex flex-col lg:flex-row lg:items-center lg:justify-between gap-12">
           <div>
-            <p className="text-[11px] font-medium tracking-[0.18em] uppercase text-on-primary/60 mb-6">Join the Movement</p>
-            <h2 className="font-serif text-4xl md:text-6xl lg:text-[72px] font-light leading-[1.05] tracking-tight mb-6">
-              Ready to make<br />
-              <em className="italic text-on-primary/80">a real difference?</em>
-            </h2>
-            <p className="text-on-primary/80 font-light leading-relaxed max-w-md">
-              Our doors are always open, and our community is waiting for you. Together, we can build a more resilient neighborhood.
-            </p>
+            <p className="font-label font-bold text-[11px] uppercase tracking-[0.2em] text-on-surface/60 mb-4">Ready to plug in?</p>
+            <h2 className="font-headline font-black text-4xl md:text-6xl uppercase leading-tight tracking-tight text-on-surface">Your campus is calling.<br />Answer it.</h2>
           </div>
-          <div className="flex flex-col gap-4 lg:w-max lg:ml-auto">
-            <button onClick={handleJoinUs} disabled={authLoading || loading} className="inline-flex items-center justify-center gap-2 px-12 py-5 bg-on-primary text-primary font-medium text-[13px] tracking-wider uppercase hover:bg-background transition-colors disabled:opacity-70">
-              {user ? 'Just Home' : (authLoading ? 'Joining...' : 'Apply to Volunteer')}
-              <ArrowRight size={14} />
+          <div className="flex flex-col gap-4 min-w-[220px]">
+            <button onClick={handleJoinUs} disabled={authLoading || loading} className="flex items-center justify-center gap-3 px-8 py-5 font-label font-black text-base uppercase tracking-wider border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[4px] hover:translate-y-[4px] hover:shadow-none transition-all duration-150 disabled:opacity-60" style={{ background: 'var(--color-on-primary-container-base)', color: 'var(--color-primary-container-base)' }}>
+              {authLoading ? 'Joining...' : user ? 'Go to Home' : 'Join Free'} <ArrowRight size={18} />
             </button>
             {!user && !loading && (
-              <Link href="/login" className="inline-flex items-center justify-center gap-2 px-12 py-5 border border-on-primary/20 text-on-primary font-medium text-[13px] tracking-wider uppercase hover:bg-white/8 transition-colors">
-                Login
-                <ArrowRight size={14} />
-              </Link>
+              <Link href="/login" className="flex items-center justify-center gap-2 px-8 py-5 font-label font-bold text-sm uppercase tracking-wider border-4 border-black hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-150 text-on-surface">Already have an account?</Link>
             )}
           </div>
-        </motion.div>
+        </div>
       </section>
+
+      {/* FOOTER */}
+      <footer className="relative z-10 border-t-4 border-black py-8 px-8 md:px-14 flex flex-col md:flex-row items-center justify-between gap-4" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
+        <p className="font-headline font-black text-sm uppercase tracking-wider text-on-surface">CampusPulse © 2025</p>
+        <div className="flex gap-6">
+          <Link href="/about" className="font-label text-xs uppercase font-bold tracking-wider text-on-surface-variant hover:text-on-surface transition-colors">About</Link>
+          <Link href="/login" className="font-label text-xs uppercase font-bold tracking-wider text-on-surface-variant hover:text-on-surface transition-colors">Login</Link>
+        </div>
+      </footer>
+
+      <style>{`
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .animate-marquee { animation: marquee 28s linear infinite; }
+      `}</style>
     </div>
   );
 }

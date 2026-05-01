@@ -1,24 +1,20 @@
 import type { Metadata } from 'next';
-import { Elms_Sans, Literata, Nunito_Sans } from 'next/font/google';
+import { Space_Grotesk, Inter } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
 import { ThemeProvider } from '@/context/ThemeProvider';
 
-const literata = Literata({
-  variable: '--font-literata',
+const spaceGrotesk = Space_Grotesk({
+  variable: '--font-space-grotesk',
   subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
   display: 'swap',
 });
 
-const nunitoSans = Nunito_Sans({
-  variable: '--font-nunito-sans',
+const inter = Inter({
+  variable: '--font-inter',
   subsets: ['latin'],
-  display: 'swap',
-});
-
-const elmsSans = Elms_Sans({
-  variable: '--font-elms-sans',
-  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
   display: 'swap',
 });
 
@@ -33,7 +29,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${literata.variable} ${nunitoSans.variable} ${elmsSans.variable} scroll-smooth`} suppressHydrationWarning>
+    <html lang="en" className={`${spaceGrotesk.variable} ${inter.variable} scroll-smooth`} suppressHydrationWarning>
       <head>
         <link
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL,GRAD,opsz@100..700,0..1,0..1,20..48&display=swap"
