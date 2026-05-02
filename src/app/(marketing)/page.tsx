@@ -8,6 +8,8 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { CountUp } from '@/components/CountUp';
+import Folder from '@/components/Folder';
+import ScrollVelocity from '@/components/ScrollVelocity';
 
 const STATS = [
   { label: 'Active Events', value: 248, suffix: '+', icon: 'calendar_today', color: 'var(--color-primary-container-base)', onColor: 'var(--color-on-primary-container-base)' },
@@ -58,9 +60,6 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen text-on-background font-body relative overflow-x-hidden" style={{ background: 'var(--color-background-base)' }}>
-      {/* Dot grid */}
-      <div className="fixed inset-0 pointer-events-none z-0 opacity-30" style={{ backgroundImage: 'radial-gradient(circle, #00000033 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-
       {/* NAVBAR */}
       <header className="relative z-50 flex items-center justify-between px-6 md:px-12 py-4 border-b-4 border-black" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
         <Link href="/" className="group flex items-center gap-3">
@@ -79,7 +78,6 @@ export default function LandingPage() {
 
       {/* HERO */}
       <section className="relative z-10 min-h-[88vh] grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-0">
-        <div className="absolute inset-0 -z-10 bg-[image:var(--gradient-party)] opacity-[0.2] mix-blend-multiply dark:mix-blend-screen bg-[length:400%_400%] animate-gradient-xy" />
         <motion.div initial={{ opacity: 0, x: -40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7, ease: 'easeOut' }} className="flex flex-col justify-center px-8 md:px-14 lg:px-20 py-16">
           <span className="inline-flex items-center gap-2 px-4 py-2 text-[11px] font-label font-bold uppercase tracking-[0.2em] border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] w-fit mb-8" style={{ background: 'var(--color-secondary-container-base)', color: 'var(--color-on-secondary-container-base)' }}>
             <Zap size={13} /> Student Event Intelligence
@@ -168,20 +166,26 @@ export default function LandingPage() {
       </section>
 
       {/* MARQUEE */}
-      <div className="relative z-10 border-y-4 border-black py-3 overflow-hidden flex flex-col gap-0 bg-black">
-        <div className="py-3 w-full" style={{ background: 'var(--pop-acid-lime)' }}>
-          <div className="flex animate-marquee gap-8 whitespace-nowrap">
-            {[...MARQUEE, ...MARQUEE].map((item, i) => (
-              <span key={`m1-${i}`} className="font-headline font-black text-sm uppercase tracking-widest px-2 text-black">{item} <span className="opacity-40 mx-2">◆</span></span>
-            ))}
-          </div>
+      <div className="relative z-10 border-y-4 border-black overflow-hidden flex flex-col bg-black">
+        <div className="w-full" style={{ background: 'var(--pop-acid-lime)' }}>
+          <ScrollVelocity 
+            texts={[MARQUEE.join(' ◆ ')]} 
+            velocity={50} 
+            className="font-headline font-black text-sm md:text-lg uppercase tracking-widest px-2 text-black" 
+            parallaxClassName="parallax py-4"
+            scrollerClassName="scroller"
+            numCopies={4}
+          />
         </div>
-        <div className="py-3 w-full border-t-4 border-black" style={{ background: 'var(--pop-electric-purple)' }}>
-          <div className="flex animate-marquee-reverse gap-8 whitespace-nowrap">
-            {[...TESTIMONIALS, ...TESTIMONIALS].map((item, i) => (
-              <span key={`m2-${i}`} className="font-headline font-black text-sm uppercase tracking-widest px-2 text-black">{item} <span className="opacity-40 mx-2">★</span></span>
-            ))}
-          </div>
+        <div className="w-full border-t-4 border-black" style={{ background: 'var(--pop-electric-purple)' }}>
+          <ScrollVelocity 
+            texts={[TESTIMONIALS.join(' ★ ')]} 
+            velocity={-50} 
+            className="font-headline font-black text-sm md:text-lg uppercase tracking-widest px-2 text-black" 
+            parallaxClassName="parallax py-4"
+            scrollerClassName="scroller"
+            numCopies={4}
+          />
         </div>
       </div>
 
@@ -193,17 +197,18 @@ export default function LandingPage() {
             Everything you need to<br /><span style={{ color: 'var(--color-primary-container-base)', WebkitTextStroke: '2px black' }}>dominate campus life</span>
           </h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-4 border-black">
-          {FEATURES.map((f, i) => (
-            <div key={f.num} className={`relative p-10 hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-150 ${i < FEATURES.length - 1 ? 'border-r-4 border-black' : ''}`} style={{ background: f.bg }}>
-              <span className="absolute top-6 right-8 font-headline font-black text-6xl opacity-20 select-none">{f.num}</span>
-              <div className="w-14 h-14 flex items-center justify-center border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mb-8" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
-                <span className="material-symbols-outlined text-[22px] text-on-surface" style={{ fontVariationSettings: "'FILL' 1" }}>{f.icon}</span>
+        <div className="flex justify-center items-center py-32 border-4 border-black bg-[var(--color-surface-container-lowest-base)]">
+          <Folder 
+            color="var(--pop-electric-purple)"
+            size={1}
+            items={FEATURES.map((f, i) => (
+              <div key={f.num} className="w-full h-full border-2 border-black flex flex-col p-5" style={{ background: f.bg }}>
+                <span className="material-symbols-outlined text-[32px] text-black mb-3" style={{ fontVariationSettings: "'FILL' 1" }}>{f.icon}</span>
+                <h3 className="font-headline font-black text-lg md:text-xl uppercase text-black leading-tight mb-2">{f.title}</h3>
+                <p className="font-body text-sm md:text-base leading-[1.4] text-black/80">{f.desc}</p>
               </div>
-              <h3 className="font-headline font-black text-2xl uppercase text-on-surface mb-3">{f.title}</h3>
-              <p className="font-body text-sm leading-relaxed text-on-surface-variant">{f.desc}</p>
-            </div>
-          ))}
+            ))}
+          />
         </div>
       </section>
 
