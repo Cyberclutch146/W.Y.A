@@ -369,7 +369,7 @@ function FeedContent() {
 
     if (sortBy === 'recommended') {
       const recommendedOrder = new Map(
-        getRecommendedEvents(profile?.skills ?? [], result, result.length, profile?.equipment ?? []).map(({ event }, index) => [event.id, index])
+        getRecommendedEvents(profile as any, result, result.length).map(({ event }, index) => [event.id, index])
       );
 
       return result.sort((a, b) => {
@@ -457,7 +457,7 @@ function FeedContent() {
       return {};
     }
 
-    const recommendedEvents = getRecommendedEvents(profile?.interests || profile?.skills || [], events, events.length, profile?.clubs || []);
+    const recommendedEvents = getRecommendedEvents(profile as any, events, events.length);
 
     if (recommendedEvents.length === 0) {
       return {};
