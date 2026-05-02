@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { CountUp } from '@/components/CountUp';
 import Folder from '@/components/Folder';
 import ScrollVelocity from '@/components/ScrollVelocity';
+import LiquidEther from '@/components/LiquidEther';
 
 const STATS = [
   { label: 'Active Events', value: 248, suffix: '+', icon: 'calendar_today', color: 'var(--color-primary-container-base)', onColor: 'var(--color-on-primary-container-base)' },
@@ -78,7 +79,31 @@ export default function LandingPage() {
 
       {/* HERO */}
       <section className="relative z-10 min-h-[88vh] grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-0">
-        <motion.div initial={{ opacity: 0, x: -40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7, ease: 'easeOut' }} className="flex flex-col justify-center px-8 md:px-14 lg:px-20 py-16 relative z-20">
+        {/* Animated Liquid Background */}
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <LiquidEther
+            colors={['#5227FF', '#FF9FFC', '#B497CF']}
+            mouseForce={20}
+            cursorSize={100}
+            isViscous
+            viscous={30}
+            iterationsViscous={32}
+            iterationsPoisson={32}
+            resolution={0.5}
+            isBounce={false}
+            autoDemo
+            autoSpeed={0.5}
+            autoIntensity={2.2}
+            takeoverDuration={0.25}
+            autoResumeDelay={3000}
+            autoRampDuration={0.6}
+            color0="#5227FF"
+            color1="#FF9FFC"
+            color2="#B497CF"
+          />
+        </div>
+
+        <motion.div initial={{ opacity: 0, x: -40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7, ease: 'easeOut' }} className="flex flex-col justify-center px-8 md:px-14 lg:px-20 py-16 relative z-20 pointer-events-none [&>*]:pointer-events-auto">
           
           {/* Badge */}
           <motion.div 
@@ -162,10 +187,7 @@ export default function LandingPage() {
         </motion.div>
 
         {/* Right collage panel - Dynamic Floating Cards */}
-        <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="relative hidden lg:flex flex-col border-l-4 border-black bg-[var(--color-surface-container-lowest-base)] overflow-hidden items-center justify-center p-8">
-          
-          {/* Subtle Grid Background for Panel */}
-          <div className="absolute inset-0 opacity-[0.05] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)', backgroundSize: '16px 16px' }} />
+        <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="relative hidden lg:flex flex-col border-l-4 border-black bg-[var(--color-surface-container-lowest-base)]/40 backdrop-blur-[2px] overflow-hidden items-center justify-center p-8 z-20 pointer-events-none [&>*]:pointer-events-auto">
 
           <div className="relative w-full max-w-[360px] h-[600px]">
             
