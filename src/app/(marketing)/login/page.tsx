@@ -4,7 +4,9 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import LiquidEther from '@/components/LiquidEther';
+import Folder from '@/components/Folder';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -77,45 +79,114 @@ export default function LoginPage() {
         style={{ background: 'var(--color-surface-container-lowest-base)' }}
       >
         
-        {/* Left Side — Brutalist Collage Panel */}
-        <div className="relative hidden md:flex flex-col border-r-4 border-black overflow-hidden">
-          {/* Top block */}
-          <div className="flex-1 p-8 flex flex-col justify-between border-b-4 border-black" style={{ background: 'var(--color-primary-container-base)' }}>
-            <div>
-              <p className="font-headline font-black text-xs uppercase tracking-[0.2em] opacity-60 mb-2">Welcome Back To</p>
-              <h2 className="font-headline font-black text-4xl uppercase tracking-tight leading-none">
-                Campus<br />Pulse
+        {/* Left Side — Dynamic Pulse Panel */}
+        <div className="relative hidden md:flex flex-col border-r-4 border-black overflow-hidden group/panel bg-black">
+          {/* Animated Background */}
+          <div className="absolute inset-0 z-0 opacity-60 mix-blend-screen">
+            <LiquidEther
+              colors={['#5227FF', '#00E5FF', '#FF00CC']}
+              mouseForce={40}
+              cursorSize={150}
+              isViscous
+              viscous={35}
+              iterationsViscous={32}
+              iterationsPoisson={32}
+              resolution={0.5}
+              autoDemo
+              autoSpeed={0.8}
+              autoIntensity={2.5}
+            />
+          </div>
+
+          {/* CRT Overlay Effect */}
+          <div className="absolute inset-0 z-10 pointer-events-none opacity-20 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%]" />
+          
+          {/* Content Layer */}
+          <div className="relative z-20 flex-1 p-10 flex flex-col justify-between h-full pointer-events-none [&>*]:pointer-events-auto">
+            <div className="space-y-6">
+              <motion.div
+                initial={{ x: -50, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                className="flex items-center gap-3"
+              >
+                <div className="w-12 h-[4px] bg-white shadow-[0_0_15px_rgba(255,255,255,0.5)]" />
+                <span className="text-white font-label font-black text-[12px] uppercase tracking-[0.4em]">Node: Login_v2</span>
+              </motion.div>
+
+              <h2 className="font-headline font-black text-7xl uppercase tracking-tighter leading-[0.8] text-white italic">
+                <motion.span 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="block text-outline-white"
+                  style={{ WebkitTextStroke: '2px white', color: 'transparent' }}
+                >
+                  SYSTEM
+                </motion.span>
+                <motion.span 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="block drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]"
+                >
+                  PULSE
+                </motion.span>
               </h2>
             </div>
-            <div className="flex items-center gap-2 px-4 py-2 w-fit border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" style={{ background: 'var(--color-secondary-container-base)', color: 'var(--color-on-secondary-container-base)' }}>
-              <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
-              <span className="font-label font-black text-sm uppercase">Your events await</span>
-            </div>
-          </div>
-          {/* Middle block */}
-          <div className="flex-1 p-6 flex flex-col justify-center border-b-4 border-black" style={{ background: 'var(--color-secondary-container-base)' }}>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 flex items-center justify-center border-4 border-black" style={{ background: 'var(--color-tertiary-container-base)' }}>
-                <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>groups</span>
+
+            {/* Live Feed Component */}
+            <div className="space-y-4">
+              <div className="flex flex-col gap-3">
+                {[
+                  { icon: 'sensors', text: 'Live event tracking active', color: '#00E5FF' },
+                  { icon: 'security', text: 'Auth protocol secured', color: '#FF00CC' },
+                  { icon: 'hub', text: 'Campus network linked', color: '#5227FF' }
+                ].map((item, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 + (i * 0.1) }}
+                    className="flex items-center gap-3 p-3 border-2 border-white/20 bg-white/5 backdrop-blur-md group/item hover:bg-white/10 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-sm" style={{ color: item.color }}>{item.icon}</span>
+                    <span className="text-white/60 font-label font-bold text-[10px] uppercase tracking-widest group-hover/item:text-white transition-colors">
+                      {item.text}
+                    </span>
+                  </motion.div>
+                ))}
               </div>
-              <div>
-                <p className="font-headline font-black text-sm uppercase">12K+ Students</p>
-                <p className="font-body text-xs text-on-surface-variant">Already on the pulse</p>
+
+              <div className="pt-6">
+                <Folder 
+                  color="white" 
+                  size={0.9} 
+                  items={[
+                    <div key="1" className="p-3 text-[11px] font-black uppercase text-black flex items-center justify-between">
+                      <span>Recent Activity</span>
+                      <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                    </div>,
+                    <div key="2" className="p-3 text-[10px] font-bold uppercase text-black/60 border-t border-black/10">
+                      &gt; User_842 Joined CS_Group
+                    </div>,
+                    <div key="3" className="p-3 text-[10px] font-bold uppercase text-black/60 border-t border-black/10">
+                      &gt; 4 New Events in "Social"
+                    </div>
+                  ]}
+                />
               </div>
             </div>
-            <div className="h-3 w-full border-4 border-black overflow-hidden" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
-              <div className="h-full" style={{ width: '84%', background: 'var(--color-on-secondary-container-base)' }} />
-            </div>
-          </div>
-          {/* Bottom block */}
-          <div className="flex-1 p-6" style={{ background: 'var(--color-tertiary-container-base)' }}>
-            <p className="font-headline font-black text-xs uppercase tracking-[0.2em] mb-3">🔥 Hot Right Now</p>
-            {['🎸 Battle of Bands', '🏆 Hackathon 2025', '🎨 Art Week'].map((item) => (
-              <div key={item} className="flex items-center gap-2 mb-2">
-                <span className="w-1.5 h-1.5 bg-black inline-block" />
-                <span className="font-body text-sm font-bold">{item}</span>
+
+            <div className="mt-8 flex items-end justify-between border-t border-white/20 pt-6">
+              <div className="space-y-1">
+                <p className="text-white/40 font-label font-black text-[9px] uppercase tracking-[0.2em]">Established</p>
+                <p className="text-white font-label font-black text-[14px] uppercase tracking-widest">Est. 2024</p>
               </div>
-            ))}
+              <div className="text-right">
+                <p className="text-white/40 font-label font-black text-[9px] uppercase tracking-[0.2em]">Connection</p>
+                <p className="text-[#00E5FF] font-label font-black text-[14px] uppercase tracking-widest">Encrypted</p>
+              </div>
+            </div>
           </div>
         </div>
 

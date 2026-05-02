@@ -5,7 +5,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { createUserProfile } from '@/services/userService';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import LiquidEther from '@/components/LiquidEther';
+import Folder from '@/components/Folder';
 
 export default function RegisterPage() {
   const [fullName, setFullName] = useState('');
@@ -224,35 +226,124 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        {/* Right Side — Brutalist Collage Panel */}
-        <div className="relative hidden md:flex flex-col border-l-4 border-black overflow-hidden">
-          <div className="flex-1 p-8 flex flex-col justify-between border-b-4 border-black" style={{ background: 'var(--color-tertiary-container-base)' }}>
-            <div>
-              <p className="font-headline font-black text-xs uppercase tracking-[0.2em] opacity-60 mb-2">Start Your Journey</p>
-              <h2 className="font-headline font-black text-3xl uppercase tracking-tight leading-none">
-                Own Your<br />Campus Life
+        {/* Right Side — Dynamic Experience Panel */}
+        <div className="relative hidden md:flex flex-col border-l-4 border-black overflow-hidden group/panel bg-[#FF3D00]">
+          {/* Animated Background */}
+          <div className="absolute inset-0 z-0">
+            <LiquidEther
+              colors={['#FF3D00', '#FFD600', '#FF00CC']}
+              mouseForce={50}
+              cursorSize={200}
+              isViscous
+              viscous={25}
+              iterationsViscous={32}
+              iterationsPoisson={32}
+              resolution={0.6}
+              autoDemo
+              autoSpeed={1.2}
+              autoIntensity={3.5}
+            />
+          </div>
+
+          {/* Noise Overlay */}
+          <div className="absolute inset-0 z-10 opacity-30 pointer-events-none mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+          
+          {/* Content Layer */}
+          <div className="relative z-20 flex-1 p-10 flex flex-col justify-between h-full pointer-events-none [&>*]:pointer-events-auto">
+            <div className="text-right space-y-4">
+              <motion.div
+                initial={{ x: 50, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                className="inline-flex items-center gap-3 justify-end"
+              >
+                <span className="text-white font-label font-black text-[12px] uppercase tracking-[0.4em]">Auth // Identity_v2</span>
+                <div className="w-12 h-[4px] bg-white shadow-[0_0_15px_rgba(255,255,255,0.5)]" />
+              </motion.div>
+
+              <h2 className="font-headline font-black text-7xl uppercase tracking-tighter leading-[0.8] text-white">
+                <motion.span 
+                  initial={{ opacity: 0, scale: 1.1 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="block"
+                >
+                  START
+                </motion.span>
+                <motion.span 
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.1 }}
+                  className="block italic text-black"
+                >
+                  LEGACY
+                </motion.span>
               </h2>
             </div>
-            <div className="flex gap-2 flex-wrap mt-4">
-              {['🎸 Music', '🏆 Compete', '🎨 Create', '⚽ Sports'].map(tag => (
-                <span key={tag} className="px-3 py-1.5 text-[11px] font-label font-bold uppercase border-2 border-black" style={{ background: 'var(--color-surface-container-lowest-base)' }}>{tag}</span>
-              ))}
-            </div>
-          </div>
-          <div className="flex-1 p-6 flex flex-col justify-center border-b-4 border-black" style={{ background: 'var(--color-primary-container-base)' }}>
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 flex items-center justify-center border-4 border-black" style={{ background: 'var(--color-secondary-container-base)' }}>
-                <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>emoji_events</span>
+
+            {/* Identity Card Component */}
+            <div className="flex flex-col gap-8 items-end w-full">
+              <motion.div
+                initial={{ rotate: 5, y: 50, opacity: 0 }}
+                animate={{ rotate: -2, y: 0, opacity: 1 }}
+                transition={{ type: 'spring', damping: 15 }}
+                whileHover={{ rotate: 0, scale: 1.05 }}
+                className="w-full max-w-[320px] p-6 border-4 border-black bg-white shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 p-2 bg-black text-white text-[8px] font-black uppercase tracking-widest">
+                  Official ID
+                </div>
+                
+                <div className="flex gap-4 mb-6">
+                  <div className="w-16 h-16 border-4 border-black bg-[#FFD600] flex items-center justify-center">
+                    <span className="material-symbols-outlined text-4xl">face</span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="h-4 w-3/4 bg-black/10 mb-2" />
+                    <div className="h-3 w-1/2 bg-black/5" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 border-t-4 border-black pt-4">
+                  <div>
+                    <p className="text-[8px] font-black uppercase opacity-40">Status</p>
+                    <p className="text-[12px] font-black uppercase">Level 01</p>
+                  </div>
+                  <div>
+                    <p className="text-[8px] font-black uppercase opacity-40">Access</p>
+                    <p className="text-[12px] font-black uppercase">Verified</p>
+                  </div>
+                </div>
+              </motion.div>
+
+              <div className="rotate-[5deg] self-end translate-y-4">
+                <Folder 
+                  color="#00E5FF" 
+                  size={0.85} 
+                  items={[
+                    <div key="1" className="p-3 text-[11px] font-black uppercase text-black">New Perks Unlocked</div>,
+                    <div key="2" className="px-3 pb-1 text-[9px] font-bold uppercase text-black/60 flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-black" /> Exclusive Invites
+                    </div>,
+                    <div key="3" className="px-3 pb-3 text-[9px] font-bold uppercase text-black/60 flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-black" /> Priority Booking
+                    </div>
+                  ]}
+                />
               </div>
-              <div>
-                <p className="font-headline font-black text-sm uppercase">Earn XP & Badges</p>
-                <p className="font-body text-xs text-on-surface-variant">Show up, get rewarded</p>
+            </div>
+
+            <div className="mt-auto text-right">
+              <p className="font-label font-black text-[11px] uppercase tracking-[0.2em] text-white">
+                Waiting for input...
+              </p>
+              <div className="mt-2 w-full h-1 bg-black/20 overflow-hidden">
+                <motion.div 
+                  initial={{ x: '-100%' }}
+                  animate={{ x: '100%' }}
+                  transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                  className="w-1/3 h-full bg-white shadow-[0_0_10px_white]"
+                />
               </div>
             </div>
-          </div>
-          <div className="flex-1 p-6 flex flex-col justify-center" style={{ background: 'var(--color-secondary-container-base)' }}>
-            <p className="font-headline font-black text-xs uppercase tracking-[0.2em] mb-3">248+ Active Events</p>
-            <p className="font-body text-sm text-on-surface-variant leading-relaxed">RSVP in one tap, earn points for showing up, climb the leaderboard.</p>
           </div>
         </div>
       </motion.div>
