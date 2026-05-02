@@ -301,32 +301,64 @@ export default function LandingPage() {
 
       {/* FEATURES */}
       <section className="relative z-10 py-24 px-8 md:px-14 lg:px-20 max-w-7xl mx-auto">
-        <div className="mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 text-[11px] font-label font-bold uppercase tracking-[0.2em] border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mb-6" style={{ background: 'var(--color-tertiary-container-base)', color: 'var(--color-on-tertiary-container-base)' }}>How It Works</div>
-          <h2 className="font-headline font-black text-4xl md:text-6xl uppercase tracking-tight text-on-background leading-tight max-w-2xl">
-            Everything you need to<br /><span style={{ color: 'var(--color-primary-container-base)', WebkitTextStroke: '2px black' }}>dominate campus life</span>
-          </h2>
-        </div>
-        <div className="relative flex justify-center items-center py-32 border-4 border-black bg-[var(--color-surface-container-lowest-base)] overflow-hidden">
-          {/* Subtle Background Elements */}
-          <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-0">
-             <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full opacity-10 dark:opacity-20 blur-[100px]" style={{ background: 'var(--pop-electric-purple)' }} />
-             <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full opacity-10 dark:opacity-20 blur-[100px]" style={{ background: 'var(--pop-hot-pink)' }} />
-          </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          
+          {/* Left: Text */}
+          <div>
+            <div className="inline-flex items-center gap-2 px-4 py-2 text-[11px] font-label font-bold uppercase tracking-[0.2em] border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mb-6" style={{ background: 'var(--color-tertiary-container-base)', color: 'var(--color-on-tertiary-container-base)' }}>
+              How It Works
+            </div>
+            <h2 className="font-headline font-black text-4xl md:text-6xl uppercase tracking-tight text-on-background leading-tight mb-8">
+              Everything you need to<br />
+              <span className="block mt-2" style={{ color: 'var(--color-primary-container-base)', WebkitTextStroke: '2px black' }}>
+                dominate<br/>campus life
+              </span>
+            </h2>
+            <p className="font-body text-xl font-bold text-on-surface-variant border-l-4 border-black pl-6 mb-12">
+              We've packed all the tools you need into one slick interface. Click the folder to unpack your arsenal.
+            </p>
 
-          <div className="relative z-10 w-full flex justify-center">
-            <Folder 
-              color="var(--pop-electric-purple)"
-              size={1}
-              items={FEATURES.map((f, i) => (
-                <div key={f.num} className="w-full h-full border-2 border-black flex flex-col p-5" style={{ background: f.bg }}>
-                  <span className="material-symbols-outlined text-[32px] text-black mb-3" style={{ fontVariationSettings: "'FILL' 1" }}>{f.icon}</span>
-                  <h3 className="font-headline font-black text-lg md:text-xl uppercase text-black leading-tight mb-2">{f.title}</h3>
-                  <p className="font-body text-sm md:text-base leading-[1.4] text-black/80">{f.desc}</p>
+            <div className="flex flex-col gap-4">
+              {FEATURES.map((f, i) => (
+                <div key={f.num} className="flex items-start gap-4 p-4 border-4 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all">
+                  <div className="w-12 h-12 shrink-0 border-4 border-black flex items-center justify-center bg-[var(--pop-acid-lime)] text-black font-black text-xl">
+                    {f.num}
+                  </div>
+                  <div>
+                    <h4 className="font-headline font-black text-xl uppercase text-black mb-1">{f.title}</h4>
+                    <p className="font-body text-sm font-bold text-black/70">{f.desc}</p>
+                  </div>
                 </div>
               ))}
-            />
+            </div>
           </div>
+
+          {/* Right: Folder Component */}
+          <div className="relative flex justify-center items-center h-[550px] md:h-[650px] border-4 border-black bg-[var(--color-surface-container-lowest-base)] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] mt-12 lg:mt-0">
+            {/* Subtle Background Elements constrained to the box */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+               <div className="absolute top-[-20%] left-[-10%] w-[80%] h-[80%] rounded-full opacity-20 blur-[80px]" style={{ background: 'var(--pop-electric-purple)' }} />
+               <div className="absolute bottom-[-20%] right-[-10%] w-[80%] h-[80%] rounded-full opacity-20 blur-[80px]" style={{ background: 'var(--pop-hot-pink)' }} />
+               {/* Neo-brutalist pattern overlay */}
+               <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, black 1px, transparent 0)', backgroundSize: '16px 16px' }} />
+            </div>
+
+            {/* Folder container (no overflow hidden, so papers can pop out) */}
+            <div className="relative z-10 w-full flex justify-center mt-24">
+              <Folder 
+                color="var(--pop-electric-purple)"
+                size={0.9}
+                items={FEATURES.map((f) => (
+                  <div key={f.num} className="w-full h-full border-4 border-black flex flex-col p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" style={{ background: f.bg }}>
+                    <span className="material-symbols-outlined text-[40px] text-black mb-4" style={{ fontVariationSettings: "'FILL' 1" }}>{f.icon}</span>
+                    <h3 className="font-headline font-black text-2xl uppercase text-black leading-tight mb-2">{f.title}</h3>
+                    <p className="font-body text-base font-bold text-black/80">{f.desc}</p>
+                  </div>
+                ))}
+              />
+            </div>
+          </div>
+
         </div>
       </section>
 
