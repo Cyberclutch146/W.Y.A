@@ -13,6 +13,7 @@ import { QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 import { ArrowUpDown, ChevronDown, SlidersHorizontal, Sparkles, X, Compass, MapPin, CalendarOff, Search } from 'lucide-react';
 import { isPointInPolygon, getDistanceMiles } from '@/utils/geo';
 import { getRecommendedEvents } from '@/services/recommendationService';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 const PAGE_SIZE = 12;
 
@@ -842,23 +843,25 @@ function FeedContent() {
           </div>
         ) : (
           <div className={`grid grid-cols-1 gap-4 min-[560px]:grid-cols-2 sm:gap-6 lg:grid-cols-3 ${sortChanged ? 'animate-cards-reorder' : ''}`}>
-            {sortedEvents.map((event, index) => {
-              const normalizedEvent = { ...event, imageUrl: event.imageUrl || '/images/event-placeholder.jpg' };
-              return (
-                <motion.div
-                  key={event.id}
-                  initial={{ opacity: 0, y: 24 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                >
-                  <EventCard
-                    event={normalizedEvent}
-                    recommendationPercentage={recommendationData[event.id]?.percentage}
-                    matchedInterests={recommendationData[event.id]?.matchedInterests}
-                  />
-                </motion.div>
-              );
-            })}
+            <ErrorBoundary>
+              {sortedEvents.map((event, index) => {
+                const normalizedEvent = { ...event, imageUrl: event.imageUrl || '/images/event-placeholder.jpg' };
+                return (
+                  <motion.div
+                    key={event.id}
+                    initial={{ opacity: 0, y: 24 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    <EventCard
+                      event={normalizedEvent}
+                      recommendationPercentage={recommendationData[event.id]?.percentage}
+                      matchedInterests={recommendationData[event.id]?.matchedInterests}
+                    />
+                  </motion.div>
+                );
+              })}
+            </ErrorBoundary>
           </div>
         )}
 

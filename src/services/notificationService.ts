@@ -36,13 +36,19 @@ export const createNotification = async (
     tone: NotificationTone;
   }
 ): Promise<string> => {
-  const notifRef = getNotificationsRef(userId);
-  const docRef = await addDoc(notifRef, {
-    ...data,
-    read: false,
-    createdAt: serverTimestamp(),
+  const response = await fetch('/api/notifications/create', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId, data }),
   });
-  return docRef.id;
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to create notification');
+  }
+  
+  const result = await response.json();
+  return result.notificationId;
 };
 
 // ─── Mark as read ───────────────────────────────────────

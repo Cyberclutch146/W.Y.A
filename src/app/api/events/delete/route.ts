@@ -14,35 +14,29 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { eventId, userId, userName, text } = await req.json();
+    const data = await req.json();
+    const { eventId } = data;
 
-    if (!eventId || !userId || !text) {
+    if (!eventId) {
       return NextResponse.json(
-        { error: "Missing required fields (eventId, userId, text)." },
+        { error: "Missing required fields (eventId)." },
         { status: 400 }
       );
     }
 
-    // Ideally, we would verify an auth token here
-    // const token = req.headers.get("Authorization")?.split("Bearer ")[1];
-    // await adminAuth.verifyIdToken(token);
+    // Ideally, we would verify an auth token here to ensure the user is the organizer
 
-    const messageData = {
-      eventId,
-      userId,
-      userName: userName || "Anonymous",
-      text,
-      createdAt: new Date(),
-    };
+    await adminDb.collection("events").doc(eventId).delete();
 
-    await adminDb.collection("events").doc(eventId).collection("messages").add(messageData);
+    // Note: This doesn't delete subcollections. 
+    // In a production environment, you might want to use a Cloud Function for recursive deletion.
 
     return NextResponse.json(
-      { message: "Message sent successfully." },
-      { status: 201 }
+      { message: "Event deleted successfully." },
+      { status: 200 }
     );
   } catch (error: any) {
-    console.error("API Error sending message:", error);
+    console.error("API Error deleting event:", error);
     return NextResponse.json(
       { error: "Internal server error.", details: error.message },
       { status: 500 }

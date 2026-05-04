@@ -7,8 +7,8 @@ import { updateUserProfile } from '@/services/userService';
 import { uploadImage } from '@/services/storageService';
 import { toast } from 'sonner';
 import { getUserAvatar } from '@/lib/avatar';
-import { Camera, Loader2, MapPin, Clock, ArrowLeft, CheckCircle, Wrench, BarChart3, Heart, Sparkles, Compass } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Camera, Loader2, MapPin, Clock, ArrowLeft, CheckCircle, Wrench, BarChart3, Heart, Sparkles, Compass, ChevronDown, Check, GraduationCap, BookOpen } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const SKILL_COLORS = [
   'hsl(from var(--cp-primary) h s l / 0.12)', 'hsl(from var(--cp-secondary) h s l / 0.12)',
@@ -16,6 +16,99 @@ const SKILL_COLORS = [
   'hsl(from var(--cp-orange) h s l / 0.12)'
 ];
 const SKILL_TEXT_COLORS = ['var(--cp-primary)', 'var(--cp-secondary)', 'var(--cp-accent)', 'var(--cp-cyan)', 'var(--cp-orange)'];
+
+interface CustomSelectProps {
+  label: string;
+  value: string;
+  options: string[];
+  onChange: (value: string) => void;
+  placeholder?: string;
+  icon?: React.ReactNode;
+}
+
+function CustomSelect({ label, value, options, onChange, placeholder, icon }: CustomSelectProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div className="relative w-full" ref={containerRef}>
+      <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--cp-text-2)' }}>{label}</label>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="input-base w-full text-left flex items-center justify-between transition-all group"
+        style={{
+          borderColor: isOpen ? 'var(--cp-primary)' : 'var(--cp-border)',
+          boxShadow: isOpen ? '0 0 0 4px hsl(from var(--cp-primary) h s l / 0.1)' : 'none',
+          background: isOpen ? 'var(--cp-surface)' : 'var(--cp-surface-dim)'
+        }}
+      >
+        <div className="flex items-center gap-3 truncate">
+          {icon && <span className="transition-colors" style={{ color: isOpen ? 'var(--cp-primary)' : 'var(--cp-text-3)' }}>{icon}</span>}
+          <span style={{ color: value ? 'var(--cp-text-1)' : 'var(--cp-text-3)' }} className="font-medium">
+            {value || placeholder || `Select ${label}`}
+          </span>
+        </div>
+        <ChevronDown 
+          size={16} 
+          className={`transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${isOpen ? 'rotate-180 text-primary' : 'text-text-3'}`} 
+          style={{ color: isOpen ? 'var(--cp-primary)' : 'var(--cp-text-3)' }}
+        />
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 12, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8, scale: 0.98 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute z-[100] top-[calc(100%+8px)] left-0 w-full rounded-2xl overflow-hidden glass-panel"
+            style={{
+              background: 'var(--cp-surface)',
+              border: '1px solid var(--cp-border)',
+              boxShadow: '0 24px 48px -12px rgba(0,0,0,0.18)',
+              maxHeight: '280px',
+              overflowY: 'auto',
+              backdropFilter: 'blur(16px)'
+            }}
+          >
+            <div className="p-2 space-y-1">
+              {options.map((opt) => (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => {
+                    onChange(opt);
+                    setIsOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-3 rounded-xl text-sm font-semibold transition-all flex items-center justify-between group/item"
+                  style={{
+                    background: value === opt ? 'linear-gradient(135deg, var(--cp-primary), hsl(290,90%,60%))' : 'transparent',
+                    color: value === opt ? 'white' : 'var(--cp-text-1)',
+                  }}
+                >
+                  <span className="truncate">{opt}</span>
+                  {value === opt && <Check size={14} className="shrink-0" />}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 export default function ProfilePage() {
   const { user, profile } = useAuth();
@@ -28,8 +121,8 @@ export default function ProfilePage() {
   const [bio, setBio] = useState('');
   const [location, setLocation] = useState('');
   const [skills, setSkills] = useState('');
-  const [equipment, setEquipment] = useState('');
-  const [travelRadius, setTravelRadius] = useState(10);
+  const [department, setDepartment] = useState('');
+  const [year, setYear] = useState('');
   const [availability, setAvailability] = useState('anytime');
 
   useEffect(() => {
@@ -38,8 +131,8 @@ export default function ProfilePage() {
       setBio(profile.bio || '');
       setLocation(profile.location || '');
       setSkills(profile.skills ? profile.skills.join(', ') : '');
-      setEquipment(profile.equipment ? profile.equipment.join(', ') : '');
-      setTravelRadius(profile.travelRadius || 10);
+      setDepartment(profile.department || '');
+      setYear(profile.year || '');
       setAvailability(profile.availability || 'anytime');
     }
   }, [profile, isEditing]);
@@ -99,8 +192,8 @@ export default function ProfilePage() {
         bio: bio.trim(),
         location: location.trim(),
         skills: skills.split(',').map(s => s.trim()).filter(Boolean),
-        equipment: equipment.split(',').map(s => s.trim()).filter(Boolean),
-        travelRadius,
+        department,
+        year,
         availability,
         profileComplete: true,
       });
@@ -122,6 +215,14 @@ export default function ProfilePage() {
     { key: 'evenings', label: '🌙 Evenings' },
     { key: 'anytime', label: '🕐 Anytime' },
   ] as const;
+
+  const DEPARTMENTS = [
+    'Computer Science', 'Electronics', 'Mechanical', 'Civil', 'Electrical', 
+    'Information Technology', 'Business Administration', 'Arts & Humanities', 
+    'Law', 'Medicine', 'Architecture', 'Other'
+  ];
+
+  const YEARS = ['1st Year', '2nd Year', '3rd Year', '4th Year', 'Postgraduate'];
 
   if (isEditing) {
     return (
@@ -201,18 +302,23 @@ export default function ProfilePage() {
                 <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--cp-text-2)' }} htmlFor="skills">Skills <span style={{ color: 'var(--cp-text-3)', fontWeight: 400 }}>(comma separated)</span></label>
                 <input id="skills" type="text" value={skills} onChange={(e) => setSkills(e.target.value)} placeholder="e.g. Design, Photography, Coding" className="input-base" />
               </div>
-              <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--cp-text-2)' }} htmlFor="equipment">Equipment <span style={{ color: 'var(--cp-text-3)', fontWeight: 400 }}>(comma separated)</span></label>
-                <input id="equipment" type="text" value={equipment} onChange={(e) => setEquipment(e.target.value)} placeholder="e.g. Camera, Laptop, Projector" className="input-base" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold mb-3" style={{ color: 'var(--cp-text-2)' }} htmlFor="travelRadius">
-                  Travel Radius: <span className="font-bold px-2 py-0.5 rounded-full text-xs" style={{ background: 'var(--cp-primary-light)', color: 'var(--cp-primary)' }}>{travelRadius} km</span>
-                </label>
-                <input id="travelRadius" type="range" min={0} max={100} step={5} value={travelRadius} onChange={(e) => setTravelRadius(Number(e.target.value))} className="w-full h-2 rounded-full cursor-pointer accent-[var(--cp-primary)]" />
-                <div className="flex justify-between text-[10px] font-medium mt-1" style={{ color: 'var(--cp-text-3)' }}>
-                  <span>0 km</span><span>25</span><span>50</span><span>75</span><span>100 km</span>
-                </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <CustomSelect
+                  label="Department / Major"
+                  value={department}
+                  options={DEPARTMENTS}
+                  onChange={setDepartment}
+                  placeholder="Select Major"
+                  icon={<GraduationCap size={18} />}
+                />
+                <CustomSelect
+                  label="Academic Year"
+                  value={year}
+                  options={YEARS}
+                  onChange={setYear}
+                  placeholder="Select Year"
+                  icon={<BookOpen size={18} />}
+                />
               </div>
               <div>
                 <label className="block text-sm font-semibold mb-3" style={{ color: 'var(--cp-text-2)' }}>Availability</label>
@@ -406,63 +512,49 @@ export default function ProfilePage() {
                 )}
               </div>
   
-              {/* Equipment Card */}
+  
+              {/* Department Card */}
               <div className="card-base p-6 md:p-8">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-cyan-light text-cyan shadow-sm" style={{ border: '1px solid hsl(from var(--cp-cyan) h s l / 0.1)' }}>
-                    <Wrench size={20} />
+                    <BarChart3 size={20} />
                   </div>
-                  <h3 className="font-headline font-bold text-xl">Equipment</h3>
+                  <h3 className="font-headline font-bold text-xl">Academic Pulse</h3>
                 </div>
-                {profile.equipment && profile.equipment.length > 0 ? (
-                  <div className="flex flex-wrap gap-2.5">
-                    {profile.equipment.map((item, idx) => (
-                      <span key={idx} className="px-4 py-2 rounded-full text-xs font-bold transition-all hover:scale-105 hover:bg-surface border border-border" 
-                        style={{ background: 'var(--cp-surface-dim)', color: 'var(--cp-text-2)' }}>
-                        {item}
-                      </span>
-                    ))}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 rounded-2xl bg-surface-dim border border-border group transition-all hover:bg-surface">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--cp-text-3)' }}>Department</p>
+                      <p className="font-bold text-sm">{profile.department || 'Not specified'}</p>
+                    </div>
                   </div>
-                ) : (
-                  <div className="text-center py-6 px-4 rounded-2xl bg-surface-dim border border-dashed border-border">
-                    <p className="text-sm font-medium" style={{ color: 'var(--cp-text-3)' }}>No gear listed yet.</p>
+                  <div className="flex items-center justify-between p-4 rounded-2xl bg-surface-dim border border-border group transition-all hover:bg-surface">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--cp-text-3)' }}>Year</p>
+                      <p className="font-bold text-sm">{profile.year || 'Not specified'}</p>
+                    </div>
                   </div>
-                )}
+                </div>
               </div>
             </div>
   
             {/* Logistics Card */}
-            {(profile.travelRadius > 0 || (profile.availability && profile.availability !== 'anytime')) && (
+            {(profile.availability && profile.availability !== 'anytime') && (
               <div className="card-base p-6 md:p-8">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-gold-light text-gold shadow-sm" style={{ border: '1px solid hsl(from var(--cp-gold) h s l / 0.1)' }}>
                     <Compass size={20} />
                   </div>
-                  <h3 className="font-headline font-bold text-xl">Logistics</h3>
+                  <h3 className="font-headline font-bold text-xl">Availability</h3>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {profile.travelRadius > 0 && (
-                    <div className="flex items-center gap-5 p-5 rounded-2xl bg-surface-dim border border-border transition-all hover:bg-surface group">
-                      <div className="w-12 h-12 rounded-2xl bg-surface flex items-center justify-center shadow-sm text-primary transition-transform group-hover:scale-110">
-                        <MapPin size={24} />
-                      </div>
-                      <div>
-                        <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--cp-text-3)' }}>Travel Radius</p>
-                        <p className="font-bold text-lg">{profile.travelRadius} km</p>
-                      </div>
-                    </div>
-                  )}
-                  {profile.availability && profile.availability !== 'anytime' && (
-                    <div className="flex items-center gap-5 p-5 rounded-2xl bg-surface-dim border border-border transition-all hover:bg-surface group">
-                      <div className="w-12 h-12 rounded-2xl bg-surface flex items-center justify-center shadow-sm text-secondary transition-transform group-hover:scale-110">
-                        <Clock size={24} />
-                      </div>
-                      <div>
-                        <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--cp-text-3)' }}>Availability</p>
-                        <p className="font-bold text-lg capitalize">{profile.availability}</p>
-                      </div>
-                    </div>
-                  )}
+                <div className="flex items-center gap-5 p-5 rounded-2xl bg-surface-dim border border-border transition-all hover:bg-surface group">
+                  <div className="w-12 h-12 rounded-2xl bg-surface flex items-center justify-center shadow-sm text-secondary transition-transform group-hover:scale-110">
+                    <Clock size={24} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--cp-text-3)' }}>Availability</p>
+                    <p className="font-bold text-lg capitalize">{profile.availability}</p>
+                  </div>
                 </div>
               </div>
             )}

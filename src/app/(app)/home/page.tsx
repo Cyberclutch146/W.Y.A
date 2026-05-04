@@ -13,6 +13,7 @@ import { getRecommendedEvents, getMatchPercentage } from '@/services/recommendat
 import { getUserProfile, updateUserProfile } from '@/services/userService'
 import { motion } from 'framer-motion'
 import { LiveBadge } from '@/components/LiveBadge'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 const QUICK_FILTERS = [
   { label: '🎸 Music', q: 'Music', color: 'var(--cp-pink)' },
@@ -22,11 +23,18 @@ const QUICK_FILTERS = [
   { label: '🎨 Arts', q: 'Arts', color: 'var(--cp-orange)' },
 ]
 
-const LIVE_ACTIVITY = [
-  { initial: 'J', color: 'var(--cp-cyan)', name: 'Jason M.', action: "just RSVP'd to an event", ago: '2 mins ago' },
-  { initial: 'S', color: 'var(--cp-pink)', name: 'Sarah T.', action: 'earned 50 XP in Tech', ago: '12 mins ago' },
-  { initial: 'M', color: 'var(--cp-violet)', name: 'Mike R.', action: 'created a new event', ago: '1 hr ago' },
-]
+const formatRelativeTime = (ts: any) => {
+  if (!ts) return 'recently';
+  const date = typeof ts.toDate === 'function' ? ts.toDate() : new Date(ts);
+  const diffInMinutes = Math.floor((new Date().getTime() - date.getTime()) / 60000);
+  
+  if (diffInMinutes < 1) return 'just now';
+  if (diffInMinutes < 60) return `${diffInMinutes} mins ago`;
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  if (diffInHours < 24) return `${diffInHours} hrs ago`;
+  const diffInDays = Math.floor(diffInHours / 24);
+  return `${diffInDays} days ago`;
+};
 
 export default function HomePage() {
   const router = useRouter()
@@ -36,6 +44,7 @@ export default function HomePage() {
 
   const [loading, setLoading] = useState(true)
   const [organizerEmail, setOrganizerEmail] = useState<string | null>(null)
+  const [vibeMatches, setVibeMatches] = useState<string[]>([])
 
   useEffect(() => {
     const load = async () => {
@@ -51,6 +60,27 @@ export default function HomePage() {
     load()
   }, [])
 
+  useEffect(() => {
+    if (profile && events.length > 0) {
+      const fetchVibeMatches = async () => {
+        try {
+          const res = await fetch('/api/recommendations/vibe-match', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ profile, events: events.slice(0, 10) })
+          });
+          const data = await res.json();
+          if (data.success && data.results) {
+            setVibeMatches(data.results);
+          }
+        } catch (e) {
+          console.error('Failed to fetch vibe matches:', e);
+        }
+      };
+      fetchVibeMatches();
+    }
+  }, [profile, events]);
+
   const featured = events.find(e => e.urgency === 'high' && e.status === 'active') ?? events[0] ?? null
 
   useEffect(() => {
@@ -61,7 +91,16 @@ export default function HomePage() {
     }
   }, [featured?.organizerId])
 
-  const recommendedEvents = profile ? getRecommendedEvents(profile, events, 6) : []
+  const recommendedEvents = profile ? getRecommendedEvents(profile, events, 6).map(item => {
+    if (vibeMatches.includes(item.event.id)) {
+      return {
+        ...item,
+        score: item.score + 30, // Boost score
+        reasons: [{ type: 'ai', label: 'AI Vibe Match' }, ...item.reasons]
+      }
+    }
+    return item;
+  }).sort((a, b) => b.score - a.score) : []
 
   const handleContactOrganizer = (eventTitle: string) => {
     if (organizerEmail) {
@@ -102,6 +141,18 @@ export default function HomePage() {
     return { text: 'Good evening', emoji: '🌙' }
   }
   const greeting = getGreeting()
+
+  const liveActivity = events.slice(0, 3).map((e, i) => {
+    const colors = ['var(--cp-cyan)', 'var(--cp-pink)', 'var(--cp-violet)', 'var(--cp-orange)', 'var(--cp-lime)'];
+    return {
+      id: e.id,
+      initial: (e.organizer || e.title || 'A').charAt(0).toUpperCase(),
+      color: colors[i % colors.length],
+      name: e.organizer || 'Community Member',
+      action: `created ${e.title}`,
+      ago: formatRelativeTime(e.createdAt)
+    };
+  });
 
   if (loading) {
     return (
@@ -318,8 +369,8 @@ export default function HomePage() {
                 Live Pulse
               </h3>
               <div className="flex flex-col gap-6">
-                {LIVE_ACTIVITY.map((item, i) => (
-                  <div key={i} className="flex items-start gap-4 group cursor-default">
+                {liveActivity.map((item) => (
+                  <div key={item.id} className="flex items-start gap-4 group cursor-default">
                     <div
                       className="w-11 h-11 rounded-2xl flex items-center justify-center font-black text-sm text-white shrink-0 shadow-lg transition-all group-hover:scale-110 group-hover:rotate-3"
                       style={{ background: item.color, boxShadow: `0 8px 16px -4px ${item.color}40` }}
@@ -327,8 +378,8 @@ export default function HomePage() {
                       {item.initial}
                     </div>
                     <div className="min-w-0 pt-0.5">
-                      <p className="text-sm font-black leading-none mb-1" style={{ color: 'var(--cp-text-1)' }}>{item.name}</p>
-                      <p className="text-xs font-medium leading-relaxed opacity-70 mb-1" style={{ color: 'var(--cp-text-2)' }}>{item.action}</p>
+                      <p className="text-sm font-black leading-none mb-1 truncate" style={{ color: 'var(--cp-text-1)' }}>{item.name}</p>
+                      <p className="text-xs font-medium leading-relaxed opacity-70 mb-1 line-clamp-1" style={{ color: 'var(--cp-text-2)' }}>{item.action}</p>
                       <p className="text-[10px] font-black uppercase tracking-widest opacity-30">{item.ago}</p>
                     </div>
                   </div>
@@ -376,22 +427,24 @@ export default function HomePage() {
               </button>
             </div>
             <div className="grid grid-cols-1 gap-4 min-[560px]:grid-cols-2 md:gap-5 lg:grid-cols-3">
-              {recommendedEvents.map((item, index) => (
-                <motion.div
-                  key={item.event.id}
-                  initial={{ opacity: 0, y: 24 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.07, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                >
-                  <EventCard
-                    event={item.event}
-                    recommendationPercentage={getMatchPercentage(item.score)}
-                    matchedInterests={item.matchedInterests}
-                    reasons={item.reasons}
-                    onDismiss={handleDismissRecommendation}
-                  />
-                </motion.div>
-              ))}
+              <ErrorBoundary>
+                {recommendedEvents.map((item, index) => (
+                  <motion.div
+                    key={item.event.id}
+                    initial={{ opacity: 0, y: 24 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.07, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    <EventCard
+                      event={item.event}
+                      recommendationPercentage={getMatchPercentage(item.score)}
+                      matchedInterests={item.matchedInterests}
+                      reasons={item.reasons}
+                      onDismiss={handleDismissRecommendation}
+                    />
+                  </motion.div>
+                ))}
+              </ErrorBoundary>
             </div>
           </div>
         </div>

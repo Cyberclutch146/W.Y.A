@@ -37,6 +37,7 @@ const REASON_ICON: Record<string, string> = {
   social: '📈',
   urgency: '⚡',
   interest: '❤️',
+  ai: '✨',
   default: '✨',
 };
 

@@ -35,7 +35,7 @@ interface MapAreaProps {
   zoom?: number;
 }
 
-export default function MapArea({ events, alerts = [], center = [37.7749, -122.4194], zoom = 11 }: MapAreaProps) {
+export default function MapArea({ events, center = [37.7749, -122.4194], zoom = 11 }: MapAreaProps) {
   const router = useRouter();
 
   // Filter events that actually have lat/lng

@@ -128,27 +128,18 @@ export const createEvent = async (data: CommunityEventCreate): Promise<string> =
 // ─── Update ─────────────────────────────────────────────
 export const updateEvent = async (eventId: string, data: Partial<CommunityEventCreate>): Promise<void> => {
   try {
-    let coords = (data.lat !== undefined && data.lng !== undefined) 
-      ? { lat: data.lat, lng: data.lng } 
-      : null;
+    const response = await fetch('/api/events/update', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ eventId, updates: data }),
+    });
 
-    if (!coords && data.location) {
-      coords = await geocodeLocation(data.location);
+    if (!response.ok) {
+      const result = await response.json();
+      throw new Error(`${result.error || 'Failed to update event'}${result.details ? ` | Details: ${result.details}` : ''}`);
     }
-
-    const eventRef = doc(db, EVENTS_COLLECTION, eventId);
-    
-    const updateData: any = {
-      ...data,
-      updatedAt: new Date()
-    };
-    
-    if (coords) {
-      updateData.lat = coords.lat;
-      updateData.lng = coords.lng;
-    }
-
-    await updateDoc(eventRef, updateData);
   } catch (error) {
     console.error('Failed to update event:', error);
     throw error;
@@ -159,10 +150,18 @@ export const updateEvent = async (eventId: string, data: Partial<CommunityEventC
 // ─── Delete ─────────────────────────────────────────────
 export const deleteEvent = async (eventId: string): Promise<void> => {
   try {
-    const eventRef = doc(db, EVENTS_COLLECTION, eventId);
-    // Note: This doesn't delete subcollections. 
-    // In a production environment, you might want to use a Cloud Function for recursive deletion.
-    await deleteDoc(eventRef);
+    const response = await fetch('/api/events/delete', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ eventId }),
+    });
+
+    if (!response.ok) {
+      const result = await response.json();
+      throw new Error(`${result.error || 'Failed to delete event'}${result.details ? ` | Details: ${result.details}` : ''}`);
+    }
   } catch (error) {
     console.error('Failed to delete event:', error);
     throw error;
@@ -171,20 +170,16 @@ export const deleteEvent = async (eventId: string): Promise<void> => {
 
 // ─── Donation (transactional) ───────────────────────────
 export const updateDonation = async (eventId: string, amount: number): Promise<void> => {
-  const eventRef = doc(db, EVENTS_COLLECTION, eventId);
-
-  await runTransaction(db, async (transaction) => {
-    const eventSnap = await transaction.get(eventRef);
-    if (!eventSnap.exists()) throw new Error('Event not found');
-
-    const data = eventSnap.data();
-    const currentFunds = data.needs?.funds?.current ?? 0;
-
-    transaction.update(eventRef, {
-      'needs.funds.current': currentFunds + amount,
-      updatedAt: new Date()
-    });
+  const response = await fetch('/api/events/donate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ eventId, amount }),
   });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to update donation');
+  }
 };
 
 // ─── Volunteer signup (transactional via API) ─────────────
@@ -335,14 +330,16 @@ export const pledgeGoods = async (
   items: string[],
   otherItems: string
 ): Promise<void> => {
-  const pledgeRef = doc(db, `${EVENTS_COLLECTION}/${eventId}/goodsPledges`, userId);
-  await setDoc(pledgeRef, {
-    userId,
-    userName,
-    items,
-    otherItems,
-    pledgedAt: new Date(),
+  const response = await fetch('/api/events/pledge', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ eventId, userId, userName, items, otherItems }),
   });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to pledge goods');
+  }
 
   // ── Fire notifications (best-effort) ──
   try {

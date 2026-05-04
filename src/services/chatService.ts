@@ -18,14 +18,15 @@ export const subscribeToMessages = (eventId: string, callback: (messages: ChatMe
 };
 
 export const sendMessage = async (eventId: string, userId: string, userName: string, text: string): Promise<void> => {
-  const messagesRef = collection(db, `${EVENTS_COLLECTION}/${eventId}/messages`);
-
-  await addDoc(messagesRef, {
-    eventId,
-    userId,
-    userName,
-    text,
-    createdAt: serverTimestamp(),
+  const response = await fetch('/api/chat/send', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ eventId, userId, userName, text }),
   });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to send message');
+  }
 };
 

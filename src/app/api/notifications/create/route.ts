@@ -14,35 +14,29 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { eventId, userId, userName, text } = await req.json();
+    const { userId, data } = await req.json();
 
-    if (!eventId || !userId || !text) {
+    if (!userId || !data || !data.title || !data.type) {
       return NextResponse.json(
-        { error: "Missing required fields (eventId, userId, text)." },
+        { error: "Missing required fields (userId, data.title, data.type)." },
         { status: 400 }
       );
     }
 
-    // Ideally, we would verify an auth token here
-    // const token = req.headers.get("Authorization")?.split("Bearer ")[1];
-    // await adminAuth.verifyIdToken(token);
-
-    const messageData = {
-      eventId,
-      userId,
-      userName: userName || "Anonymous",
-      text,
+    const notifRef = adminDb.collection("users").doc(userId).collection("notifications");
+    
+    const docRef = await notifRef.add({
+      ...data,
+      read: false,
       createdAt: new Date(),
-    };
-
-    await adminDb.collection("events").doc(eventId).collection("messages").add(messageData);
+    });
 
     return NextResponse.json(
-      { message: "Message sent successfully." },
+      { message: "Notification created successfully.", notificationId: docRef.id },
       { status: 201 }
     );
   } catch (error: any) {
-    console.error("API Error sending message:", error);
+    console.error("API Error creating notification:", error);
     return NextResponse.json(
       { error: "Internal server error.", details: error.message },
       { status: 500 }
