@@ -554,3 +554,19 @@ body {
 .delay-200 { animation-delay: 0.2s; }
 .delay-300 { animation-delay: 0.3s; }
 .delay-400 { animation-delay: 0.4s; }
+
+/* ── Marquee ── */
+@keyframes marquee-x {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-33.333%); }
+}
+@keyframes marquee-x-reverse {
+  from { transform: translateX(-33.333%); }
+  to   { transform: translateX(0); }
+}
+.animate-marquee-x {
+  animation: marquee-x 28s linear infinite;
+}
+.animate-marquee-x-reverse {
+  animation: marquee-x-reverse 32s linear infinite;
+}
