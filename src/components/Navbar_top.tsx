@@ -109,7 +109,7 @@ export default function NavbarTop() {
               })
             })
         }
-      } catch { /* sentinel unavailable — skip silently */ }
+      } catch { /* bulletin unavailable — skip silently */ }
       if (!cancelled.current) setLocalNotifications(items)
     }
     loadLocal()

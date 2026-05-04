@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 
-import { SentinelAlert } from '@/types/sentinel';
+
 
 const MapAreaComponent = dynamic(() => import('./MapArea'), { 
   ssr: false,

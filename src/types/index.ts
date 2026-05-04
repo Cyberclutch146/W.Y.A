@@ -190,7 +190,7 @@ export type NotificationType =
   | 'event_join'
   | 'goods_pledge'
   | 'event_update'
-  | 'bulletin'        // replaces 'sentinel'
+  | 'bulletin'
   | 'profile'
   | 'general'
   | 'xp_earned'       // gamification: XP awarded after event

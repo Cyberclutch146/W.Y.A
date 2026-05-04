@@ -6,7 +6,7 @@ import { Plus, PlusCircle, Calendar, MapPin, Users, Mail, Loader2, Zap, ArrowRig
 import { getEvents } from '@/services/eventService'
 import { useAuth } from '@/context/AuthContext'
 import { CommunityEvent } from '@/types'
-import { SentinelAlert } from '@/types/sentinel'
+
 import MapWrapper from '@/components/MapWrapper'
 import { EventCard } from '@/components/EventCard'
 import { getRecommendedEvents, getMatchPercentage } from '@/services/recommendationService'
@@ -33,19 +33,15 @@ export default function HomePage() {
   const { profile } = useAuth()
 
   const [events, setEvents] = useState<CommunityEvent[]>([])
-  const [alerts, setAlerts] = useState<SentinelAlert[]>([])
+
   const [loading, setLoading] = useState(true)
   const [organizerEmail, setOrganizerEmail] = useState<string | null>(null)
 
   useEffect(() => {
     const load = async () => {
       try {
-        const [{ events: data }, sentinelData] = await Promise.all([
-          getEvents(),
-          fetch('/api/sentinel').then(res => res.ok ? res.json() : [])
-        ])
+        const { events: data } = await getEvents()
         setEvents(data)
-        setAlerts(sentinelData)
       } catch (err) {
         console.error('Failed to load events:', err)
       } finally {
@@ -360,7 +356,7 @@ export default function HomePage() {
               className="h-[400px] w-full overflow-hidden"
               style={{ borderRadius: 'var(--r-xl)', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-lg)' }}
             >
-              <MapWrapper events={events} alerts={alerts} />
+              <MapWrapper events={events} />
             </div>
           </div>
         </div>

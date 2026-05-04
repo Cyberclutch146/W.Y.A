@@ -6,8 +6,6 @@ import { useAuth } from '@/context/AuthContext';
 import { getEventsByOrganizer, getRegisteredEvents, backfillEventCoordinates } from '@/services/eventService';
 import { CommunityEvent } from '@/types';
 import Image from 'next/image';
-import { SentinelAlert } from '@/types/sentinel';
-import { isPointInPolygon, getDistanceMiles } from '@/utils/geo';
 import { LayoutDashboard, DollarSign, Users, AlertTriangle, MapIcon, PlusCircle, Heart, Megaphone } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -15,7 +13,6 @@ export default function DashboardPage() {
   const { user, profile } = useAuth();
   const [events, setEvents] = useState<CommunityEvent[]>([]);
   const [registeredEvents, setRegisteredEvents] = useState<CommunityEvent[]>([]);
-  const [alerts, setAlerts] = useState<SentinelAlert[]>([]);
   const [loading, setLoading] = useState(true);
   const [backfilling, setBackfilling] = useState(false);
 
@@ -36,14 +33,12 @@ export default function DashboardPage() {
     if (!user) { setLoading(false); return; }
     const load = async () => {
       try {
-        const [organizedData, registeredData, alertsData] = await Promise.all([
+        const [organizedData, registeredData] = await Promise.all([
           getEventsByOrganizer(user.uid),
-          getRegisteredEvents(user.uid),
-          fetch('/api/sentinel').then(res => res.ok ? res.json() : [])
+          getRegisteredEvents(user.uid)
         ]);
         setEvents(organizedData);
         setRegisteredEvents(registeredData);
-        setAlerts(alertsData);
       } catch (err) {
         console.error('Failed to load dashboard:', err);
       } finally {
@@ -57,7 +52,6 @@ export default function DashboardPage() {
   const totalRaised = events.reduce((sum, e) => sum + (e.needs?.funds?.current ?? 0), 0);
   const totalVolunteers = events.reduce((sum, e) => sum + (e.needs?.volunteers?.current ?? 0), 0);
   const activeCount = events.filter(e => e.status === 'active').length;
-  const highRiskAlertsCount = alerts.filter(a => a.severity === 'Extreme' || a.severity === 'Severe').length;
 
   if (!user) {
     return (
@@ -78,8 +72,7 @@ export default function DashboardPage() {
   const statCards = [
     { label: 'Active Events', value: activeCount, icon: Megaphone, bg: 'var(--cp-primary-light)' },
     { label: 'Total Raised', value: `$${totalRaised.toLocaleString()}`, icon: DollarSign, bg: 'var(--cp-surface-dim)' },
-    { label: 'Volunteers', value: totalVolunteers, icon: Users, bg: 'var(--cp-surface)' },
-    { label: 'Severe Alerts', value: highRiskAlertsCount, icon: AlertTriangle, bg: 'var(--cp-surface-dim)' },
+    { label: 'Volunteers', value: totalVolunteers, icon: Users, bg: 'var(--cp-surface)' }
   ];
 
   return (
@@ -156,7 +149,7 @@ export default function DashboardPage() {
       ) : (
         <div className="grid grid-cols-1 gap-4 min-[560px]:grid-cols-2 md:gap-6 lg:grid-cols-3">
           {events.map(event => (
-            <EventCard key={event.id} event={event} alerts={alerts} onClick={() => router.push(`/dashboard/event/${event.id}`)} />
+            <EventCard key={event.id} event={event} onClick={() => router.push(`/dashboard/event/${event.id}`)} />
           ))}
         </div>
       )}
@@ -170,7 +163,7 @@ export default function DashboardPage() {
           </div>
           <div className="grid grid-cols-1 gap-4 min-[560px]:grid-cols-2 md:gap-6 lg:grid-cols-3">
             {registeredEvents.map(event => (
-              <EventCard key={event.id} event={event} alerts={alerts} onClick={() => router.push(`/event/${event.id}`)} />
+              <EventCard key={event.id} event={event} onClick={() => router.push(`/event/${event.id}`)} />
             ))}
           </div>
         </div>
@@ -180,21 +173,9 @@ export default function DashboardPage() {
 }
 
 // ── Helper Component for Event Cards ──
-function EventCard({ event, alerts, onClick }: { event: CommunityEvent, alerts: SentinelAlert[], onClick: () => void }) {
+function EventCard({ event, onClick }: { event: CommunityEvent, onClick: () => void }) {
   const fundPercent = event.needs?.funds ? Math.min(100, Math.round((event.needs.funds.current / event.needs.funds.goal) * 100)) : null;
   const volPercent = event.needs?.volunteers ? Math.min(100, Math.round((event.needs.volunteers.current / event.needs.volunteers.goal) * 100)) : null;
-
-  const intersectingAlerts = alerts.filter((alert: SentinelAlert) => {
-    if (!event.lat || !event.lng) return false;
-    if (alert.polygon && alert.polygon.length > 0) {
-      return isPointInPolygon({ lat: event.lat, lng: event.lng }, alert.polygon);
-    } else if (alert.coordinates) {
-      const dist = getDistanceMiles(event.lat, event.lng, alert.coordinates.lat, alert.coordinates.lng);
-      return dist <= 30;
-    }
-    return false;
-  });
-  const hasAlerts = intersectingAlerts.length > 0;
 
   return (
     <button
@@ -209,11 +190,6 @@ function EventCard({ event, alerts, onClick }: { event: CommunityEvent, alerts: 
           fill
           className="object-cover group-hover:scale-105 transition-transform duration-500"
         />
-        {hasAlerts && (
-          <span className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 text-white flex items-center gap-1 shadow-sm" style={{ borderRadius: 'var(--r-full)', background: '#ef4444' }}>
-            <AlertTriangle size={12} /> Alert
-          </span>
-        )}
         <span
           className="absolute top-3 right-3 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 shadow-sm"
           style={event.status === 'active' ? {

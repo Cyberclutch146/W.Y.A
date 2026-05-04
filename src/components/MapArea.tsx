@@ -6,8 +6,7 @@ import L from 'leaflet';
 import { CommunityEvent } from '@/types';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import SentinelMapOverlay from './SentinelMapOverlay';
-import { SentinelAlert } from '@/types/sentinel';
+
 
 // Custom elegant marker for our brand
 const customMarkerHtml = `
@@ -31,7 +30,7 @@ const ElegantIcon = L.divIcon({
 
 interface MapAreaProps {
   events: CommunityEvent[];
-  alerts?: SentinelAlert[];
+
   center?: [number, number];
   zoom?: number;
 }
@@ -85,7 +84,7 @@ export default function MapArea({ events, alerts = [], center = [37.7749, -122.4
           </Marker>
         ))}
 
-        {alerts.length > 0 && <SentinelMapOverlay alerts={alerts} />}
+
       </MapContainer>
     </div>
   );

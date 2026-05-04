@@ -4,14 +4,14 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { CommunityEvent } from '@/types';
-import { SentinelAlert } from '@/types/sentinel';
+
 import { motion } from 'framer-motion';
 import { Sparkles, AlertTriangle, MapPin, X } from 'lucide-react';
 
 interface EventCardProps {
   event: CommunityEvent;
   featured?: boolean;
-  sentinelAlerts?: SentinelAlert[];
+
   recommendationScore?: number;
   recommendationPercentage?: number;
   matchedInterests?: string[];
@@ -43,13 +43,13 @@ const REASON_ICON: Record<string, string> = {
 export function EventCard({
   event,
   featured = false,
-  sentinelAlerts = [],
+
   recommendationPercentage,
   matchedInterests = [],
   reasons = [],
   onDismiss,
 }: EventCardProps) {
-  const hasAlerts = sentinelAlerts.length > 0;
+  const hasAlerts = false;
   const titleRef = useRef<HTMLHeadingElement | null>(null);
   const [descriptionLineClamp, setDescriptionLineClamp] = useState(featured ? 3 : 2);
   const [isDismissing, setIsDismissing] = useState(false);

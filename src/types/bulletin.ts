@@ -1,6 +1,6 @@
 // ─── Campus Bulletin Board Types ────────────────────────
-// Replaces the old Sentinel (disaster alert) system with
-// a campus-centric announcement and notice board system.
+// Campus-centric announcement and notice board for academic,
+// administrative, social, and emergency notices.
 
 export type BulletinAlertType = 'ACADEMIC' | 'ADMIN' | 'SOCIAL' | 'EMERGENCY';
 

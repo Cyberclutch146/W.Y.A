@@ -12,8 +12,7 @@ import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 import { Trash2, AlertTriangle, Info, Send, ArrowLeft, Verified, MapPin, Loader2, Share2 } from 'lucide-react';
 import { CommunityEvent } from '@/types';
-import { SentinelAlert } from '@/types/sentinel';
-import { isPointInPolygon, getDistanceMiles } from '@/utils/geo';
+
 import { motion } from 'framer-motion';
 
 export default function EventDetails({ params }: { params: Promise<{ id: string }> }) {
@@ -23,7 +22,7 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
   const { user } = useAuth();
 
   const [event, setEvent] = useState<CommunityEvent | null>(null);
-  const [alerts, setAlerts] = useState<SentinelAlert[]>([]);
+
   const [loading, setLoading] = useState(true);
 
   const [smsNumber, setSmsNumber] = useState('');
@@ -36,12 +35,7 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [eventData, alertsData] = await Promise.all([
-          getEventById(id),
-          fetch('/api/sentinel')
-            .then((r) => r.json())
-            .catch(() => []),
-        ]);
+        const eventData = await getEventById(id);
 
         if (!eventData) {
           toast.error("Event not found.");
@@ -50,7 +44,7 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
           }
 
         setEvent(eventData);
-        setAlerts(alertsData);
+
       } catch (error) {
         console.error('Failed to load event data:', error);
       } finally {
@@ -145,28 +139,7 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
 
   if (!event) return null;
 
-  const intersectingAlerts = alerts.filter((alert: SentinelAlert) => {
-    if (!event.lat || !event.lng) return false;
 
-    if (alert.severity === 'Extreme' && alert.polygon && alert.polygon.length > 2) {
-      if (isPointInPolygon({ lat: event.lat, lng: event.lng }, alert.polygon)) {
-        return true;
-      }
-    }
-
-    if (alert.coordinates?.lat && alert.coordinates?.lng) {
-      const distance = getDistanceMiles(
-        event.lat,
-        event.lng,
-        alert.coordinates.lat,
-        alert.coordinates.lng
-      );
-
-      return distance <= 30;
-    }
-
-    return false;
-  });
 
   return (
     <main className="flex-1 p-4 md:p-10 max-w-7xl mx-auto w-full pb-28 md:pb-10" style={{ color: 'var(--cp-text-1)' }}>
@@ -287,60 +260,7 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
               </div>
             )}
 
-            {/* Safety Alerts */}
-            {intersectingAlerts.length > 0 && (
-              <div
-                className="mb-6 p-5 rounded-xl"
-                style={{
-                  background: 'hsl(from var(--cp-orange) h s l / 0.08)',
-                  border: '1px solid hsl(from var(--cp-orange) h s l / 0.25)',
-                }}
-              >
-                <div className="flex items-center gap-2 font-headline font-bold mb-3" style={{ color: 'var(--cp-text-1)' }}>
-                  <AlertTriangle size={18} style={{ color: 'var(--cp-orange)' }} />
-                  <h3 className="text-lg">Safety Alerts</h3>
-                </div>
 
-                <div className="space-y-3">
-                  {intersectingAlerts.map((alert) => (
-                    <div
-                      key={alert.id}
-                      className="flex flex-col sm:flex-row sm:items-start gap-3 p-3 rounded-lg"
-                      style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)' }}
-                    >
-                      <span
-                        className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap w-fit rounded-md ${
-                          alert.severity === 'Extreme'
-                            ? 'bg-red-500 text-white'
-                            : alert.severity === 'Severe'
-                              ? 'bg-orange-400 text-black'
-                              : 'bg-amber-300 text-black'
-                        }`}
-                      >
-                        {alert.severity} • {alert.type}
-                      </span>
-
-                      <div className="flex-1">
-                        <p className="text-sm font-bold mb-0.5" style={{ color: 'var(--cp-text-1)' }}>
-                          {alert.title}
-                        </p>
-                        <p className="text-xs line-clamp-2" style={{ color: 'var(--cp-text-3)' }}>
-                          {alert.description}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div
-                  className="flex items-center gap-1.5 mt-4 p-2.5 rounded-lg text-xs font-semibold"
-                  style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', color: 'var(--cp-text-2)' }}
-                >
-                  <Info size={14} className="flex-shrink-0" style={{ color: 'var(--cp-orange)' }} />
-                  Please exercise caution if you plan to attend.
-                </div>
-              </div>
-            )}
 
             <p className="text-lg leading-relaxed mb-6" style={{ color: 'var(--cp-text-2)' }}>
               {event.description}

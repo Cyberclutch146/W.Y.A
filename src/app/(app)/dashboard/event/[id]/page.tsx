@@ -8,9 +8,6 @@ import { CommunityEvent } from '@/types';
 import { ArrowLeft, Users, Download, Calendar, Mail, CheckCircle, Circle, Trash2, Send, Pencil, AlertTriangle, QrCode, Package } from 'lucide-react';
 import { toast } from 'sonner';
 import PromotionModal from '@/components/PromotionModal';
-import { SentinelAlert } from '@/types/sentinel';
-import { isPointInPolygon, getDistanceMiles } from '@/utils/geo';
-
 export default function OrganizerEventPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { user } = useAuth();
@@ -19,7 +16,6 @@ export default function OrganizerEventPage({ params }: { params: Promise<{ id: s
 
   const [event, setEvent] = useState<CommunityEvent | null>(null);
   const [volunteers, setVolunteers] = useState<EventVolunteer[]>([]);
-  const [alerts, setAlerts] = useState<SentinelAlert[]>([]);
   const [goodsPledges, setGoodsPledges] = useState<Awaited<ReturnType<typeof getEventGoodsPledges>>>([]);
   const [loading, setLoading] = useState(true);
   const [isPromotionModalOpen, setIsPromotionModalOpen] = useState(false);
@@ -31,15 +27,14 @@ export default function OrganizerEventPage({ params }: { params: Promise<{ id: s
     if (!user) { setLoading(false); return; }
     const loadData = async () => {
       try {
-        const [eventData, volunteerData, alertsData, pledgesData] = await Promise.all([
+        const [eventData, volunteerData, pledgesData] = await Promise.all([
           getEventById(eventId), getEventVolunteers(eventId),
-          fetch('/api/sentinel').then(r => r.json()).catch(() => []),
           getEventGoodsPledges(eventId)
         ]);
         if (eventData?.organizerId !== user.uid && !ADMIN_EMAILS.includes(user.email || '')) {
           toast.error('You do not have permission to view this event.'); router.push('/dashboard'); return;
         }
-        setEvent(eventData); setVolunteers(volunteerData); setAlerts(alertsData); setGoodsPledges(pledgesData);
+        setEvent(eventData); setVolunteers(volunteerData); setGoodsPledges(pledgesData);
       } catch (err) { console.error('Failed to load event data:', err); toast.error('Could not load event data.'); }
       finally { setLoading(false); }
     };
@@ -111,18 +106,6 @@ export default function OrganizerEventPage({ params }: { params: Promise<{ id: s
   const currentVols = event.needs?.volunteers?.current || 0;
   const goalVols = event.needs?.volunteers?.goal || 1;
   const progress = Math.min(100, Math.round((currentVols / goalVols) * 100));
-
-  const intersectingAlerts = alerts.filter((alert: SentinelAlert) => {
-    if (!eventLat || !eventLng) return false;
-    if (alert.severity === 'Extreme' && alert.polygon && alert.polygon.length > 2) {
-      if (isPointInPolygon({ lat: eventLat, lng: eventLng }, alert.polygon)) return true;
-    }
-    if (alert.coordinates?.lat && alert.coordinates?.lng) {
-      return getDistanceMiles(eventLat, eventLng, alert.coordinates.lat, alert.coordinates.lng) <= 30;
-    }
-    return false;
-  });
-
   return (
     <main className="flex-1 p-4 md:p-10 max-w-7xl mx-auto w-full pb-28 md:pb-10">
       <button onClick={() => router.push('/dashboard')} className="btn-secondary mb-6 flex items-center gap-2">
@@ -151,24 +134,6 @@ export default function OrganizerEventPage({ params }: { params: Promise<{ id: s
           <button onClick={handleDeleteEvent} className="btn-primary flex items-center gap-2" style={{ background: '#ef4444' }}><Trash2 size={16} /> Delete</button>
         </div>
       </div>
-
-      {intersectingAlerts.length > 0 && (
-        <div className="mb-8 p-5" style={{ borderRadius: 'var(--r-xl)', background: 'var(--cp-surface-dim)', border: '1.5px solid var(--cp-border)' }}>
-          <div className="flex items-center gap-2 font-bold tracking-tight mb-3" style={{ color: 'var(--cp-text-1)' }}><AlertTriangle size={20} /><h3 className="text-lg">Safety Alerts</h3></div>
-          <p className="text-sm mb-4" style={{ color: 'var(--cp-text-2)' }}>These alerts overlap with your event location. Review and communicate any safety concerns.</p>
-          <div className="space-y-3">
-            {intersectingAlerts.map(alert => (
-              <div key={alert.id} className="flex flex-col sm:flex-row sm:items-start gap-3 p-3" style={{ borderRadius: 'var(--r-lg)', background: 'var(--cp-surface)', border: '1px solid var(--cp-border)' }}>
-                <span className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap w-fit ${alert.severity === 'Extreme' ? 'bg-red-500 text-white' : alert.severity === 'Severe' ? 'bg-orange-400 text-white' : 'bg-amber-400 text-white'}`} style={{ borderRadius: 'var(--r-full)' }}>{alert.severity} • {alert.type}</span>
-                <div className="flex-1"><p className="text-sm font-bold mb-0.5" style={{ color: 'var(--cp-text-1)' }}>{alert.title}</p><p className="text-xs line-clamp-2" style={{ color: 'var(--cp-text-2)' }}>{alert.description}</p></div>
-              </div>
-            ))}
-          </div>
-          <div className="mt-4 flex gap-3">
-            <button onClick={handleEmailAll} className="btn-secondary flex items-center gap-2"><Mail size={16} /> Email Volunteers</button>
-          </div>
-        </div>
-      )}
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
         <div className="md:col-span-1 space-y-6">

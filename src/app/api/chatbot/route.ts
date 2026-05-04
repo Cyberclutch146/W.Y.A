@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { ragRetrieveEvents } from "@/services/searchService";
 import { AI_FUNCTION_DECLARATIONS, executeFunction } from "@/services/aiActions";
-import { getAllSentinelAlerts } from "@/services/sentinelService";
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -71,14 +70,11 @@ export async function POST(req: Request) {
     }
 
     // Fetch relevant events to provide targeted RAG context to Gemini
-    const [events, sentinelAlerts] = await Promise.all([
-      ragRetrieveEvents(messages[messages.length - 1]?.content || "", {
-        skills: userSkills,
-        equipment: userEquipment,
-        travelRadius: userTravelRadius
-      }),
-      getAllSentinelAlerts().catch(() => []) // fail gracefully
-    ]);
+    const events = await ragRetrieveEvents(messages[messages.length - 1]?.content || "", {
+      skills: userSkills,
+      equipment: userEquipment,
+      travelRadius: userTravelRadius
+    });
     
     const eventContext = events
       .map((e) => {
@@ -110,9 +106,7 @@ export async function POST(req: Request) {
         } Available: ${userAvailability}.`
       : "\nThe user is not logged in.";
 
-    const sentinelContext = sentinelAlerts.length > 0 
-      ? `\nCURRENT SENTINEL SAFETY ALERTS IN EFFECT:\n` + sentinelAlerts.slice(0, 3).map((a: any) => `- ${a.severity} ${a.type}: ${a.title} (${String(a.description || "").slice(0, 120)})`).join("\n") + `\nAlways warn users about these active safety alerts when relevant to events.`
-      : "";
+
 
     const systemInstruction = `You are the CampusPulse AI Assistant. 
 You are a helpful, empathetic, and encouraging assistant for a campus event and volunteering platform.
@@ -122,7 +116,6 @@ ${userContext}
 
 Here is the list of CURRENTLY LIVE events on the platform:
 ${eventContext || "No active events right now."}
-${sentinelContext}
 
 IMPORTANT INSTRUCTIONS:
 - When users ask for events, recommend specific live events. Be conversational and natural.

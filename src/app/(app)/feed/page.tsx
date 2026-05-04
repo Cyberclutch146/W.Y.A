@@ -12,7 +12,6 @@ import { CommunityEvent } from '@/types';
 import { QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 import { ArrowUpDown, ChevronDown, SlidersHorizontal, Sparkles, X, Compass, MapPin, CalendarOff, Search } from 'lucide-react';
 import { isPointInPolygon, getDistanceMiles } from '@/utils/geo';
-import { SentinelAlert } from '@/types/sentinel';
 import { getRecommendedEvents } from '@/services/recommendationService';
 
 const PAGE_SIZE = 12;
@@ -99,7 +98,6 @@ function FeedContent() {
   }, [urlQuery]);
 
   const [events, setEvents] = useState<CommunityEvent[]>([]);
-  const [alerts, setAlerts] = useState<SentinelAlert[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
@@ -153,12 +151,8 @@ function FeedContent() {
   useEffect(() => {
     const fetchEventsAndAlerts = async () => {
       try {
-        const [eventsResult, alertsResult] = await Promise.all([
-          getEvents(PAGE_SIZE),
-          fetch('/api/sentinel').then(res => res.ok ? res.json() : [])
-        ]);
+        const eventsResult = await getEvents(PAGE_SIZE);
         setEvents(eventsResult.events);
-        setAlerts(alertsResult);
         lastDocRef.current = eventsResult.lastDoc;
         setHasMore(eventsResult.hasMore);
       } catch (error) {
@@ -844,18 +838,12 @@ function FeedContent() {
             className="mt-4 h-[min(70vh,32rem)] w-full overflow-hidden animate-fade-in-up md:h-[600px] card-base"
             style={{ boxShadow: 'var(--shadow-lg)' }}
           >
-            <MapWrapper events={sortedEvents} alerts={alerts} />
+            <MapWrapper events={sortedEvents} />
           </div>
         ) : (
           <div className={`grid grid-cols-1 gap-4 min-[560px]:grid-cols-2 sm:gap-6 lg:grid-cols-3 ${sortChanged ? 'animate-cards-reorder' : ''}`}>
             {sortedEvents.map((event, index) => {
               const normalizedEvent = { ...event, imageUrl: event.imageUrl || '/images/event-placeholder.jpg' };
-              const intersectingAlerts = alerts.filter((alert: SentinelAlert) => {
-                if (!event.lat || !event.lng) return false;
-                if (alert.polygon && alert.polygon.length > 0) return isPointInPolygon({ lat: event.lat, lng: event.lng }, alert.polygon);
-                else if (alert.coordinates) return getDistanceMiles(event.lat, event.lng, alert.coordinates.lat, alert.coordinates.lng) <= 30;
-                return false;
-              });
               return (
                 <motion.div
                   key={event.id}
@@ -865,7 +853,6 @@ function FeedContent() {
                 >
                   <EventCard
                     event={normalizedEvent}
-                    sentinelAlerts={intersectingAlerts}
                     recommendationPercentage={recommendationData[event.id]?.percentage}
                     matchedInterests={recommendationData[event.id]?.matchedInterests}
                   />
