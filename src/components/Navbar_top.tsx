@@ -132,6 +132,7 @@ export default function NavbarTop() {
     { label: 'Organize', path: '/create' },
     { label: 'Dashboard', path: '/dashboard', exact: true },
     { label: 'Leaderboard', path: '/leaderboard' },
+    { label: 'Noticeboard', path: '/bulletin' },
   ]
 
   const isLinkActive = (link: typeof navLinks[0]) => {

@@ -2,7 +2,7 @@
 // Campus-centric announcement and notice board for academic,
 // administrative, social, and emergency notices.
 
-export type BulletinAlertType = 'ACADEMIC' | 'ADMIN' | 'SOCIAL' | 'EMERGENCY';
+export type BulletinAlertType = 'ACADEMIC' | 'ADMIN' | 'SOCIAL' | 'EMERGENCY' | 'MARKETPLACE' | 'LOST_AND_FOUND' | 'ANNOUNCEMENT';
 
 export type BulletinSeverity = 'Extreme' | 'Severe' | 'Moderate' | 'Minor' | 'Unknown';
 
