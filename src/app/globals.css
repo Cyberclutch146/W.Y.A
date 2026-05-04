@@ -12,7 +12,7 @@
 /* ─── LIGHT MODE ─── */
 :root {
   /* Core Palette */
-  --cp-bg:             hsl(270, 30%, 95%);
+  --cp-bg:             #e8dff5;
   --cp-surface:        hsl(0, 0%, 100%);
   --cp-surface-dim:    hsl(240, 15%, 95%);
   --cp-surface-raised: hsl(0, 0%, 100%);

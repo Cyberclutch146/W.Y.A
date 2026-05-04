@@ -163,7 +163,7 @@ export default function NavbarTop() {
   }
 
   return (
-    <div className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/60 backdrop-blur-xl supports-[backdrop-filter]:bg-background/40">
+    <div className="sticky top-0 z-50 w-full border-b border-border/40 backdrop-blur-xl" style={{ background: 'color-mix(in srgb, var(--cp-bg) 70%, transparent)' }}>
       <div className="mx-auto flex h-16 items-center justify-between max-w-7xl px-4 sm:px-6">
 
         {/* Logo */}
