@@ -7,7 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { createUserProfile } from '@/services/userService';
 import { motion, AnimatePresence } from 'framer-motion';
 import LiquidEther from '@/components/LiquidEther';
-import Folder from '@/components/Folder';
+import { UserPlus, User, Loader2, Sparkles, Star, Trophy } from 'lucide-react';
 
 export default function RegisterPage() {
   const [fullName, setFullName] = useState('');
@@ -59,7 +59,10 @@ export default function RegisterPage() {
         interests: [],
         xp: 0,
         badges: [],
-        eventsAttended: 0
+        eventsAttended: 0,
+        rsvpEventIds: [],
+        savedEventIds: [],
+        dismissedEventIds: []
       });
       router.replace('/home');
     } catch (err: any) {
@@ -103,100 +106,107 @@ export default function RegisterPage() {
     }
   };
 
-
-  const inputClass = "w-full px-4 py-3.5 border-4 border-black bg-transparent text-sm font-body outline-none transition-all focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:translate-x-[-2px] focus:translate-y-[-2px] placeholder:text-on-surface-variant/50";
-
   return (
-    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-6 text-on-background relative" style={{ background: 'var(--color-background-base)' }}>
-      {/* Dot grid background */}
-      <div className="fixed inset-0 pointer-events-none z-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle, #00000033 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-6 relative" style={{ background: 'var(--cp-bg)' }}>
+      {/* Subtle gradient background */}
+      <div className="fixed inset-0 pointer-events-none z-0" style={{ background: 'radial-gradient(circle at 70% 30%, hsl(from var(--cp-accent) h s l / 0.04) 0%, transparent 60%), radial-gradient(circle at 20% 80%, hsl(from var(--cp-orange) h s l / 0.04) 0%, transparent 60%)' }} />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="relative z-10 w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden"
-        style={{ background: 'var(--color-surface-container-lowest-base)' }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        className="relative z-10 w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 overflow-hidden"
+        style={{
+          background: 'var(--cp-surface)',
+          border: '1px solid var(--cp-border)',
+          borderRadius: 'var(--r-2xl)',
+          boxShadow: '0 25px 80px -12px rgba(0,0,0,0.25)',
+        }}
       >
 
         {/* Left Side — Register Form */}
         <div className="flex flex-col justify-center p-8 md:p-12 lg:p-14">
-          <Link href="/" className="mb-6 inline-flex items-center gap-2 text-[11px] font-label font-bold uppercase tracking-[0.14em] text-on-surface-variant transition-all hover:text-on-surface hover:translate-x-[-2px]">
+          <Link href="/" className="mb-6 inline-flex items-center gap-2 text-xs font-semibold transition-all hover:gap-3" style={{ color: 'var(--cp-text-3)' }}>
             ← Back to homepage
           </Link>
 
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 text-[10px] font-label font-bold uppercase tracking-[0.16em] border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] w-fit mb-5" style={{ background: 'var(--color-secondary-container-base)', color: 'var(--color-on-secondary-container-base)' }}>
-            <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>person_add</span>
+          <div
+            className="inline-flex items-center gap-2 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-lg w-fit mb-5"
+            style={{ background: 'hsl(from var(--cp-secondary) h s l / 0.1)', color: 'var(--cp-secondary)' }}
+          >
+            <UserPlus size={12} />
             New Account
           </div>
 
-          <h1 className="font-headline font-black text-3xl md:text-4xl uppercase tracking-tight text-on-surface leading-none mb-2">
+          <h1 className="font-headline font-bold text-3xl md:text-4xl tracking-tight leading-none mb-2" style={{ color: 'var(--cp-text-1)' }}>
             Join{' '}
-            <span className="px-2 pb-0.5 inline-block border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}>CampusPulse.</span>
+            <span
+              className="px-2 py-0.5 inline-block rounded-lg"
+              style={{ background: 'linear-gradient(135deg, var(--cp-primary), var(--cp-violet))', color: 'white' }}
+            >CampusPulse.</span>
           </h1>
-          <p className="text-on-surface-variant text-sm mb-6 max-w-[380px] leading-relaxed">
+          <p className="text-sm mb-6 max-w-[380px] leading-relaxed" style={{ color: 'var(--cp-text-3)' }}>
             Create your account and start owning your campus social life.
           </p>
 
           <form onSubmit={handleRegister} className="flex flex-col gap-4">
             <div>
-              <label className="block text-[10px] font-label font-bold uppercase tracking-[0.14em] text-on-surface mb-1.5">Full Name</label>
-              <input className={inputClass} style={{ background: 'var(--color-surface-container-base)' }} type="text" placeholder="Your Name" value={fullName} onChange={(e) => setFullName(e.target.value)} disabled={loading} required />
+              <label className="block text-xs font-semibold mb-1.5" style={{ color: 'var(--cp-text-2)' }}>Full Name</label>
+              <input className="input-base" type="text" placeholder="Your Name" value={fullName} onChange={(e) => setFullName(e.target.value)} disabled={loading} required />
             </div>
 
             <div>
-              <label className="block text-[10px] font-label font-bold uppercase tracking-[0.14em] text-on-surface mb-1.5">Email</label>
-              <input className={inputClass} style={{ background: 'var(--color-surface-container-base)' }} type="email" placeholder="you@campus.edu" value={email} onChange={(e) => setEmail(e.target.value)} disabled={loading} required />
+              <label className="block text-xs font-semibold mb-1.5" style={{ color: 'var(--cp-text-2)' }}>Email</label>
+              <input className="input-base" type="email" placeholder="you@campus.edu" value={email} onChange={(e) => setEmail(e.target.value)} disabled={loading} required />
             </div>
 
             <div>
-              <label className="block text-[10px] font-label font-bold uppercase tracking-[0.14em] text-on-surface mb-1.5">Location</label>
-              <input className={inputClass} style={{ background: 'var(--color-surface-container-base)' }} type="text" placeholder="City, Country" value={location} onChange={(e) => setLocation(e.target.value)} disabled={loading} required />
+              <label className="block text-xs font-semibold mb-1.5" style={{ color: 'var(--cp-text-2)' }}>Location</label>
+              <input className="input-base" type="text" placeholder="City, Country" value={location} onChange={(e) => setLocation(e.target.value)} disabled={loading} required />
             </div>
 
             <div>
-              <label className="block text-[10px] font-label font-bold uppercase tracking-[0.14em] text-on-surface mb-1.5">Password</label>
-              <input className={inputClass} style={{ background: 'var(--color-surface-container-base)' }} type="password" placeholder="Min 8 characters" value={password} onChange={(e) => setPassword(e.target.value)} disabled={loading} required minLength={8} />
+              <label className="block text-xs font-semibold mb-1.5" style={{ color: 'var(--cp-text-2)' }}>Password</label>
+              <input className="input-base" type="password" placeholder="Min 8 characters" value={password} onChange={(e) => setPassword(e.target.value)} disabled={loading} required minLength={8} />
             </div>
 
-            <div className="flex items-start gap-3 mt-1 text-sm text-on-surface-variant">
+            <div className="flex items-start gap-3 mt-1 text-sm" style={{ color: 'var(--cp-text-3)' }}>
               <input 
                 type="checkbox" 
                 checked={agreed} 
                 onChange={(e) => setAgreed(e.target.checked)} 
                 disabled={loading} 
-                className="mt-1 w-5 h-5 accent-black border-2 border-black"
+                className="mt-1 w-4 h-4 rounded"
+                style={{ accentColor: 'var(--cp-primary)' }}
                 required
               />
               <span className="text-xs leading-relaxed">
-                I agree to the <a href="#" className="font-bold text-on-surface underline decoration-2 underline-offset-2 hover:text-primary transition-colors">Terms of Service</a> and <a href="#" className="font-bold text-on-surface underline decoration-2 underline-offset-2 hover:text-primary transition-colors">Privacy Policy</a>.
+                I agree to the <a href="#" className="font-bold underline underline-offset-2 transition-colors" style={{ color: 'var(--cp-primary)' }}>Terms of Service</a> and <a href="#" className="font-bold underline underline-offset-2 transition-colors" style={{ color: 'var(--cp-primary)' }}>Privacy Policy</a>.
               </span>
             </div>
 
             <button 
-              className="w-full py-4 font-label font-black text-sm uppercase tracking-wider border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 active:scale-[0.98] disabled:opacity-50 mt-1"
-              style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}
+              className="btn-primary w-full justify-center py-4 text-sm mt-1 disabled:opacity-50"
               type="submit" 
               disabled={loading}
             >
-              {loading ? 'Creating Account...' : 'Join CampusPulse →'}
+              {loading ? <><Loader2 size={16} className="animate-spin" /> Creating Account...</> : 'Join CampusPulse →'}
             </button>
 
-            <div className="flex items-center gap-3 my-1 text-on-surface-variant text-[10px] font-label font-bold uppercase tracking-[0.14em]">
-              <div className="flex-1 h-[3px] bg-black" />
-              <span>or</span>
-              <div className="flex-1 h-[3px] bg-black" />
+            <div className="flex items-center gap-3 my-1" style={{ color: 'var(--cp-text-3)' }}>
+              <div className="flex-1 h-px" style={{ background: 'var(--cp-border)' }} />
+              <span className="text-[10px] font-semibold uppercase tracking-wider">or</span>
+              <div className="flex-1 h-px" style={{ background: 'var(--cp-border)' }} />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <button 
                 type="button" 
-                className="flex items-center justify-center gap-2 py-3.5 font-label font-bold text-sm uppercase tracking-wider border-4 border-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all duration-150 text-on-surface disabled:opacity-50"
-                style={{ background: 'var(--color-surface-container-base)' }}
+                className="btn-secondary justify-center py-3 text-sm disabled:opacity-50"
                 onClick={handleGoogleSignIn} 
                 disabled={loading}
               >
-                <svg className="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <svg className="w-4 h-4" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                   <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
                   <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
@@ -207,27 +217,26 @@ export default function RegisterPage() {
 
               <button 
                 type="button" 
-                className="flex items-center justify-center gap-2 py-3.5 font-label font-bold text-sm uppercase tracking-wider border-4 border-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all duration-150 text-on-surface disabled:opacity-50"
-                style={{ background: 'var(--color-surface-container-base)' }}
+                className="btn-secondary justify-center py-3 text-sm disabled:opacity-50"
                 onClick={handleAnonymousSignIn} 
                 disabled={loading}
               >
-                <span className="material-symbols-outlined text-base">person_off</span>
+                <User size={16} />
                 Guest
               </button>
             </div>
           </form>
 
-          <div className="mt-6 text-sm text-on-surface-variant font-body">
+          <div className="mt-6 text-sm" style={{ color: 'var(--cp-text-3)' }}>
             Already have an account?{' '}
-            <Link href="/login" className="font-bold text-on-surface underline decoration-4 underline-offset-4 hover:text-primary transition-colors uppercase">
+            <Link href="/login" className="font-bold underline underline-offset-4 transition-colors hover:opacity-80" style={{ color: 'var(--cp-primary)' }}>
               Log In
             </Link>
           </div>
         </div>
 
         {/* Right Side — Dynamic Experience Panel */}
-        <div className="relative hidden md:flex flex-col border-l-4 border-black overflow-hidden group/panel bg-[#FF3D00]">
+        <div className="relative hidden md:flex flex-col overflow-hidden" style={{ background: 'var(--cp-accent)' }}>
           {/* Animated Background */}
           <div className="absolute inset-0 z-0">
             <LiquidEther
@@ -246,7 +255,7 @@ export default function RegisterPage() {
           </div>
 
           {/* Noise Overlay */}
-          <div className="absolute inset-0 z-10 opacity-30 pointer-events-none mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+          <div className="absolute inset-0 z-10 opacity-20 pointer-events-none mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
           
           {/* Content Layer */}
           <div className="relative z-20 flex-1 p-10 flex flex-col justify-between h-full pointer-events-none [&>*]:pointer-events-auto">
@@ -256,91 +265,110 @@ export default function RegisterPage() {
                 animate={{ x: 0, opacity: 1 }}
                 className="inline-flex items-center gap-3 justify-end"
               >
-                <span className="text-white font-label font-black text-[12px] uppercase tracking-[0.4em]">Auth // Identity_v2</span>
-                <div className="w-12 h-[4px] bg-white shadow-[0_0_15px_rgba(255,255,255,0.5)]" />
+                <span className="text-white/70 text-[11px] font-semibold uppercase tracking-[0.3em]">Your Journey Starts</span>
+                <div className="w-12 h-[3px] rounded-full bg-white" />
               </motion.div>
 
-              <h2 className="font-headline font-black text-7xl uppercase tracking-tighter leading-[0.8] text-white">
+              <h2 className="font-headline font-bold text-6xl tracking-tight leading-[0.9] text-white">
                 <motion.span 
                   initial={{ opacity: 0, scale: 1.1 }}
                   animate={{ opacity: 1, scale: 1 }}
                   className="block"
                 >
-                  START
+                  Start
                 </motion.span>
                 <motion.span 
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.1 }}
-                  className="block italic text-black"
+                  className="block bg-gradient-to-r from-yellow-200 to-white bg-clip-text text-transparent"
                 >
-                  LEGACY
+                  Your Legacy
                 </motion.span>
               </h2>
             </div>
 
-            {/* Identity Card Component */}
-            <div className="flex flex-col gap-8 items-end w-full">
+            {/* Perk Cards */}
+            <div className="flex flex-col gap-4 items-end w-full">
               <motion.div
-                initial={{ rotate: 5, y: 50, opacity: 0 }}
-                animate={{ rotate: -2, y: 0, opacity: 1 }}
+                initial={{ rotate: 3, y: 50, opacity: 0 }}
+                animate={{ rotate: -1, y: 0, opacity: 1 }}
                 transition={{ type: 'spring', damping: 15 }}
-                whileHover={{ rotate: 0, scale: 1.05 }}
-                className="w-full max-w-[320px] p-6 border-4 border-black bg-white shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden"
+                whileHover={{ rotate: 0, scale: 1.03 }}
+                className="w-full max-w-[300px] p-6 relative overflow-hidden"
+                style={{
+                  background: 'rgba(255,255,255,0.95)',
+                  backdropFilter: 'blur(12px)',
+                  borderRadius: 'var(--r-2xl)',
+                  boxShadow: '0 20px 60px -15px rgba(0,0,0,0.3)',
+                }}
               >
-                <div className="absolute top-0 right-0 p-2 bg-black text-white text-[8px] font-black uppercase tracking-widest">
+                <div className="absolute top-0 right-0 px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider text-white rounded-bl-xl" style={{ background: 'var(--cp-primary)' }}>
                   Official ID
                 </div>
                 
-                <div className="flex gap-4 mb-6">
-                  <div className="w-16 h-16 border-4 border-black bg-[#FFD600] flex items-center justify-center">
-                    <span className="material-symbols-outlined text-4xl">face</span>
+                <div className="flex gap-4 mb-5">
+                  <div
+                    className="w-14 h-14 rounded-xl flex items-center justify-center"
+                    style={{ background: 'linear-gradient(135deg, #FFD600, #FF9800)' }}
+                  >
+                    <User size={24} className="text-white" />
                   </div>
-                  <div className="flex-1">
-                    <div className="h-4 w-3/4 bg-black/10 mb-2" />
-                    <div className="h-3 w-1/2 bg-black/5" />
+                  <div className="flex-1 pt-1">
+                    <div className="h-3 w-3/4 rounded-full mb-2" style={{ background: 'rgba(0,0,0,0.08)' }} />
+                    <div className="h-2.5 w-1/2 rounded-full" style={{ background: 'rgba(0,0,0,0.05)' }} />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 border-t-4 border-black pt-4">
+                <div className="grid grid-cols-2 gap-4 pt-4" style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}>
                   <div>
-                    <p className="text-[8px] font-black uppercase opacity-40">Status</p>
-                    <p className="text-[12px] font-black uppercase">Level 01</p>
+                    <p className="text-[9px] font-semibold uppercase text-black/30">Status</p>
+                    <p className="text-[12px] font-bold text-black/80">Level 01</p>
                   </div>
                   <div>
-                    <p className="text-[8px] font-black uppercase opacity-40">Access</p>
-                    <p className="text-[12px] font-black uppercase">Verified</p>
+                    <p className="text-[9px] font-semibold uppercase text-black/30">Access</p>
+                    <p className="text-[12px] font-bold text-black/80">Verified ✓</p>
                   </div>
                 </div>
               </motion.div>
 
-              <div className="rotate-[5deg] self-end translate-y-4">
-                <Folder 
-                  color="#00E5FF" 
-                  size={0.85} 
-                  items={[
-                    <div key="1" className="p-3 text-[11px] font-black uppercase text-black">New Perks Unlocked</div>,
-                    <div key="2" className="px-3 pb-1 text-[9px] font-bold uppercase text-black/60 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-black" /> Exclusive Invites
-                    </div>,
-                    <div key="3" className="px-3 pb-3 text-[9px] font-bold uppercase text-black/60 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-black" /> Priority Booking
-                    </div>
-                  ]}
-                />
-              </div>
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 }}
+                className="flex flex-col gap-2 w-full max-w-[260px]"
+              >
+                {[
+                  { Icon: Sparkles, text: 'Exclusive Invites', color: '#FFD600' },
+                  { Icon: Star, text: 'Priority Booking', color: '#FF00CC' },
+                  { Icon: Trophy, text: 'Earn XP & Badges', color: '#00E5FF' },
+                ].map((perk, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.5 + i * 0.1 }}
+                    className="flex items-center gap-3 p-3 rounded-xl"
+                    style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)' }}
+                  >
+                    <perk.Icon size={14} style={{ color: perk.color }} />
+                    <span className="text-white text-[11px] font-bold tracking-wide">{perk.text}</span>
+                  </motion.div>
+                ))}
+              </motion.div>
             </div>
 
             <div className="mt-auto text-right">
-              <p className="font-label font-black text-[11px] uppercase tracking-[0.2em] text-white">
+              <p className="text-white/60 text-[11px] font-semibold uppercase tracking-[0.2em]">
                 Waiting for input...
               </p>
-              <div className="mt-2 w-full h-1 bg-black/20 overflow-hidden">
+              <div className="mt-2 w-full h-1 rounded-full overflow-hidden" style={{ background: 'rgba(0,0,0,0.2)' }}>
                 <motion.div 
                   initial={{ x: '-100%' }}
                   animate={{ x: '100%' }}
                   transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                  className="w-1/3 h-full bg-white shadow-[0_0_10px_white]"
+                  className="w-1/3 h-full rounded-full"
+                  style={{ background: 'white', boxShadow: '0 0 10px white' }}
                 />
               </div>
             </div>
@@ -348,16 +376,24 @@ export default function RegisterPage() {
         </div>
       </motion.div>
 
-      {error && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3.5 text-sm font-label font-bold uppercase tracking-wider z-50 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-          style={{ background: 'var(--color-error-container-base)', color: 'var(--color-on-error-container-base)' }}
-        >
-          ⚠ {error}
-        </motion.div>
-      )}
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3.5 text-sm font-bold z-50 rounded-xl"
+            style={{
+              background: 'hsl(from var(--cp-accent) h s l / 0.15)',
+              color: 'var(--cp-accent)',
+              border: '1px solid hsl(from var(--cp-accent) h s l / 0.3)',
+              backdropFilter: 'blur(12px)',
+            }}
+          >
+            ⚠ {error}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

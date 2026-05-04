@@ -5,16 +5,17 @@ import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-lea
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { toast } from 'sonner';
+import { Search, Loader2 } from 'lucide-react';
 
 // Custom marker icon
 const customMarkerHtml = `
   <div style="
-    background-color: #1f3d2b;
+    background: linear-gradient(135deg, hsl(258 90% 63%), hsl(280 80% 60%));
     width: 24px;
     height: 24px;
     border-radius: 50%;
     border: 3px solid white;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.25);
   "></div>
 `;
 
@@ -113,34 +114,35 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
   };
 
   return (
-    <div className="space-y-4">
-      <div className="relative">
-        <div className="flex gap-2">
-          <input
-            type="text"
-            className="flex-1 border-4 border-black px-4 py-3 text-sm outline-none text-on-surface focus:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
-            placeholder="Search for a location..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSearch(e as any)}
-          />
-          <button
-            type="button"
-            onClick={handleSearch}
-            disabled={isSearching}
-            className="px-4 py-3 font-label font-bold text-sm uppercase tracking-wider border-4 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-          >
-            {isSearching ? (
-              <span className="material-symbols-outlined animate-spin">progress_activity</span>
-            ) : (
-              <span className="material-symbols-outlined">search</span>
-            )}
-            Search
-          </button>
-        </div>
+    <div className="space-y-3">
+      <div className="flex gap-2">
+        <input
+          type="text"
+          className="input-base flex-1"
+          placeholder="Search for a location..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleSearch(e as any)}
+        />
+        <button
+          type="button"
+          onClick={handleSearch}
+          disabled={isSearching}
+          className="btn-primary flex items-center gap-2"
+        >
+          {isSearching ? (
+            <Loader2 size={16} className="animate-spin" />
+          ) : (
+            <Search size={16} />
+          )}
+          Search
+        </button>
       </div>
 
-      <div className="h-[300px] w-full overflow-hidden border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] relative z-0">
+      <div
+        className="h-[300px] w-full overflow-hidden relative z-0"
+        style={{ borderRadius: 'var(--r-xl)', border: '1.5px solid var(--cp-border)', boxShadow: 'var(--shadow-md)' }}
+      >
         <MapContainer
           center={position || [37.7749, -122.4194]}
           zoom={position ? 15 : 12}
@@ -158,10 +160,14 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
             </>
           )}
         </MapContainer>
-        <div className="absolute bottom-2 left-2 z-[400] px-2 py-1 text-[10px] text-on-surface-variant pointer-events-none font-label font-bold uppercase tracking-wider border-2 border-black" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
+        <div
+          className="absolute bottom-2 left-2 z-[400] px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider pointer-events-none rounded-lg"
+          style={{ background: 'var(--cp-surface)', color: 'var(--cp-text-2)', border: '1px solid var(--cp-border)', backdropFilter: 'blur(8px)' }}
+        >
           Click on map to pick location
         </div>
       </div>
     </div>
   );
 }
+

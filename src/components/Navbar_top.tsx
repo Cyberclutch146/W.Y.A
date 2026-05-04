@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter, usePathname } from 'next/navigation'
-import { Search, Bell, X, Sun, Moon, User, LogOut, Info, ChevronDown, CheckCheck } from 'lucide-react'
+import { Search, Bell, X, Sun, Moon, User, LogOut, Info, ChevronDown, CheckCheck, Zap } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useTheme } from 'next-themes'
@@ -155,202 +155,185 @@ export default function NavbarTop() {
     router.push(notification.path)
   }, [profile?.id, router])
 
-  const notificationToneStyles: Record<NotificationData['tone'], { bg: string; border: string }> = {
-    alert: { bg: 'var(--color-error-container-base)', border: 'var(--color-error-base)' },
-    info: { bg: 'var(--color-tertiary-container-base)', border: 'var(--color-tertiary-base)' },
-    success: { bg: 'var(--color-secondary-container-base)', border: 'var(--color-secondary-base)' },
+  const notificationToneStyles: Record<NotificationData['tone'], { bg: string; border: string; text: string }> = {
+    alert: { bg: 'bg-destructive/10', border: 'border-destructive/20', text: 'text-destructive' },
+    info: { bg: 'bg-primary/10', border: 'border-primary/20', text: 'text-primary' },
+    success: { bg: 'bg-green-500/10', border: 'border-green-500/20', text: 'text-green-500' },
   }
 
   return (
-    <div
-      className="w-full border-b-4 border-black"
-      style={{ background: 'var(--color-surface-container-lowest-base)' }}
-    >
-      <div className="mx-auto flex items-center justify-between max-w-7xl px-6 py-3">
+    <div className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/60 backdrop-blur-xl supports-[backdrop-filter]:bg-background/40">
+      <div className="mx-auto flex h-16 items-center justify-between max-w-7xl px-4 sm:px-6">
 
         {/* Logo */}
         <button
           onClick={() => router.push('/')}
-          className="font-headline font-black text-[18px] uppercase tracking-tight text-on-surface transition-all duration-150 hover:translate-x-[2px]"
+          className="group flex items-center gap-2 focus:outline-none"
         >
-          <span
-            className="px-3 py-1 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] inline-block hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150"
-            style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}
-          >
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-lg shadow-primary/20 transition-transform group-hover:scale-105">
+            <Zap size={20} className="animate-pulse" fill="currentColor" />
+          </div>
+          <span className="font-headline text-lg font-bold tracking-tight text-foreground transition-colors group-hover:text-primary">
             CampusPulse
           </span>
         </button>
 
-        {/* Nav Links */}
-        <div className="flex items-center gap-1">
+        {/* Desktop Nav Links */}
+        <div className="hidden md:flex items-center gap-1.5">
           {navLinks.map((link) => {
             const active = isLinkActive(link)
             return (
               <button
                 key={link.path}
                 onClick={() => router.push(link.path)}
-                className={`relative px-4 py-2 text-sm font-label font-bold uppercase tracking-wider transition-all duration-150 border-4 ${
+                className={`relative px-4 py-2 text-sm font-medium transition-colors rounded-full ${
                   active
-                    ? 'border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] translate-x-[-2px] translate-y-[-2px]'
-                    : 'border-transparent text-on-surface-variant hover:text-on-surface hover:border-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
+                    ? 'text-primary'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                 }`}
-                style={active ? {
-                  background: 'var(--color-primary-container-base)',
-                  color: 'var(--color-on-primary-container-base)',
-                } : undefined}
               >
-                {link.label}
+                {active && (
+                  <motion.div
+                    layoutId="navbar-active"
+                    className="absolute inset-0 rounded-full bg-primary/10"
+                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  />
+                )}
+                <span className="relative z-10">{link.label}</span>
               </button>
             )
           })}
         </div>
 
         {/* Right Section */}
-        <div className="flex items-center gap-2 text-on-surface">
+        <div className="flex items-center gap-2 sm:gap-4">
           {/* Search */}
-          {searchOpen ? (
-            <div
-              className="flex items-center gap-2 px-3.5 py-2 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] animate-in fade-in duration-200"
-              style={{ background: 'var(--color-surface-container-lowest-base)' }}
-            >
-              <Search size={15} className="text-on-surface-variant" />
-              <input
-                ref={inputRef}
-                type="text"
-                placeholder="Search events…"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={handleSearch}
-                className="bg-transparent outline-none text-sm w-44 text-on-surface placeholder:text-on-surface-variant/60 font-body"
-              />
-              <button
-                onClick={() => { setSearchOpen(false); setSearchQuery('') }}
-                className="hover:scale-110 active:scale-95 transition-all p-0.5 border-2 border-black"
-              >
-                <X size={14} className="text-on-surface-variant" />
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={() => setSearchOpen(true)}
-              className="p-2 border-4 border-transparent hover:border-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all duration-150 active:scale-95"
-            >
-              <Search size={17} />
-            </button>
-          )}
+          <div className="relative">
+            <AnimatePresence>
+              {searchOpen ? (
+                <motion.div
+                  initial={{ width: 0, opacity: 0 }}
+                  animate={{ width: 200, opacity: 1 }}
+                  exit={{ width: 0, opacity: 0 }}
+                  className="flex items-center gap-2 px-3 h-10 rounded-full border border-border/50 bg-muted/30 focus-within:bg-background focus-within:border-primary/50 transition-colors overflow-hidden"
+                >
+                  <Search size={16} className="text-muted-foreground shrink-0" />
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    placeholder="Search events…"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={handleSearch}
+                    className="bg-transparent outline-none text-sm w-full text-foreground placeholder:text-muted-foreground font-body"
+                  />
+                  <button
+                    onClick={() => { setSearchOpen(false); setSearchQuery('') }}
+                    className="p-1 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <X size={14} />
+                  </button>
+                </motion.div>
+              ) : (
+                <motion.button
+                  key="search-btn"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  onClick={() => setSearchOpen(true)}
+                  className="h-10 w-10 flex items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                >
+                  <Search size={18} />
+                </motion.button>
+              )}
+            </AnimatePresence>
+          </div>
 
           {/* Notifications */}
           <div className="relative" ref={notificationRef}>
             <button
               onClick={() => setNotificationMenuOpen((open) => !open)}
-              className="p-2 border-4 border-transparent hover:border-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all duration-150 active:scale-95 relative"
+              className="h-10 w-10 flex items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors relative"
             >
-              <Bell size={17} />
+              <Bell size={18} />
               {unreadCount > 0 && (
-                <span
-                  className="absolute top-1 right-1 min-w-[0.6rem] h-[0.6rem] rounded-none border-2 border-black flex items-center justify-center text-[8px] font-bold text-white"
-                  style={{ background: 'var(--color-error-base)' }}
-                >
-                </span>
+                <span className="absolute top-2 right-2 flex h-2.5 w-2.5 items-center justify-center rounded-full bg-destructive ring-2 ring-background" />
               )}
             </button>
 
             <AnimatePresence>
               {notificationMenuOpen && (
                 <motion.div
-                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -8, scale: 0.97 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
                   transition={{ duration: 0.15, ease: 'easeOut' }}
-                  className="absolute right-0 mt-3 w-[21rem] overflow-hidden z-50 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"
-                  style={{ background: 'var(--color-surface-container-lowest-base)' }}
+                  className="card-elevated absolute right-0 mt-2 w-80 sm:w-96 overflow-hidden z-50 origin-top-right"
                 >
-                  <div className="p-3">
-                    {/* Header */}
-                    <div
-                      className="p-4 border-2 border-black mb-3"
-                      style={{ background: 'var(--color-primary-container-base)' }}
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-on-primary-container-base)]">Notifications</p>
-                          <p className="mt-1 text-base font-bold text-[var(--color-on-primary-container-base)] font-headline uppercase">What's popping</p>
+                  <div className="p-4 border-b border-border/50 flex items-center justify-between bg-muted/20">
+                    <div>
+                      <h3 className="font-semibold text-foreground">Notifications</h3>
+                      <p className="text-xs text-muted-foreground">You have {unreadCount} unread</p>
+                    </div>
+                    {unreadCount > 0 && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleMarkAllRead(); }}
+                        className="p-2 rounded-full text-primary hover:bg-primary/10 transition-colors"
+                        title="Mark all as read"
+                      >
+                        <CheckCheck size={18} />
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="max-h-[350px] overflow-y-auto no-scrollbar p-2 space-y-1">
+                    {allNotifications.length === 0 ? (
+                      <div className="py-8 text-center px-4">
+                        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted/50 mb-3">
+                          <Bell size={20} className="text-muted-foreground" />
                         </div>
-                        <div className="flex items-center gap-2">
-                          {unreadCount > 0 && (
-                            <button
-                              onClick={(e) => { e.stopPropagation(); handleMarkAllRead(); }}
-                              className="p-1.5 border-2 border-black transition-all duration-150 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
-                              style={{ background: 'var(--color-secondary-container-base)' }}
-                              title="Mark all as read"
-                            >
-                              <CheckCheck size={14} />
-                            </button>
-                          )}
-                          <span
-                            className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] border-2 border-black"
-                            style={{ background: 'var(--color-secondary-container-base)', color: 'var(--color-on-secondary-container-base)' }}
-                          >
-                            {allNotifications.length}
-                          </span>
-                        </div>
+                        <p className="text-sm font-medium text-foreground">All caught up!</p>
+                        <p className="mt-1 text-xs text-muted-foreground">Check back later for new updates.</p>
                       </div>
-                    </div>
-
-                    <div className="space-y-2 max-h-[320px] overflow-y-auto no-scrollbar">
-                      {allNotifications.length === 0 ? (
-                        <div
-                          className="p-4 text-center border-2 border-black"
-                          style={{ background: 'var(--color-surface-container-base)' }}
-                        >
-                          <p className="text-sm font-bold text-on-surface font-label uppercase">All Clear!</p>
-                          <p className="mt-1 text-[11px] text-on-surface-variant">You&apos;re all caught up!</p>
-                        </div>
-                      ) : (
-                        allNotifications.map((notification) => {
-                          const tone = notificationToneStyles[notification.tone]
-                          return (
-                            <button
-                              key={notification.id}
-                              onClick={() => handleNotificationClick(notification)}
-                              className="w-full p-3 text-left transition-all duration-150 hover:translate-x-[2px] border-2 border-black hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
-                              style={{
-                                background: tone.bg,
-                                opacity: notification.read ? 0.65 : 1,
-                              }}
-                            >
-                              <div className="flex items-start gap-3">
-                                <span
-                                  className="relative mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center border-2 border-black"
-                                  style={{ background: 'var(--color-surface-container-lowest-base)' }}
-                                >
-                                  <Bell size={14} />
-                                  {!notification.read && (
-                                    <span className="absolute -top-1 -right-1 h-2.5 w-2.5 border-2 border-black" style={{ background: 'var(--color-error-base)' }} />
-                                  )}
-                                </span>
-                                <div className="min-w-0 flex-1">
-                                  <div className="flex items-baseline justify-between gap-2">
-                                    <p className="text-sm font-bold text-on-surface truncate font-label uppercase">{notification.title}</p>
-                                    {notification.createdAt && (
-                                      <span className="shrink-0 text-[10px] text-on-surface-variant">{timeAgo(notification.createdAt)}</span>
-                                    )}
-                                  </div>
-                                  <p className="mt-1 text-[11px] leading-relaxed text-on-surface-variant">{notification.body}</p>
-                                </div>
+                    ) : (
+                      allNotifications.map((notification) => {
+                        const tone = notificationToneStyles[notification.tone]
+                        return (
+                          <button
+                            key={notification.id}
+                            onClick={() => handleNotificationClick(notification)}
+                            className={`w-full p-3 text-left transition-all duration-200 rounded-xl border border-transparent hover:border-border/50 ${
+                              notification.read ? 'opacity-60 hover:opacity-100' : 'bg-muted/30 hover:bg-muted/50'
+                            }`}
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border ${tone.bg} ${tone.border} ${tone.text}`}>
+                                <Bell size={14} />
                               </div>
-                            </button>
-                          )
-                        })
-                      )}
-                    </div>
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center justify-between gap-2">
+                                  <p className="text-sm font-medium text-foreground truncate">{notification.title}</p>
+                                  {notification.createdAt && (
+                                    <span className="shrink-0 text-xs text-muted-foreground">{timeAgo(notification.createdAt)}</span>
+                                  )}
+                                </div>
+                                <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{notification.body}</p>
+                              </div>
+                              {!notification.read && (
+                                <div className="h-2 w-2 rounded-full bg-primary mt-2 shrink-0" />
+                              )}
+                            </div>
+                          </button>
+                        )
+                      })
+                    )}
+                  </div>
 
+                  <div className="p-2 border-t border-border/50 bg-muted/10">
                     <button
                       onClick={() => { setNotificationMenuOpen(false); router.push('/dashboard/bulletin') }}
-                      className="mt-3 w-full px-4 py-3 text-sm font-bold text-on-surface font-label uppercase tracking-wider transition-all duration-150 hover:translate-x-[2px] border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px]"
-                      style={{ background: 'var(--color-secondary-container-base)', color: 'var(--color-on-secondary-container-base)' }}
+                      className="w-full py-2.5 text-sm font-medium text-primary hover:bg-primary/10 rounded-lg transition-colors"
                     >
-                      Open Bulletin Board
+                      View All Bulletins
                     </button>
                   </div>
                 </motion.div>
@@ -362,103 +345,88 @@ export default function NavbarTop() {
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-              className="w-9 h-9 overflow-hidden transition-all duration-150 border-4 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none flex items-center justify-center"
+              className="group flex items-center gap-2 pl-2 pr-1 py-1 rounded-full border border-transparent hover:border-border/50 hover:bg-muted/30 transition-all"
             >
-              {profileMenuOpen ? (
-                <ChevronDown size={18} className="text-on-surface" />
-              ) : (
-                <img src={getUserAvatar(profile?.avatarUrl, profile?.displayName)} alt="Profile" className="w-full h-full object-cover" />
-              )}
+              <div className="h-8 w-8 overflow-hidden rounded-full ring-2 ring-background border border-border/50">
+                <img src={getUserAvatar(profile?.avatarUrl, profile?.displayName)} alt="Profile" className="h-full w-full object-cover" />
+              </div>
+              <ChevronDown size={14} className="text-muted-foreground group-hover:text-foreground transition-colors mr-1" />
             </button>
 
             <AnimatePresence>
               {profileMenuOpen && (
                 <motion.div
-                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -8, scale: 0.97 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
                   transition={{ duration: 0.15, ease: 'easeOut' }}
-                  className="absolute right-0 mt-3 w-[17.5rem] overflow-hidden z-50 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"
-                  style={{ background: 'var(--color-surface-container-lowest-base)' }}
+                  className="card-elevated absolute right-0 mt-2 w-64 overflow-hidden z-50 origin-top-right p-2"
                 >
-                  <div className="relative z-10 p-3">
-                    {/* Profile card */}
-                    <div
-                      className="overflow-hidden p-4 border-2 border-black mb-3"
-                      style={{ background: 'var(--color-primary-container-base)' }}
+                  <div className="p-3 mb-2 rounded-xl bg-muted/30 flex items-center gap-3">
+                    <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full ring-2 ring-background border border-border/50">
+                      <img src={getUserAvatar(profile?.avatarUrl, profile?.displayName)} alt="Profile" className="h-full w-full object-cover" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-foreground">{profile?.displayName || 'User'}</p>
+                      <p className="truncate text-xs text-muted-foreground">{profile?.email || ''}</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <button
+                      onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-foreground rounded-lg hover:bg-muted/50 transition-colors"
                     >
-                      <div className="flex items-start gap-3">
-                        <div className="h-12 w-12 shrink-0 overflow-hidden border-2 border-black">
-                          <img src={getUserAvatar(profile?.avatarUrl, profile?.displayName)} alt="Profile" className="h-full w-full object-cover" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-on-primary-container-base)]">Signed in</p>
-                          <p className="mt-1 truncate text-base font-bold text-[var(--color-on-primary-container-base)] font-headline uppercase">{profile?.displayName || 'User'}</p>
-                          <p className="truncate text-xs text-[var(--color-on-primary-container-base)]/80">{profile?.email || ''}</p>
-                        </div>
+                      <div className="flex h-8 w-8 items-center justify-center rounded-md bg-muted text-muted-foreground">
+                        {mounted && resolvedTheme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
                       </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-                        className="col-span-2 px-4 py-3 text-left transition-all duration-150 hover:translate-x-[2px] border-2 border-black hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
-                        style={{ background: 'var(--color-surface-container-base)' }}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-8 w-8 items-center justify-center border-2 border-black" style={{ background: 'var(--color-surface-container-highest-base)' }}>
-                            {mounted && resolvedTheme === 'dark' ? <Sun size={16} className="text-on-surface" /> : <Moon size={16} className="text-on-surface" />}
-                          </div>
-                          <div>
-                            <p className="text-sm font-bold text-on-surface font-label uppercase">{mounted && resolvedTheme === 'dark' ? 'Light Mode' : 'Dark Mode'}</p>
-                            <p className="text-[11px] text-on-surface-variant">Switch the vibe</p>
-                          </div>
-                        </div>
-                      </button>
-
-                      <button
-                        onClick={() => { setProfileMenuOpen(false); router.push('/profile'); }}
-                        className="px-3.5 py-3 text-left transition-all duration-150 hover:translate-x-[2px] border-2 border-black hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
-                        style={{ background: 'var(--color-secondary-container-base)' }}
-                      >
-                        <User size={16} className="text-on-surface mb-2" />
-                        <p className="text-sm font-bold text-on-surface font-label uppercase">Profile</p>
-                        <p className="mt-0.5 text-[11px] text-on-surface-variant">Your public card</p>
-                      </button>
-
-                      <button
-                        onClick={() => { setProfileMenuOpen(false); router.push('/about'); }}
-                        className="px-3.5 py-3 text-left transition-all duration-150 hover:translate-x-[2px] border-2 border-black hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
-                        style={{ background: 'var(--color-tertiary-container-base)' }}
-                      >
-                        <Info size={16} className="text-on-surface mb-2" />
-                        <p className="text-sm font-bold text-on-surface font-label uppercase">About</p>
-                        <p className="mt-0.5 text-[11px] text-on-surface-variant">Mission and team</p>
-                      </button>
-                    </div>
-
-                    <div className="my-3 mx-0 h-1 bg-black" />
+                      <div className="text-left">
+                        <p>{mounted && resolvedTheme === 'dark' ? 'Light Mode' : 'Dark Mode'}</p>
+                      </div>
+                    </button>
 
                     <button
-                      onClick={async () => {
-                        setProfileMenuOpen(false);
-                        await logout();
-                        router.push('/');
-                      }}
-                      className="w-full px-4 py-3 text-left transition-all duration-150 hover:translate-x-[2px] border-2 border-black hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
-                      style={{ background: 'var(--color-error-container-base)' }}
+                      onClick={() => { setProfileMenuOpen(false); router.push('/profile'); }}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-foreground rounded-lg hover:bg-muted/50 transition-colors"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center border-2 border-black" style={{ background: 'var(--color-error-base)' }}>
-                          <LogOut size={15} className="text-white" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-on-surface font-label uppercase">Log Out</p>
-                          <p className="text-[11px] text-on-surface-variant">End this session</p>
-                        </div>
+                      <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary">
+                        <User size={16} />
+                      </div>
+                      <div className="text-left">
+                        <p>Profile</p>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => { setProfileMenuOpen(false); router.push('/about'); }}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-foreground rounded-lg hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-500/10 text-blue-500">
+                        <Info size={16} />
+                      </div>
+                      <div className="text-left">
+                        <p>About</p>
                       </div>
                     </button>
                   </div>
+
+                  <div className="my-2 h-px bg-border/50" />
+
+                  <button
+                    onClick={async () => {
+                      setProfileMenuOpen(false);
+                      await logout();
+                      router.push('/');
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-destructive rounded-lg hover:bg-destructive/10 transition-colors"
+                  >
+                    <div className="flex h-8 w-8 items-center justify-center rounded-md bg-destructive/10">
+                      <LogOut size={16} />
+                    </div>
+                    <div className="text-left">
+                      <p>Log Out</p>
+                    </div>
+                  </button>
                 </motion.div>
               )}
             </AnimatePresence>

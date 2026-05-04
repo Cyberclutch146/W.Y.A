@@ -8,6 +8,7 @@ import { CommunityEvent } from '@/types';
 import Image from 'next/image';
 import { SentinelAlert } from '@/types/sentinel';
 import { isPointInPolygon, getDistanceMiles } from '@/utils/geo';
+import { LayoutDashboard, DollarSign, Users, AlertTriangle, MapIcon, PlusCircle, Heart, Megaphone } from 'lucide-react';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -61,7 +62,7 @@ export default function DashboardPage() {
   if (!user) {
     return (
       <main className="flex-1 p-6 md:p-10 max-w-7xl mx-auto w-full pb-32 md:pb-10 flex justify-center items-center">
-        <p className="text-on-surface-variant font-label font-bold uppercase tracking-wider">Please sign in to view your dashboard.</p>
+        <p className="font-bold uppercase tracking-wider text-sm" style={{ color: 'var(--cp-text-2)' }}>Please sign in to view your dashboard.</p>
       </main>
     );
   }
@@ -69,27 +70,27 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <main className="flex-1 p-6 md:p-10 max-w-7xl mx-auto w-full pb-32 md:pb-10 flex justify-center items-center">
-        <div className="w-12 h-12 border-4 border-black border-t-transparent animate-spin" />
+        <div className="w-12 h-12 animate-spin rounded-full border-4 border-t-transparent" style={{ borderColor: 'var(--cp-border)', borderTopColor: 'var(--cp-primary)' }} />
       </main>
     );
   }
 
   const statCards = [
-    { label: 'Active Events', value: activeCount, icon: 'campaign', bg: '--color-primary-container-base' },
-    { label: 'Total Raised', value: `$${totalRaised.toLocaleString()}`, icon: 'attach_money', bg: '--color-secondary-container-base' },
-    { label: 'Volunteers', value: totalVolunteers, icon: 'group', bg: '--color-tertiary-container-base' },
-    { label: 'Severe Alerts', value: highRiskAlertsCount, icon: 'warning', bg: '--color-error-container-base' },
+    { label: 'Active Events', value: activeCount, icon: Megaphone, bg: 'var(--cp-primary-light)' },
+    { label: 'Total Raised', value: `$${totalRaised.toLocaleString()}`, icon: DollarSign, bg: 'var(--cp-surface-dim)' },
+    { label: 'Volunteers', value: totalVolunteers, icon: Users, bg: 'var(--cp-surface)' },
+    { label: 'Severe Alerts', value: highRiskAlertsCount, icon: AlertTriangle, bg: 'var(--cp-surface-dim)' },
   ];
 
   return (
     <main className="flex-1 p-4 md:p-10 max-w-7xl mx-auto w-full pb-32 md:pb-10">
       <div className="mb-10">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 text-[10px] font-label font-bold uppercase tracking-[0.16em] border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] mb-4" style={{ background: 'var(--color-secondary-container-base)', color: 'var(--color-on-secondary-container-base)' }}>
-          <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>dashboard</span>
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-bold uppercase tracking-wider mb-4" style={{ borderRadius: 'var(--r-full)', background: 'var(--cp-primary-light)', color: 'var(--cp-primary)', border: '1px solid hsl(258 90% 63% / 0.2)' }}>
+          <LayoutDashboard size={14} />
           Dashboard
         </div>
-        <h2 className="font-headline font-black text-4xl md:text-5xl uppercase tracking-tight text-on-surface leading-none">Your Impact</h2>
-        <p className="text-on-surface-variant font-body mt-2">
+        <h2 className="text-4xl md:text-5xl font-bold tracking-tight leading-none" style={{ color: 'var(--cp-text-1)' }}>Your Impact</h2>
+        <p className="mt-2 text-base" style={{ color: 'var(--cp-text-2)' }}>
           Welcome back, {profile?.displayName || 'Organizer'}. Here&apos;s your snapshot.
         </p>
       </div>
@@ -99,58 +100,55 @@ export default function DashboardPage() {
         {statCards.map((stat, i) => (
           <div
             key={stat.label}
-            className="p-4 min-[430px]:p-5 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-            style={{ background: `var(${stat.bg})` }}
+            className="p-4 min-[430px]:p-5 transition-all duration-300 hover:-translate-y-1"
+            style={{ borderRadius: 'var(--r-xl)', background: stat.bg, border: '1.5px solid var(--cp-border)', boxShadow: 'var(--shadow-sm)' }}
           >
             <div className="mb-3 flex items-center gap-2.5 min-[430px]:gap-3">
-              <span
-                className="material-symbols-outlined text-[20px] w-10 h-10 flex items-center justify-center border-2 border-black"
-                style={{ fontVariationSettings: "'FILL' 1", background: 'var(--color-surface-container-lowest-base)' }}
+              <div
+                className="w-10 h-10 flex items-center justify-center"
+                style={{ background: 'var(--cp-surface)', borderRadius: 'var(--r-full)', boxShadow: 'var(--shadow-xs)' }}
               >
-                {stat.icon}
-              </span>
-              <p className="text-[10px] font-label font-black uppercase tracking-[0.14em] text-on-surface min-[430px]:text-xs">{stat.label}</p>
+                <stat.icon size={18} style={{ color: 'var(--cp-text-1)' }} />
+              </div>
+              <p className="text-[10px] font-bold uppercase tracking-wider min-[430px]:text-xs" style={{ color: 'var(--cp-text-2)' }}>{stat.label}</p>
             </div>
-            <p className="text-2xl font-headline font-black text-on-surface min-[430px]:text-3xl md:text-4xl">{stat.value}</p>
+            <p className="text-2xl font-bold min-[430px]:text-3xl md:text-4xl" style={{ color: 'var(--cp-text-1)' }}>{stat.value}</p>
           </div>
         ))}
       </div>
 
       {/* ── Events Grid ── */}
       <div className="mb-6 flex flex-col gap-3 min-[560px]:flex-row min-[560px]:items-center min-[560px]:justify-between">
-        <h3 className="font-headline font-black text-xl uppercase tracking-tight text-on-surface">Your Events</h3>
+        <h3 className="text-xl font-bold tracking-tight" style={{ color: 'var(--cp-text-1)' }}>Your Events</h3>
         <div className="flex flex-col gap-3 min-[430px]:flex-row min-[430px]:items-center">
           <button
             onClick={handleBackfill}
             disabled={backfilling}
-            className="flex items-center justify-center gap-2 py-2.5 px-4 font-label font-bold text-sm uppercase tracking-wider border-4 border-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all duration-150 text-on-surface disabled:opacity-50"
-            style={{ background: 'var(--color-surface-container-base)' }}
+            className="btn-secondary flex items-center justify-center gap-2"
           >
-            <span className="material-symbols-outlined text-[18px]">map</span>
+            <MapIcon size={16} />
             {backfilling ? 'Refreshing...' : 'Refresh Coords'}
           </button>
           <button
             onClick={() => router.push('/create')}
-            className="flex items-center justify-center gap-2 py-2.5 px-4 font-label font-black text-sm uppercase tracking-wider border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150"
-            style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}
+            className="btn-primary flex items-center justify-center gap-2"
           >
-            <span className="material-symbols-outlined text-[18px]">add</span>
+            <PlusCircle size={16} />
             New Event
           </button>
         </div>
       </div>
 
       {events.length === 0 ? (
-        <div className="p-8 flex flex-col items-center justify-center text-center py-16 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]" style={{ background: 'var(--color-surface-container-base)' }}>
-          <span className="material-symbols-outlined text-[64px] mb-4 text-on-surface-variant">volunteer_activism</span>
-          <h3 className="font-headline font-black text-xl uppercase tracking-tight text-on-surface mb-2">No events yet</h3>
-          <p className="text-on-surface-variant max-w-md mb-6 font-body">
+        <div className="p-8 flex flex-col items-center justify-center text-center py-16" style={{ borderRadius: 'var(--r-xl)', background: 'var(--cp-surface)', border: '1.5px dashed var(--cp-border)' }}>
+          <Heart size={48} className="mb-4" style={{ color: 'var(--cp-text-3)' }} />
+          <h3 className="text-xl font-bold tracking-tight mb-2" style={{ color: 'var(--cp-text-1)' }}>No events yet</h3>
+          <p className="max-w-md mb-6 text-sm" style={{ color: 'var(--cp-text-2)' }}>
             You haven&apos;t organized any events yet. Start a local initiative and rally your campus!
           </p>
           <button
             onClick={() => router.push('/create')}
-            className="px-6 py-3 font-label font-black text-sm uppercase tracking-wider border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150"
-            style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}
+            className="btn-primary"
           >
             Create Your First Event
           </button>
@@ -167,8 +165,8 @@ export default function DashboardPage() {
       {registeredEvents.length > 0 && (
         <div className="mt-16">
           <div className="mb-6">
-            <h3 className="font-headline font-black text-xl uppercase tracking-tight text-on-surface">Events You&apos;re Supporting</h3>
-            <p className="text-on-surface-variant text-sm mt-1 font-body">Initiatives you&apos;re helping through volunteer support.</p>
+            <h3 className="text-xl font-bold tracking-tight" style={{ color: 'var(--cp-text-1)' }}>Events You&apos;re Supporting</h3>
+            <p className="text-sm mt-1" style={{ color: 'var(--cp-text-2)' }}>Initiatives you&apos;re helping through volunteer support.</p>
           </div>
           <div className="grid grid-cols-1 gap-4 min-[560px]:grid-cols-2 md:gap-6 lg:grid-cols-3">
             {registeredEvents.map(event => (
@@ -201,10 +199,10 @@ function EventCard({ event, alerts, onClick }: { event: CommunityEvent, alerts: 
   return (
     <button
       onClick={onClick}
-      className="overflow-hidden text-left transition-all duration-150 group flex flex-col h-full border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
-      style={{ background: 'var(--color-surface-container-lowest-base)' }}
+      className="overflow-hidden text-left transition-all duration-300 group flex flex-col h-full hover:-translate-y-1"
+      style={{ background: 'var(--cp-surface)', borderRadius: 'var(--r-xl)', border: '1.5px solid var(--cp-border)', boxShadow: 'var(--shadow-sm)' }}
     >
-      <div className="relative h-40 w-full overflow-hidden border-b-4 border-black">
+      <div className="relative h-40 w-full overflow-hidden" style={{ borderBottom: '1.5px solid var(--cp-border)' }}>
         <Image
           src={event.imageUrl || '/logo.svg'}
           alt={event.title}
@@ -212,18 +210,20 @@ function EventCard({ event, alerts, onClick }: { event: CommunityEvent, alerts: 
           className="object-cover group-hover:scale-105 transition-transform duration-500"
         />
         {hasAlerts && (
-          <span className="absolute top-3 left-3 text-[10px] font-label font-black uppercase tracking-wider px-2.5 py-1 border-2 border-black bg-red-500 text-white flex items-center gap-1">
-            <span className="material-symbols-outlined text-[14px]">warning</span> Alert
+          <span className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 text-white flex items-center gap-1 shadow-sm" style={{ borderRadius: 'var(--r-full)', background: '#ef4444' }}>
+            <AlertTriangle size={12} /> Alert
           </span>
         )}
         <span
-          className="absolute top-3 right-3 text-[10px] font-label font-black uppercase tracking-wider px-2.5 py-1 border-2 border-black"
+          className="absolute top-3 right-3 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 shadow-sm"
           style={event.status === 'active' ? {
-            background: 'var(--color-primary-container-base)',
-            color: 'var(--color-on-primary-container-base)',
+            background: 'var(--cp-primary)',
+            color: '#fff',
+            borderRadius: 'var(--r-full)',
           } : {
-            background: 'var(--color-surface-container-base)',
-            color: 'var(--color-on-surface-variant-base)',
+            background: 'var(--cp-surface)',
+            color: 'var(--cp-text-2)',
+            borderRadius: 'var(--r-full)',
           }}
         >
           {event.status === 'active' ? '● Active' : 'Done'}
@@ -232,36 +232,36 @@ function EventCard({ event, alerts, onClick }: { event: CommunityEvent, alerts: 
 
       <div className="p-5 flex flex-col flex-1">
         <div>
-          <h4 className="font-headline font-black text-on-surface mb-1 line-clamp-1 uppercase tracking-tight">{event.title}</h4>
-          <p className="text-on-surface-variant text-sm mb-4 font-body">{event.category}</p>
+          <h4 className="font-bold mb-1 line-clamp-1 text-base" style={{ color: 'var(--cp-text-1)' }}>{event.title}</h4>
+          <p className="text-sm mb-4" style={{ color: 'var(--cp-text-2)' }}>{event.category}</p>
         </div>
 
         {fundPercent !== null && (
           <div className="mb-3">
-            <div className="flex justify-between text-[10px] font-label font-bold uppercase tracking-wider mb-1">
-              <span className="text-on-surface-variant">Funds</span>
-              <span className="text-on-surface font-black">{fundPercent}%</span>
+            <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider mb-1">
+              <span style={{ color: 'var(--cp-text-2)' }}>Funds</span>
+              <span style={{ color: 'var(--cp-text-1)' }}>{fundPercent}%</span>
             </div>
-            <div className="w-full h-3 overflow-hidden border-2 border-black" style={{ background: 'var(--color-surface-container-base)' }}>
-              <div className="h-full transition-all duration-700" style={{ width: `${fundPercent}%`, background: 'var(--color-primary-container-base)' }} />
+            <div className="w-full h-2 overflow-hidden" style={{ background: 'var(--cp-surface-dim)', borderRadius: 'var(--r-full)' }}>
+              <div className="h-full transition-all duration-700" style={{ width: `${fundPercent}%`, background: 'var(--cp-primary)', borderRadius: 'var(--r-full)' }} />
             </div>
           </div>
         )}
 
         {volPercent !== null && (
           <div className="mb-3">
-            <div className="flex justify-between text-[10px] font-label font-bold uppercase tracking-wider mb-1">
-              <span className="text-on-surface-variant">Volunteers</span>
-              <span className="text-on-surface font-black">{volPercent}%</span>
+            <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider mb-1">
+              <span style={{ color: 'var(--cp-text-2)' }}>Volunteers</span>
+              <span style={{ color: 'var(--cp-text-1)' }}>{volPercent}%</span>
             </div>
-            <div className="w-full h-3 overflow-hidden border-2 border-black" style={{ background: 'var(--color-surface-container-base)' }}>
-              <div className="h-full transition-all duration-700" style={{ width: `${volPercent}%`, background: 'var(--color-secondary-container-base)' }} />
+            <div className="w-full h-2 overflow-hidden" style={{ background: 'var(--cp-surface-dim)', borderRadius: 'var(--r-full)' }}>
+              <div className="h-full transition-all duration-700" style={{ width: `${volPercent}%`, background: 'hsl(140, 80%, 40%)', borderRadius: 'var(--r-full)' }} />
             </div>
           </div>
         )}
 
-        <div className="mt-auto pt-4 border-t-2 border-black">
-          <span className="font-label font-black text-sm uppercase tracking-wider text-on-surface">View details →</span>
+        <div className="mt-auto pt-4 flex items-center justify-end" style={{ borderTop: '1px solid var(--cp-border)' }}>
+          <span className="font-bold text-xs uppercase tracking-wider" style={{ color: 'var(--cp-primary)' }}>View details →</span>
         </div>
       </div>
     </button>

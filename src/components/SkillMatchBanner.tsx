@@ -50,25 +50,27 @@ export default function SkillMatchBanner({ condensed = false }: SkillMatchBanner
         className={condensed ? 'mb-6' : 'mb-8'}
       >
         <div
-          className="flex flex-col items-start justify-between gap-4 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-5 sm:p-6 md:flex-row md:items-center"
-          style={{ background: 'var(--color-tertiary-container-base)' }}
+          className="flex flex-col items-start justify-between gap-4 p-5 sm:p-6 md:flex-row md:items-center rounded-2xl"
+          style={{
+            background: 'hsl(from var(--cp-orange) h s l / 0.06)',
+            border: '1px solid hsl(from var(--cp-orange) h s l / 0.2)',
+          }}
         >
           <div className="flex items-start gap-4">
             <div
-              className="w-12 h-12 flex items-center justify-center shrink-0 border-4 border-black"
-              style={{ background: 'var(--color-surface-container-lowest-base)' }}
+              className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+              style={{ background: 'linear-gradient(135deg, var(--cp-orange), var(--cp-pink))' }}
             >
-              <Sparkles size={22} className="text-on-surface" />
+              <Sparkles size={18} className="text-white" />
             </div>
             <div>
-              <h3 className="font-headline font-black text-base uppercase tracking-tight text-on-surface">Unlock Personalized Matches</h3>
-              <p className="text-sm text-on-surface-variant mt-1">Add skills to your profile to see events that need your exact expertise.</p>
+              <h3 className="font-headline font-bold text-base" style={{ color: 'var(--cp-text-1)' }}>Unlock Personalized Matches</h3>
+              <p className="text-sm mt-1" style={{ color: 'var(--cp-text-2)' }}>Add skills to your profile to see events that need your exact expertise.</p>
             </div>
           </div>
           <Link
             href="/profile"
-            className="flex w-full items-center justify-center gap-2 px-6 py-3 text-sm font-label font-black uppercase tracking-wider border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 md:w-auto"
-            style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}
+            className="btn-primary w-full md:w-auto justify-center py-3 text-sm"
           >
             Add Skills
             <ArrowRight size={16} />
@@ -88,20 +90,23 @@ export default function SkillMatchBanner({ condensed = false }: SkillMatchBanner
       className={condensed ? 'mb-6' : 'mb-8'}
     >
       <div
-        className="flex flex-col items-start justify-between gap-4 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-5 sm:p-6 md:flex-row md:items-center"
-        style={{ background: 'var(--color-secondary-container-base)' }}
+        className="flex flex-col items-start justify-between gap-4 p-5 sm:p-6 md:flex-row md:items-center rounded-2xl"
+        style={{
+          background: 'hsl(from var(--cp-secondary) h s l / 0.06)',
+          border: '1px solid hsl(from var(--cp-secondary) h s l / 0.2)',
+        }}
       >
         <div className="flex items-start gap-4">
           <div
-            className="w-12 h-12 flex items-center justify-center shrink-0 border-4 border-black"
-            style={{ background: 'var(--color-surface-container-lowest-base)' }}
+            className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+            style={{ background: 'linear-gradient(135deg, var(--cp-secondary), var(--cp-lime))' }}
           >
-            <Sparkles size={18} className="text-on-surface" />
+            <Sparkles size={18} className="text-white" />
           </div>
           <div>
-            <h3 className="font-headline font-black text-base uppercase tracking-tight text-on-surface">Recommended for You</h3>
-            <p className="text-sm text-on-surface-variant mt-1">
-              We found event matches based on <span className="font-bold text-on-surface">{profile.skills.slice(0, 2).join(', ')}</span>
+            <h3 className="font-headline font-bold text-base" style={{ color: 'var(--cp-text-1)' }}>Recommended for You</h3>
+            <p className="text-sm mt-1" style={{ color: 'var(--cp-text-2)' }}>
+              We found event matches based on <span className="font-bold" style={{ color: 'var(--cp-text-1)' }}>{profile.skills.slice(0, 2).join(', ')}</span>
               {profile.skills.length > 2 ? ` and ${profile.skills.length - 2} more` : ''}.
             </p>
           </div>

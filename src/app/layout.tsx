@@ -34,10 +34,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn("scroll-smooth", spaceGrotesk.variable, inter.variable, "font-sans", geist.variable)} suppressHydrationWarning>
       <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL,GRAD,opsz@100..700,0..1,0..1,20..48&display=swap"
-          rel="stylesheet"
-        />
       </head>
       <body className="antialiased min-h-screen flex flex-col font-body bg-background text-on-background">
         <ThemeProvider>

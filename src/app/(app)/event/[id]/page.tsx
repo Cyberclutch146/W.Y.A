@@ -10,10 +10,11 @@ import { useState, useEffect, use, useCallback } from 'react';
 import { getEventById, deleteEvent, ADMIN_EMAILS } from '@/services/eventService';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
-import { Trash2, AlertTriangle, Info, Send } from 'lucide-react';
+import { Trash2, AlertTriangle, Info, Send, ArrowLeft, Verified, MapPin, Loader2, Share2 } from 'lucide-react';
 import { CommunityEvent } from '@/types';
 import { SentinelAlert } from '@/types/sentinel';
 import { isPointInPolygon, getDistanceMiles } from '@/utils/geo';
+import { motion } from 'framer-motion';
 
 export default function EventDetails({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -134,7 +135,10 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
   if (loading) {
     return (
       <main className="flex-1 p-6 md:p-10 max-w-7xl mx-auto w-full pb-28 md:pb-10 flex justify-center items-center">
-        <div className="w-12 h-12 border-4 border-black border-t-transparent animate-spin" />
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 size={32} className="animate-spin" style={{ color: 'var(--cp-primary)' }} />
+          <p className="text-sm font-semibold" style={{ color: 'var(--cp-text-3)' }}>Loading event...</p>
+        </div>
       </main>
     );
   }
@@ -165,77 +169,119 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
   });
 
   return (
-    <main className="flex-1 p-4 md:p-10 max-w-7xl mx-auto w-full pb-28 md:pb-10">
-      <div className="mb-6">
+    <main className="flex-1 p-4 md:p-10 max-w-7xl mx-auto w-full pb-28 md:pb-10" style={{ color: 'var(--cp-text-1)' }}>
+      {/* Back button */}
+      <motion.div
+        className="mb-6"
+        initial={{ opacity: 0, x: -12 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+      >
         <Link
           href="/feed"
-          className="inline-flex items-center gap-2 text-sm font-label font-bold uppercase tracking-wider text-on-surface-variant hover:text-on-surface transition-colors px-3 py-2 border-2 border-black/30 hover:border-black hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all duration-150"
-          style={{ background: 'var(--color-surface-container-base)' }}
+          className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl transition-all hover:scale-105"
+          style={{
+            background: 'var(--cp-surface-dim)',
+            color: 'var(--cp-text-2)',
+            border: '1px solid var(--cp-border)',
+          }}
         >
-          <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+          <ArrowLeft size={15} />
           Back to Feed
         </Link>
-      </div>
+      </motion.div>
 
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1">
           {/* Hero Image */}
-          <div className="w-full h-64 md:h-96 overflow-hidden mb-8 relative border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full h-64 md:h-96 overflow-hidden mb-8 relative"
+            style={{
+              borderRadius: 'var(--r-2xl)',
+              border: '1px solid var(--cp-border)',
+              boxShadow: 'var(--shadow-lg)',
+            }}
+          >
             <Image
               src={event.imageUrl || event.image || '/logo.svg'}
               alt={event.title || 'Event'}
               className="w-full h-full object-cover"
               fill
             />
-          </div>
+            {/* Gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+          </motion.div>
 
           {/* Event Info */}
-          <div className="mb-8">
+          <motion.div
+            className="mb-8"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          >
             <div className="flex items-center gap-2 mb-4 flex-wrap">
               <span
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-label font-bold uppercase tracking-[0.14em] border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
-                style={{ background: 'var(--color-secondary-container-base)', color: 'var(--color-on-secondary-container-base)' }}
+                className="pill-tag"
+                style={{
+                  background: 'hsl(from var(--cp-secondary) h s l / 0.12)',
+                  color: 'var(--cp-secondary)',
+                  border: '1px solid hsl(from var(--cp-secondary) h s l / 0.3)',
+                }}
               >
-                <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+                <Verified size={12} />
                 {event.organizer}
               </span>
               <span
-                className="inline-flex items-center gap-1 px-3 py-1.5 text-[10px] font-label font-bold uppercase tracking-[0.14em] border-2 border-black"
-                style={{ background: 'var(--color-surface-container-base)' }}
+                className="pill-tag"
+                style={{
+                  background: 'var(--cp-surface-dim)',
+                  color: 'var(--cp-text-2)',
+                  border: '1px solid var(--cp-border)',
+                }}
               >
-                <span className="material-symbols-outlined text-sm">location_on</span>
+                <MapPin size={12} />
                 {event.distance}
               </span>
             </div>
 
-            <h1 className="font-headline font-black text-3xl md:text-5xl uppercase tracking-tight text-on-surface mb-4 leading-none">
+            <h1
+              className="font-headline font-bold text-3xl md:text-5xl tracking-tight leading-tight mb-4"
+              style={{ color: 'var(--cp-text-1)' }}
+            >
               {event.title}
             </h1>
 
-            <p className="text-on-surface-variant text-base leading-relaxed max-w-2xl mb-6">
+            <p className="text-base leading-relaxed max-w-2xl mb-6" style={{ color: 'var(--cp-text-2)' }}>
               Join your campus in supporting this initiative and stay informed about any nearby safety alerts.
             </p>
 
             {/* Admin Controls */}
             {isAdmin && (
               <div
-                className="mb-6 p-4 flex items-center justify-between border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-                style={{ background: 'var(--color-error-container-base)' }}
+                className="mb-6 p-4 flex items-center justify-between rounded-xl"
+                style={{
+                  background: 'hsl(from var(--cp-accent) h s l / 0.08)',
+                  border: '1px solid hsl(from var(--cp-accent) h s l / 0.25)',
+                }}
               >
                 <div>
-                  <p className="font-label font-black text-sm uppercase tracking-wider" style={{ color: 'var(--color-on-error-container-base)' }}>
+                  <p className="text-sm font-bold" style={{ color: 'var(--cp-accent)' }}>
                     Admin Controls
                   </p>
-                  <p className="text-sm opacity-80" style={{ color: 'var(--color-on-error-container-base)' }}>
+                  <p className="text-xs" style={{ color: 'var(--cp-text-3)' }}>
                     You have administrative privileges.
                   </p>
                 </div>
 
                 <button
                   onClick={handleDeleteEvent}
-                  className="px-5 py-2.5 font-label font-black text-sm uppercase tracking-wider border-4 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 flex items-center gap-2 bg-red-600 text-white"
+                  className="px-4 py-2 rounded-xl text-sm font-bold transition-all hover:scale-105 active:scale-95 flex items-center gap-2 text-white"
+                  style={{ background: 'var(--cp-accent)', boxShadow: '0 4px 12px -3px hsl(from var(--cp-accent) h s l / 0.5)' }}
                 >
-                  <Trash2 size={18} />
+                  <Trash2 size={15} />
                   Delete
                 </button>
               </div>
@@ -244,11 +290,14 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
             {/* Safety Alerts */}
             {intersectingAlerts.length > 0 && (
               <div
-                className="mb-6 p-5 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-                style={{ background: 'var(--color-tertiary-container-base)' }}
+                className="mb-6 p-5 rounded-xl"
+                style={{
+                  background: 'hsl(from var(--cp-orange) h s l / 0.08)',
+                  border: '1px solid hsl(from var(--cp-orange) h s l / 0.25)',
+                }}
               >
-                <div className="flex items-center gap-2 font-headline font-black uppercase tracking-tight mb-3 text-on-surface">
-                  <AlertTriangle size={20} />
+                <div className="flex items-center gap-2 font-headline font-bold mb-3" style={{ color: 'var(--cp-text-1)' }}>
+                  <AlertTriangle size={18} style={{ color: 'var(--cp-orange)' }} />
                   <h3 className="text-lg">Safety Alerts</h3>
                 </div>
 
@@ -256,11 +305,11 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
                   {intersectingAlerts.map((alert) => (
                     <div
                       key={alert.id}
-                      className="flex flex-col sm:flex-row sm:items-start gap-3 p-3 border-2 border-black"
-                      style={{ background: 'var(--color-surface-container-base)' }}
+                      className="flex flex-col sm:flex-row sm:items-start gap-3 p-3 rounded-lg"
+                      style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)' }}
                     >
                       <span
-                        className={`px-2.5 py-1 text-[10px] font-label font-black uppercase tracking-wider whitespace-nowrap w-fit border-2 border-black ${
+                        className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap w-fit rounded-md ${
                           alert.severity === 'Extreme'
                             ? 'bg-red-500 text-white'
                             : alert.severity === 'Severe'
@@ -272,10 +321,10 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
                       </span>
 
                       <div className="flex-1">
-                        <p className="text-sm font-body font-bold text-on-surface mb-0.5">
+                        <p className="text-sm font-bold mb-0.5" style={{ color: 'var(--cp-text-1)' }}>
                           {alert.title}
                         </p>
-                        <p className="text-xs text-on-surface-variant line-clamp-2">
+                        <p className="text-xs line-clamp-2" style={{ color: 'var(--cp-text-3)' }}>
                           {alert.description}
                         </p>
                       </div>
@@ -283,21 +332,24 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
                   ))}
                 </div>
 
-                <p className="text-xs font-label font-bold uppercase tracking-wider mt-4 flex items-center gap-1.5 p-2.5 border-2 border-black text-on-surface" style={{ background: 'var(--color-surface-container-base)' }}>
-                  <Info size={14} className="flex-shrink-0" />
+                <div
+                  className="flex items-center gap-1.5 mt-4 p-2.5 rounded-lg text-xs font-semibold"
+                  style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', color: 'var(--cp-text-2)' }}
+                >
+                  <Info size={14} className="flex-shrink-0" style={{ color: 'var(--cp-orange)' }} />
                   Please exercise caution if you plan to attend.
-                </p>
+                </div>
               </div>
             )}
 
-            <p className="text-on-surface-variant text-lg leading-relaxed mb-6 font-body">
+            <p className="text-lg leading-relaxed mb-6" style={{ color: 'var(--cp-text-2)' }}>
               {event.description}
             </p>
 
             {/* Social Sharing */}
             <div className="flex flex-wrap items-center gap-3 mb-6">
-              <span className="text-[10px] font-label font-black uppercase tracking-[0.14em] text-on-surface-variant">
-                Share:
+              <span className="text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5" style={{ color: 'var(--cp-text-3)' }}>
+                <Share2 size={13} /> Share:
               </span>
 
               <a
@@ -311,7 +363,12 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-label font-bold uppercase tracking-wider border-2 border-black hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all duration-150 bg-green-400 text-black"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-xl transition-all hover:scale-105 active:scale-95"
+                style={{
+                  background: 'hsl(142, 70%, 45%)',
+                  color: 'white',
+                  boxShadow: '0 4px 12px -3px hsl(142, 70%, 45%, 0.4)',
+                }}
               >
                 WhatsApp
               </a>
@@ -324,24 +381,33 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-label font-bold uppercase tracking-wider border-2 border-black hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all duration-150 bg-sky-400 text-black"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-xl transition-all hover:scale-105 active:scale-95"
+                style={{
+                  background: 'hsl(203, 89%, 53%)',
+                  color: 'white',
+                  boxShadow: '0 4px 12px -3px hsl(203, 89%, 53%, 0.4)',
+                }}
               >
                 Post on X
               </a>
             </div>
-
-            {/* Social Sharing */}
-          </div>
+          </motion.div>
 
           {/* Progress Bar */}
           {event.needs?.funds && (
-            <div className="mb-10 p-6 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" style={{ background: 'var(--color-surface-container-base)' }}>
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className="mb-10 p-6 rounded-2xl"
+              style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-md)' }}
+            >
               <ProgressBar
                 current={event.needs.funds.current}
                 goal={event.needs.funds.goal}
                 label={`$${event.needs.funds.current.toLocaleString()} raised of $${event.needs.funds.goal.toLocaleString()} goal`}
               />
-            </div>
+            </motion.div>
           )}
 
           {/* Chat & Leaderboard */}

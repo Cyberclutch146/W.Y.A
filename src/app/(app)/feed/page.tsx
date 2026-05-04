@@ -10,7 +10,7 @@ import SkillMatchBanner from '@/components/SkillMatchBanner';
 import { useAuth } from '@/context/AuthContext';
 import { CommunityEvent } from '@/types';
 import { QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
-import { ArrowUpDown, ChevronDown, SlidersHorizontal, Sparkles, X } from 'lucide-react';
+import { ArrowUpDown, ChevronDown, SlidersHorizontal, Sparkles, X, Compass, MapPin, CalendarOff, Search } from 'lucide-react';
 import { isPointInPolygon, getDistanceMiles } from '@/utils/geo';
 import { SentinelAlert } from '@/types/sentinel';
 import { getRecommendedEvents } from '@/services/recommendationService';
@@ -478,37 +478,35 @@ function FeedContent() {
   })();
 
   return (
-    <div className="flex-1 flex flex-col text-black w-full">
+    <div className="flex-1 flex flex-col w-full" style={{ color: 'var(--cp-text-1)' }}>
       <main className="flex-1 max-w-7xl mx-auto w-full px-3 py-4 pb-32 sm:px-4 md:p-10 md:pb-10">
 
         {/* Header */}
         <div className="relative z-30 mb-8 flex flex-col gap-4 animate-fade-in-up lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0">
-            <div
-              className="inline-flex items-center gap-2 px-3 py-1 border-2 border-black text-xs font-black uppercase tracking-widest mb-3 bg-[#ccdcff]"
-              style={{ boxShadow: '2px 2px 0 #000' }}
-            >
-              <span className="material-symbols-outlined text-sm">explore</span>
+            <div className="pill-tag mb-3" style={{ background: 'var(--cp-primary-light)', color: 'var(--cp-primary)', border: '1px solid hsl(from var(--cp-primary) h s l / 0.2)' }}>
+              <Compass size={14} />
               Discovery Feed
             </div>
-            <h2 className="text-4xl sm:text-5xl font-black tracking-tight text-black uppercase leading-none">
-              Discover &amp; <span className="bg-[#ffd93d] px-2 border-4 border-black">Support</span>
+            <h2 className="font-headline font-bold tracking-tight text-on-surface" style={{ fontSize: 'clamp(1.75rem, 5vw, 2.75rem)', lineHeight: 1.1 }}>
+              Discover &{' '}
+              <span className="premium-gradient-text">Support</span>
             </h2>
-            <p className="mt-3 max-w-xl text-sm leading-relaxed text-black/60 font-medium">
+            <p className="mt-3 max-w-xl text-sm leading-relaxed" style={{ color: 'var(--cp-text-2)' }}>
               Find local campus events and support your community.
             </p>
             {searchQuery && (
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                <span className="text-sm text-black/60 font-medium">Results for</span>
-                <span className="border-2 border-black px-3 py-0.5 text-sm font-black bg-[#ffd93d]" style={{ boxShadow: '2px 2px 0 #000' }}>
+                <span className="text-sm font-medium" style={{ color: 'var(--cp-text-3)' }}>Results for</span>
+                <span className="px-3 py-0.5 text-sm font-bold" style={{ borderRadius: 'var(--r-full)', background: 'var(--cp-gold-light)', color: 'var(--cp-text-1)', border: '1px solid hsl(from var(--cp-gold) h s l / 0.3)' }}>
                   &ldquo;{searchQuery}&rdquo;
                 </span>
                 {isAIPowered && (
-                  <span className="inline-flex items-center gap-1 text-xs font-black border-2 border-black px-2.5 py-1 bg-[#93f59c]" style={{ boxShadow: '2px 2px 0 #000' }}>
+                  <span className="pill-tag" style={{ background: 'var(--cp-secondary-light)', color: 'var(--cp-secondary)', border: '1px solid hsl(from var(--cp-secondary) h s l / 0.2)' }}>
                     <Sparkles size={12} />AI-powered
                   </span>
                 )}
-                <button onClick={() => setSearchQuery('')} className="text-xs font-black border-2 border-black px-2 py-0.5 bg-white hover:bg-red-100 transition-colors ml-1">✕ Clear</button>
+                <button onClick={() => setSearchQuery('')} className="text-xs font-bold px-3 py-1 transition-all hover:bg-surface-variant" style={{ borderRadius: 'var(--r-full)', background: 'var(--cp-surface-dim)', color: 'var(--cp-text-2)', border: '1px solid var(--cp-border)' }}>✕ Clear</button>
               </div>
             )}
           </div>
@@ -516,38 +514,77 @@ function FeedContent() {
           <div className="flex w-full flex-col gap-3 lg:w-auto lg:items-end">
             <div className="flex w-full gap-2 sm:flex-wrap sm:items-center lg:justify-end">
               {/* View Toggle */}
-              <div className="flex border-2 border-black" style={{ boxShadow: '2px 2px 0 #000' }}>
+              <div className="flex p-1 gap-1 relative" style={{ borderRadius: 'var(--r-full)', border: '1px solid var(--cp-border)', background: 'var(--cp-surface-dim)' }}>
                 {(['list', 'map'] as const).map((mode) => (
                   <button
                     key={mode}
                     onClick={() => setViewMode(mode)}
-                    className={`px-4 py-2 text-sm font-black uppercase transition-all ${viewMode === mode ? 'bg-black text-white' : 'bg-white text-black hover:bg-[#ffd93d]'}`}
+                    className="px-5 py-1.5 text-xs font-bold transition-all relative z-10"
+                    style={{
+                      color: viewMode === mode ? 'var(--cp-primary)' : 'var(--cp-text-3)',
+                    }}
                   >
-                    {mode}
+                    {viewMode === mode && (
+                      <motion.div
+                        layoutId="activeView"
+                        className="absolute inset-0 z-[-1]"
+                        style={{
+                          borderRadius: 'var(--r-full)',
+                          background: 'var(--cp-surface)',
+                          boxShadow: 'var(--shadow-sm)',
+                        }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                      />
+                    )}
+                    {mode === 'list' ? 'List View' : 'Map View'}
                   </button>
                 ))}
               </div>
 
               {/* Location Chip */}
-              <div className="flex items-center border-2 border-black px-3 py-2 bg-white flex-1 sm:flex-none sm:max-w-[220px]" style={{ boxShadow: '2px 2px 0 #000' }}>
-                <span className="material-symbols-outlined text-sm mr-2 shrink-0">location_on</span>
-                <span className="text-xs font-black uppercase truncate" title={userLocation}>{userLocation}</span>
+              <div className="flex items-center px-3 py-2 flex-1 sm:flex-none sm:max-w-[220px]" style={{ borderRadius: 'var(--r-full)', border: '1px solid var(--cp-border)', background: 'var(--cp-surface)' }}>
+                <MapPin size={14} className="mr-2 shrink-0" style={{ color: 'var(--cp-accent)' }} />
+                <span className="text-xs font-bold truncate text-on-surface" title={userLocation}>{userLocation}</span>
               </div>
             </div>
 
-            <div className="ml-auto flex w-auto items-center gap-2 sm:contents">
+            <div className="flex w-full items-center gap-2 lg:justify-end">
+              {/* Search Bar */}
+              <div className="relative flex-1 lg:flex-none lg:w-64 group">
+                <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors group-focus-within:text-primary" style={{ color: 'var(--cp-text-3)' }} />
+                <input
+                  type="text"
+                  placeholder="Search events, skills, or causes..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 text-sm font-medium transition-all"
+                  style={{ 
+                    borderRadius: 'var(--r-full)', 
+                    border: '1.5px solid var(--cp-border)', 
+                    background: 'var(--cp-surface)',
+                    color: 'var(--cp-text-1)',
+                    boxShadow: 'var(--shadow-xs)'
+                  }}
+                />
+              </div>
               {/* Filter Button */}
               <div className={`relative shrink-0 ${filterMenuOpen ? 'z-50' : 'z-40'}`} ref={filterMenuRef}>
                 <button
                   onClick={() => setFilterMenuOpen((open) => !open)}
                   aria-label="Open filters"
-                  className={`relative inline-flex h-11 w-11 items-center justify-center border-2 border-black text-sm font-black transition-all sm:h-auto sm:w-auto sm:gap-2 sm:px-4 sm:py-2 uppercase ${filterMenuOpen || activeFilterCount > 0 ? 'bg-black text-white' : 'bg-white text-black hover:bg-[#ffd93d]'}`}
-                  style={{ boxShadow: filterMenuOpen || activeFilterCount > 0 ? 'none' : '2px 2px 0 #000' }}
+                  className="relative inline-flex h-11 w-11 items-center justify-center text-sm font-bold transition-all sm:h-auto sm:w-auto sm:gap-2 sm:px-4 sm:py-2 hover:scale-105"
+                  style={{
+                    borderRadius: 'var(--r-full)',
+                    background: filterMenuOpen || activeFilterCount > 0 ? 'var(--cp-primary)' : 'var(--cp-surface)',
+                    color: filterMenuOpen || activeFilterCount > 0 ? '#fff' : 'var(--cp-text-1)',
+                    border: `1px solid ${filterMenuOpen || activeFilterCount > 0 ? 'var(--cp-primary)' : 'var(--cp-border)'}`,
+                    boxShadow: filterMenuOpen || activeFilterCount > 0 ? 'var(--shadow-md)' : 'var(--shadow-xs)',
+                  }}
                 >
                   <SlidersHorizontal size={16} />
                   <span className="hidden sm:inline">Filters</span>
                   {activeFilterCount > 0 && (
-                    <span className="absolute -right-1 -top-1 sm:static inline-flex min-w-5 items-center justify-center border border-white/40 bg-[#ffd93d] text-black px-1 py-0.5 text-[11px] font-black sm:bg-transparent sm:text-white">
+                    <span className="absolute -right-1 -top-1 sm:static inline-flex min-w-5 items-center justify-center px-1.5 py-0.5 text-[10px] font-bold" style={{ borderRadius: 'var(--r-full)', background: 'var(--cp-gold)', color: 'var(--cp-text-1)', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
                       {activeFilterCount}
                     </span>
                   )}
@@ -556,15 +593,15 @@ function FeedContent() {
 
                 {filterMenuOpen && (
                   <div
-                    className="fixed inset-x-3 top-20 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-50 overflow-y-auto p-4 md:absolute md:right-0 md:top-full md:bottom-auto md:mt-2 md:w-[min(24rem,calc(100vw-2rem))] md:overflow-hidden md:p-5 border-4 border-black bg-white"
-                    style={{ boxShadow: '6px 6px 0 #000' }}
+                    className="fixed inset-x-3 top-20 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-50 overflow-y-auto p-4 md:absolute md:right-0 md:top-full md:bottom-auto md:mt-2 md:w-[min(24rem,calc(100vw-2rem))] md:overflow-hidden md:p-5"
+                    style={{ borderRadius: 'var(--r-xl)', border: '1px solid var(--cp-border)', background: 'var(--cp-surface)', boxShadow: 'var(--shadow-xl)' }}
                   >
                     <div className="mb-4 flex items-start justify-between gap-3">
-                      <p className="text-base font-black text-black uppercase">Filter Events</p>
+                      <p className="text-base font-bold" style={{ color: 'var(--cp-text-1)' }}>Filter Events</p>
                       <button
                         onClick={() => setFilters(DEFAULT_FILTERS)}
-                        className="border-2 border-black px-3 py-1 text-xs font-black bg-[#ffd93d] hover:bg-black hover:text-white transition-colors uppercase"
-                        style={{ boxShadow: '2px 2px 0 #000' }}
+                        className="px-3 py-1 text-xs font-bold transition-colors"
+                        style={{ borderRadius: 'var(--r-full)', background: 'var(--cp-gold-light)', color: 'var(--cp-text-1)', border: '1px solid var(--cp-gold)' }}
                       >
                         Reset
                       </button>
@@ -572,14 +609,23 @@ function FeedContent() {
 
                     <div className="space-y-3">
                       {/* Urgency */}
-                      <div className="border-2 border-black p-3">
-                        <span className="mb-2 block text-xs font-black uppercase tracking-wider">Urgency</span>
-                        <div className="grid grid-cols-3 gap-2">
+                      <div className="p-3" style={{ borderRadius: 'var(--r-lg)', border: '1px solid var(--cp-border)' }}>
+                        <span className="mb-2 block text-[10px] font-bold tracking-tight" style={{ color: 'var(--cp-text-3)' }}>Urgency</span>
+                        <div className="grid grid-cols-3 gap-1 p-1 bg-surface-variant/30" style={{ borderRadius: 'var(--r-lg)', background: 'var(--cp-surface-dim)' }}>
                           {[{ value: 'all', label: 'All' }, { value: 'high', label: 'Urgent' }, { value: 'normal', label: 'Normal' }].map((o) => {
                             const active = filters.urgency === o.value;
                             return (
                               <button key={o.value} onClick={() => setFilters((c) => ({ ...c, urgency: o.value as FilterState['urgency'] }))}
-                                className={`px-3 py-2 text-xs font-black border-2 border-black uppercase transition-all ${active ? 'bg-black text-white' : 'bg-white text-black hover:bg-[#ffd93d]'}`}>
+                                className="px-3 py-2 text-xs font-bold transition-all relative z-10"
+                                style={{ color: active ? '#fff' : 'var(--cp-text-2)' }}>
+                                {active && (
+                                  <motion.div
+                                    layoutId="urgencyFilter"
+                                    className="absolute inset-0 z-[-1]"
+                                    style={{ borderRadius: 'var(--r-md)', background: 'var(--cp-primary)', boxShadow: 'var(--shadow-sm)' }}
+                                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                                  />
+                                )}
                                 {o.label}
                               </button>
                             );
@@ -588,14 +634,23 @@ function FeedContent() {
                       </div>
 
                       {/* Need */}
-                      <div className="border-2 border-black p-3">
-                        <span className="mb-2 block text-xs font-black uppercase tracking-wider">Support Needed</span>
-                        <div className="grid grid-cols-2 gap-2">
+                      <div className="p-3" style={{ borderRadius: 'var(--r-lg)', border: '1px solid var(--cp-border)' }}>
+                        <span className="mb-2 block text-[10px] font-bold tracking-tight" style={{ color: 'var(--cp-text-3)' }}>Support Needed</span>
+                        <div className="grid grid-cols-2 gap-1 p-1" style={{ borderRadius: 'var(--r-lg)', background: 'var(--cp-surface-dim)' }}>
                           {[{ value: 'all', label: 'Any' }, { value: 'volunteers', label: 'Volunteers' }, { value: 'funds', label: 'Funds' }, { value: 'goods', label: 'Goods' }].map((o) => {
                             const active = filters.need === o.value;
                             return (
                               <button key={o.value} onClick={() => setFilters((c) => ({ ...c, need: o.value as FilterState['need'] }))}
-                                className={`px-3 py-2 text-xs font-black border-2 border-black uppercase transition-all ${active ? 'bg-black text-white' : 'bg-white text-black hover:bg-[#ffd93d]'}`}>
+                                className="px-3 py-2 text-xs font-bold transition-all relative z-10"
+                                style={{ color: active ? '#fff' : 'var(--cp-text-2)' }}>
+                                {active && (
+                                  <motion.div
+                                    layoutId="needFilter"
+                                    className="absolute inset-0 z-[-1]"
+                                    style={{ borderRadius: 'var(--r-md)', background: 'var(--cp-primary)', boxShadow: 'var(--shadow-sm)' }}
+                                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                                  />
+                                )}
                                 {o.label}
                               </button>
                             );
@@ -604,14 +659,23 @@ function FeedContent() {
                       </div>
 
                       {/* Distance */}
-                      <div className="border-2 border-black p-3">
-                        <span className="mb-2 block text-xs font-black uppercase tracking-wider">Distance</span>
-                        <div className="grid grid-cols-2 gap-2">
+                      <div className="p-3" style={{ borderRadius: 'var(--r-lg)', border: '1px solid var(--cp-border)' }}>
+                        <span className="mb-2 block text-[10px] font-bold tracking-tight" style={{ color: 'var(--cp-text-3)' }}>Distance</span>
+                        <div className="grid grid-cols-2 gap-1 p-1" style={{ borderRadius: 'var(--r-lg)', background: 'var(--cp-surface-dim)' }}>
                           {[{ value: 'all', label: 'Any' }, { value: 'within-5', label: 'Within 5 mi' }, { value: 'within-15', label: 'Within 15 mi' }, { value: 'within-30', label: 'Within 30 mi' }].map((o) => {
                             const active = filters.distance === o.value;
                             return (
                               <button key={o.value} onClick={() => setFilters((c) => ({ ...c, distance: o.value as FilterState['distance'] }))}
-                                className={`px-3 py-2 text-xs font-black border-2 border-black uppercase transition-all ${active ? 'bg-black text-white' : 'bg-white text-black hover:bg-[#ffd93d]'}`}>
+                                className="px-3 py-2 text-xs font-bold transition-all relative z-10"
+                                style={{ color: active ? '#fff' : 'var(--cp-text-2)' }}>
+                                {active && (
+                                  <motion.div
+                                    layoutId="distanceFilter"
+                                    className="absolute inset-0 z-[-1]"
+                                    style={{ borderRadius: 'var(--r-md)', background: 'var(--cp-primary)', boxShadow: 'var(--shadow-sm)' }}
+                                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                                  />
+                                )}
                                 {o.label}
                               </button>
                             );
@@ -620,25 +684,51 @@ function FeedContent() {
                       </div>
 
                       {/* Category */}
-                      <div className="border-2 border-black p-3">
-                        <span className="mb-2 block text-xs font-black uppercase tracking-wider">Category</span>
-                        <select
-                          value={filters.category}
-                          onChange={(e) => setFilters((c) => ({ ...c, category: e.target.value }))}
-                          className="w-full border-2 border-black px-3 py-2 text-sm font-black bg-white outline-none focus:ring-2 focus:ring-[#ffd93d]"
-                        >
-                          <option value="all">All categories</option>
-                          {categoryOptions.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
-                        </select>
+                      <div className="p-3" style={{ borderRadius: 'var(--r-lg)', border: '1px solid var(--cp-border)' }}>
+                        <span className="mb-3 block text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--cp-text-3)' }}>Filter by Category</span>
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            onClick={() => setFilters((c) => ({ ...c, category: 'all' }))}
+                            className="px-4 py-2 text-xs font-bold transition-all hover:scale-105 active:scale-95"
+                            style={{ 
+                              borderRadius: 'var(--r-full)', 
+                              background: filters.category === 'all' ? 'var(--cp-primary)' : 'var(--cp-surface-dim)',
+                              color: filters.category === 'all' ? '#fff' : 'var(--cp-text-2)',
+                              border: `1px solid ${filters.category === 'all' ? 'var(--cp-primary)' : 'var(--cp-border)'}`,
+                              boxShadow: filters.category === 'all' ? 'var(--shadow-sm)' : 'none'
+                            }}
+                          >
+                            All Categories
+                          </button>
+                          {categoryOptions.map((cat) => {
+                            const active = filters.category === cat;
+                            const colors = CATEGORY_COLORS[cat] || CATEGORY_COLORS.default;
+                            return (
+                              <button
+                                key={cat}
+                                onClick={() => setFilters((c) => ({ ...c, category: cat }))}
+                                className="px-4 py-2 text-xs font-bold transition-all hover:scale-105 active:scale-95"
+                                style={{ 
+                                  borderRadius: 'var(--r-full)', 
+                                  background: active ? colors.bg : 'var(--cp-surface-dim)',
+                                  color: active ? colors.color : 'var(--cp-text-2)',
+                                  border: `1px solid ${active ? colors.border : 'var(--cp-border)'}`,
+                                  boxShadow: active ? 'var(--shadow-sm)' : 'none'
+                                }}
+                              >
+                                {cat}
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
 
-                    <div className="mt-4 border-2 border-black p-3 bg-[#ffd93d]/20 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                      <p className="text-sm font-black text-black uppercase">{sortedEvents.length} events match</p>
+                    <div className="mt-4 p-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between" style={{ borderRadius: 'var(--r-lg)', background: 'var(--cp-primary-light)', border: '1px solid hsl(from var(--cp-primary) h s l / 0.1)' }}>
+                      <p className="text-sm font-bold" style={{ color: 'var(--cp-text-1)' }}>{sortedEvents.length} events match</p>
                       <button
                         onClick={() => setFilterMenuOpen(false)}
-                        className="border-2 border-black px-4 py-2 text-sm font-black bg-black text-white hover:bg-[#ffd93d] hover:text-black transition-colors uppercase"
-                        style={{ boxShadow: '2px 2px 0 #555' }}
+                        className="btn-primary text-sm"
                       >
                         Done
                       </button>
@@ -652,8 +742,14 @@ function FeedContent() {
                 <button
                   onClick={() => setSortMenuOpen((open) => !open)}
                   aria-label={`Sort: ${sortLabel}`}
-                  className={`inline-flex h-11 w-11 items-center justify-center border-2 border-black text-sm font-black transition-all sm:h-auto sm:w-auto sm:gap-2 sm:px-4 sm:py-2 uppercase ${sortMenuOpen ? 'bg-black text-white' : 'bg-white text-black hover:bg-[#ffd93d]'}`}
-                  style={{ boxShadow: sortMenuOpen ? 'none' : '2px 2px 0 #000' }}
+                  className="inline-flex h-11 w-11 items-center justify-center text-sm font-bold transition-all sm:h-auto sm:w-auto sm:gap-2 sm:px-4 sm:py-2 hover:scale-105"
+                  style={{
+                    borderRadius: 'var(--r-full)',
+                    background: sortMenuOpen ? 'var(--cp-primary)' : 'var(--cp-surface)',
+                    color: sortMenuOpen ? '#fff' : 'var(--cp-text-1)',
+                    border: `1px solid ${sortMenuOpen ? 'var(--cp-primary)' : 'var(--cp-border)'}`,
+                    boxShadow: sortMenuOpen ? 'var(--shadow-md)' : 'var(--shadow-xs)',
+                  }}
                 >
                   <ArrowUpDown size={16} />
                   <span className="hidden sm:inline">Sort: {sortLabel}</span>
@@ -662,10 +758,10 @@ function FeedContent() {
 
                 {sortMenuOpen && (
                   <div
-                    className="fixed inset-x-3 top-20 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-50 overflow-y-auto p-4 md:absolute md:right-0 md:top-full md:bottom-auto md:mt-2 md:w-[min(21rem,calc(100vw-2rem))] md:overflow-hidden md:p-5 border-4 border-black bg-white"
-                    style={{ boxShadow: '6px 6px 0 #000' }}
+                    className="fixed inset-x-3 top-20 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-50 overflow-y-auto p-4 md:absolute md:right-0 md:top-full md:bottom-auto md:mt-2 md:w-[min(21rem,calc(100vw-2rem))] md:overflow-hidden md:p-5"
+                    style={{ borderRadius: 'var(--r-xl)', border: '1px solid var(--cp-border)', background: 'var(--cp-surface)', boxShadow: 'var(--shadow-xl)' }}
                   >
-                    <p className="text-base font-black text-black uppercase mb-4">Sort Events</p>
+                    <p className="text-base font-bold mb-4" style={{ color: 'var(--cp-text-1)' }}>Sort Events</p>
                     <div className="space-y-2">
                       {sortOptions.map((option) => {
                         const active = sortBy === option.value;
@@ -673,11 +769,16 @@ function FeedContent() {
                           <button
                             key={option.value}
                             onClick={() => { setSortBy(option.value); setSortMenuOpen(false); setSortChanged(true); setTimeout(() => setSortChanged(false), 500); }}
-                            className={`w-full border-2 border-black px-4 py-3 text-left transition-all ${active ? 'bg-black text-white' : 'bg-white text-black hover:bg-[#ffd93d]'}`}
-                            style={{ boxShadow: active ? 'none' : '2px 2px 0 #000' }}
+                            className="w-full px-4 py-3 text-left transition-all"
+                            style={{
+                              borderRadius: 'var(--r-lg)',
+                              background: active ? 'var(--cp-primary)' : 'var(--cp-surface-dim)',
+                              color: active ? '#fff' : 'var(--cp-text-1)',
+                              border: `1px solid ${active ? 'var(--cp-primary)' : 'var(--cp-border)'}`,
+                            }}
                           >
-                            <div className="text-sm font-black uppercase">{option.label}</div>
-                            <div className={`mt-0.5 text-xs font-medium ${active ? 'text-white/70' : 'text-black/50'}`}>{option.description}</div>
+                            <div className="text-sm font-bold">{option.label}</div>
+                            <div className="mt-0.5 text-xs" style={{ opacity: 0.7 }}>{option.description}</div>
                           </button>
                         );
                       })}
@@ -701,19 +802,20 @@ function FeedContent() {
           <section className="mb-8 animate-fade-in-up delay-100">
             <div className="flex flex-wrap items-center gap-2.5">
               {activeFilters.map((filterItem) => {
-                const bg = filterItem.key === 'category' ? (CATEGORY_COLORS[filters.category]?.bg || '#ccdcff') : '#ccdcff';
+                const catColors = filterItem.key === 'category' ? (CATEGORY_COLORS[filters.category] ?? CATEGORY_COLORS.default) : null;
                 return (
-                <button
-                  key={filterItem.key}
-                  onClick={() => setFilters((c) => ({ ...c, [filterItem.key]: DEFAULT_FILTERS[filterItem.key] }))}
-                  className="flex items-center gap-2 border-2 border-black px-3 py-1.5 text-sm font-black transition-colors uppercase hover:brightness-90 text-black"
-                  style={{ boxShadow: '2px 2px 0 #000', backgroundColor: bg.startsWith('var(') ? undefined : bg, ...(bg.startsWith('var(') ? { background: bg } : {}) }}
-                >
-                  {filterItem.label}
-                  <X size={14} />
-                </button>
-              )})}
-              <button onClick={() => setFilters(DEFAULT_FILTERS)} className="text-sm font-black text-black/60 hover:text-black transition-colors border-b-2 border-black/30 uppercase">
+                  <button
+                    key={filterItem.key}
+                    onClick={() => setFilters((c) => ({ ...c, [filterItem.key]: DEFAULT_FILTERS[filterItem.key] }))}
+                    className="pill-tag transition-all hover:scale-105 active:scale-95"
+                    style={{ background: catColors ? catColors.bg : 'var(--cp-primary-light)', color: catColors ? catColors.color : 'var(--cp-primary)', border: `1px solid ${catColors ? catColors.border : 'hsl(from var(--cp-primary) h s l / 0.2)'}` }}
+                  >
+                    {filterItem.label}
+                    <X size={14} />
+                  </button>
+                );
+              })}
+              <button onClick={() => setFilters(DEFAULT_FILTERS)} className="text-sm font-bold transition-colors" style={{ color: 'var(--cp-text-3)', borderBottom: '1px solid var(--cp-border)' }}>
                 Clear all
               </button>
             </div>
@@ -723,24 +825,24 @@ function FeedContent() {
         {/* Events Grid / Map / Loading / Empty */}
         {loading || searchLoading ? (
           <div className="flex flex-col justify-center items-center py-20 gap-3">
-            <div className="w-12 h-12 border-4 border-black border-t-[#ffd93d] rounded-full animate-spin" />
+            <div className="w-12 h-12 rounded-full animate-spin" style={{ border: '3px solid var(--cp-border)', borderTopColor: 'var(--cp-primary)' }} />
             {searchLoading && (
-              <p className="text-sm font-black flex items-center gap-2 mt-2 uppercase">
+              <p className="text-sm font-bold flex items-center gap-2 mt-2" style={{ color: 'var(--cp-primary)' }}>
                 <Sparkles size={14} />
-                Searching with AI...
+                Searching with AI…
               </p>
             )}
           </div>
         ) : sortedEvents.length === 0 ? (
-          <div className="border-4 border-black p-6 text-center animate-fade-in-up bg-white sm:p-10" style={{ boxShadow: '6px 6px 0 #000' }}>
-            <span className="material-symbols-outlined text-4xl mb-4 block">event_busy</span>
-            <h3 className="font-black text-xl uppercase mb-2 text-black">No events found</h3>
-            <p className="text-black/60 font-medium">No events match this criteria. Be the first to create one!</p>
+          <div className="card-base p-6 text-center animate-fade-in-up sm:p-10" style={{ boxShadow: 'var(--shadow-md)' }}>
+            <CalendarOff size={36} className="mb-4 mx-auto" style={{ color: 'var(--cp-text-3)' }} />
+            <h3 className="font-bold text-xl mb-2 text-on-surface">No events found</h3>
+            <p className="text-on-surface-variant">No events match this criteria. Be the first to create one!</p>
           </div>
         ) : viewMode === 'map' ? (
           <div
-            className="mt-4 h-[min(70vh,32rem)] w-full overflow-hidden border-4 border-black animate-fade-in-up md:h-[600px]"
-            style={{ boxShadow: '6px 6px 0 #000' }}
+            className="mt-4 h-[min(70vh,32rem)] w-full overflow-hidden animate-fade-in-up md:h-[600px] card-base"
+            style={{ boxShadow: 'var(--shadow-lg)' }}
           >
             <MapWrapper events={sortedEvents} alerts={alerts} />
           </div>
@@ -757,9 +859,9 @@ function FeedContent() {
               return (
                 <motion.div
                   key={event.id}
-                  initial={{ opacity: 0, y: 30, rotate: -2 }}
-                  animate={{ opacity: 1, y: 0, rotate: 0 }}
-                  transition={{ delay: index * 0.05, type: "spring", stiffness: 200 }}
+                  initial={{ opacity: 0, y: 24 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                 >
                   <EventCard
                     event={normalizedEvent}
@@ -779,11 +881,11 @@ function FeedContent() {
             <button
               onClick={loadMore}
               disabled={loadingMore}
-              className="px-8 py-3 border-2 border-black font-black text-sm uppercase bg-white text-black hover:bg-[#ffd93d] transition-colors disabled:opacity-50 flex items-center gap-2"
-              style={{ boxShadow: '3px 3px 0 #000' }}
+              className="px-8 py-3 font-bold text-sm uppercase transition-all disabled:opacity-50 flex items-center gap-2"
+              style={{ borderRadius: 'var(--r-full)', background: 'var(--cp-surface)', color: 'var(--cp-text-1)', border: '1.5px solid var(--cp-border)', boxShadow: 'var(--shadow-sm)' }}
             >
               {loadingMore ? (
-                <><div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />Loading...</>
+                <><div className="w-4 h-4 rounded-full animate-spin" style={{ border: '2px solid var(--cp-border)', borderTopColor: 'var(--cp-primary)' }} />Loading…</>
               ) : 'Load More Events'}
             </button>
           </div>

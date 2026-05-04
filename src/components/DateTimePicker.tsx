@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Calendar as CalendarIcon, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, ChevronLeft, ChevronRight, Check } from 'lucide-react';
 
 interface DateTimePickerProps {
   value: string;
@@ -101,42 +101,51 @@ export default function DateTimePicker({ value, onChange }: DateTimePickerProps)
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full border-4 border-black px-4 py-3 text-sm outline-none text-left flex items-center justify-between transition-all hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+        className="input-base w-full text-left flex items-center justify-between"
       >
-        <span className={displayValue ? 'text-on-surface font-medium' : 'text-on-surface-variant'}>
+        <span style={{ color: displayValue ? 'var(--cp-text-1)' : 'var(--cp-text-3)' }}>
           {displayValue || 'Select Date & Time'}
         </span>
-        <CalendarIcon className="w-5 h-5 text-on-surface-variant" />
+        <CalendarIcon className="w-4 h-4" style={{ color: 'var(--cp-text-3)' }} />
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 top-full left-0 mt-2 p-4 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] w-full sm:w-[320px]" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
+        <div
+          className="absolute z-50 top-full left-0 mt-2 p-4 w-full sm:w-[320px] rounded-2xl"
+          style={{
+            background: 'var(--cp-surface)',
+            border: '1px solid var(--cp-border)',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
+          }}
+        >
           
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
             <button 
               type="button"
               onClick={handlePrevMonth}
-              className="p-1 hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors border-2 border-black"
+              className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-[var(--cp-surface-dim)]"
+              style={{ color: 'var(--cp-text-2)' }}
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4 h-4" />
             </button>
-            <div className="font-headline font-black text-on-surface uppercase tracking-tight">
+            <div className="font-headline font-bold" style={{ color: 'var(--cp-text-1)' }}>
               {monthNames[currentMonth]} {currentYear}
             </div>
             <button 
               type="button"
               onClick={handleNextMonth}
-              className="p-1 hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors border-2 border-black"
+              className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-[var(--cp-surface-dim)]"
+              style={{ color: 'var(--cp-text-2)' }}
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-4 h-4" />
             </button>
           </div>
 
           {/* Days of week */}
           <div className="grid grid-cols-7 gap-1 mb-2">
             {dayNames.map(day => (
-              <div key={day} className="text-center text-xs font-medium text-on-surface-variant py-1">
+              <div key={day} className="text-center text-xs font-medium py-1" style={{ color: 'var(--cp-text-3)' }}>
                 {day}
               </div>
             ))}
@@ -158,15 +167,18 @@ export default function DateTimePicker({ value, onChange }: DateTimePickerProps)
                   key={day}
                   type="button"
                   onClick={() => handleDateSelect(day)}
-                  className={`
-                    w-full aspect-square flex items-center justify-center text-sm transition-all border
-                    ${isSelected 
-                      ? 'bg-primary text-on-primary font-black border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]' 
-                      : isToday
-                        ? 'bg-primary/10 text-primary font-bold border-black'
-                        : 'text-on-surface hover:bg-surface-container font-medium border-transparent'
-                    }
-                  `}
+                  className="w-full aspect-square flex items-center justify-center text-sm rounded-lg transition-all"
+                  style={isSelected ? {
+                    background: 'var(--cp-primary)',
+                    color: 'white',
+                    fontWeight: 700,
+                  } : isToday ? {
+                    background: 'hsl(from var(--cp-primary) h s l / 0.1)',
+                    color: 'var(--cp-primary)',
+                    fontWeight: 600,
+                  } : {
+                    color: 'var(--cp-text-1)',
+                  }}
                 >
                   {day}
                 </button>
@@ -174,11 +186,14 @@ export default function DateTimePicker({ value, onChange }: DateTimePickerProps)
             })}
           </div>
 
-          <div className="h-[2px] bg-black w-full mb-4" />
+          <div className="h-px w-full mb-4" style={{ background: 'var(--cp-border)' }} />
 
           {/* Time Picker */}
-          <div className="flex items-center justify-between p-3 border-4 border-black" style={{ background: 'var(--color-surface-container-base)' }}>
-            <div className="flex items-center gap-2 text-on-surface-variant">
+          <div
+            className="flex items-center justify-between p-3 rounded-xl"
+            style={{ background: 'var(--cp-surface-dim)', border: '1px solid var(--cp-border)' }}
+          >
+            <div className="flex items-center gap-2" style={{ color: 'var(--cp-text-2)' }}>
               <Clock className="w-4 h-4" />
               <span className="text-sm font-medium">Time</span>
             </div>
@@ -186,18 +201,20 @@ export default function DateTimePicker({ value, onChange }: DateTimePickerProps)
               <select 
                 value={hours}
                 onChange={(e) => handleTimeChange('hours', e.target.value)}
-                className="border-4 border-black px-2 py-1 text-sm outline-none text-on-surface" style={{ background: 'var(--color-surface-container-lowest-base)' }}
+                className="rounded-lg px-2 py-1 text-sm outline-none"
+                style={{ background: 'var(--cp-surface)', color: 'var(--cp-text-1)', border: '1px solid var(--cp-border)' }}
               >
                 {Array.from({ length: 24 }).map((_, i) => {
                   const val = i.toString().padStart(2, '0');
                   return <option key={val} value={val}>{val}</option>;
                 })}
               </select>
-              <span className="font-bold text-on-surface-variant">:</span>
+              <span className="font-bold" style={{ color: 'var(--cp-text-3)' }}>:</span>
               <select 
                 value={minutes}
                 onChange={(e) => handleTimeChange('minutes', e.target.value)}
-                className="border-4 border-black px-2 py-1 text-sm outline-none text-on-surface" style={{ background: 'var(--color-surface-container-lowest-base)' }}
+                className="rounded-lg px-2 py-1 text-sm outline-none"
+                style={{ background: 'var(--cp-surface)', color: 'var(--cp-text-1)', border: '1px solid var(--cp-border)' }}
               >
                 {Array.from({ length: 12 }).map((_, i) => {
                   const val = (i * 5).toString().padStart(2, '0');
@@ -211,8 +228,9 @@ export default function DateTimePicker({ value, onChange }: DateTimePickerProps)
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="w-full mt-4 py-2.5 text-sm font-label font-black uppercase tracking-wider border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all" style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}
+              className="btn-primary w-full mt-4 justify-center"
             >
+              <Check size={16} />
               Confirm Date
             </button>
           )}

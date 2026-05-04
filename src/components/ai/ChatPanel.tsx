@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import type { AiMessage } from "@/types/ai";
+import { Bot, X, Send, Loader2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Props {
   onClose: () => void;
@@ -39,26 +41,94 @@ export function ChatPanel({ onClose }: Props) {
   }
 
   return (
-    <div className="w-[360px] border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] overflow-hidden" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
-      <div className="flex items-center justify-between border-b-4 border-black px-4 py-3" style={{ background: 'var(--color-tertiary-container-base)' }}>
-        <div>
-          <h3 className="font-headline font-black text-sm uppercase tracking-tight text-on-surface">Ask CampusPulse AI</h3>
-          <p className="text-[10px] font-label font-bold uppercase tracking-wider text-on-surface-variant">Chat for quick help</p>
+    <motion.div
+      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 20, scale: 0.95 }}
+      className="w-[360px] overflow-hidden rounded-2xl"
+      style={{
+        background: 'var(--cp-surface)',
+        border: '1px solid var(--cp-border)',
+        boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
+      }}
+    >
+      {/* Header */}
+      <div
+        className="flex items-center justify-between px-4 py-3"
+        style={{ background: 'linear-gradient(135deg, var(--cp-primary), var(--cp-violet))', color: 'white' }}
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.2)' }}>
+            <Bot size={16} />
+          </div>
+          <div>
+            <h3 className="font-headline font-bold text-sm">CampusPulse AI</h3>
+            <p className="text-[10px] opacity-80">Chat for quick help</p>
+          </div>
         </div>
-        <button onClick={onClose} className="w-7 h-7 flex items-center justify-center border-2 border-black text-xs font-black hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all" style={{ background: 'var(--color-surface-container-lowest-base)' }}>✕</button>
+        <button
+          onClick={onClose}
+          className="w-7 h-7 rounded-lg flex items-center justify-center transition-all hover:bg-white/20"
+        >
+          <X size={14} />
+        </button>
       </div>
-      <div className="h-[420px] space-y-3 overflow-y-auto px-4 py-3" style={{ background: 'var(--color-surface-container-base)' }}>
-        {messages.map((msg) => (
-          <div key={msg.id} className={`max-w-[85%] px-3 py-2 text-sm border-2 border-black ${msg.role === "user" ? "ml-auto shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]" : ""}`} style={msg.role === "user" ? { background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' } : { background: 'var(--color-surface-container-lowest-base)' }}>{msg.content}</div>
-        ))}
-        {loading && <div className="max-w-[85%] px-3 py-2 text-sm border-2 border-black text-on-surface-variant" style={{ background: 'var(--color-surface-container-lowest-base)' }}>Thinking...</div>}
+
+      {/* Messages */}
+      <div className="h-[420px] space-y-3 overflow-y-auto px-4 py-3" style={{ background: 'var(--cp-surface-dim)' }}>
+        <AnimatePresence initial={false}>
+          {messages.map((msg) => (
+            <motion.div
+              key={msg.id}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={`max-w-[85%] px-3.5 py-2.5 text-sm rounded-xl ${msg.role === "user" ? "ml-auto" : ""}`}
+              style={msg.role === "user" ? {
+                background: 'var(--cp-primary)',
+                color: 'white',
+                borderBottomRightRadius: '4px',
+              } : {
+                background: 'var(--cp-surface)',
+                color: 'var(--cp-text-1)',
+                border: '1px solid var(--cp-border)',
+                borderBottomLeftRadius: '4px',
+              }}
+            >
+              {msg.content}
+            </motion.div>
+          ))}
+        </AnimatePresence>
+        {loading && (
+          <div
+            className="max-w-[85%] px-3.5 py-2.5 text-sm rounded-xl flex items-center gap-2"
+            style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', color: 'var(--cp-text-3)' }}
+          >
+            <Loader2 size={14} className="animate-spin" />
+            Thinking...
+          </div>
+        )}
       </div>
-      <div className="border-t-4 border-black p-3" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
+
+      {/* Input */}
+      <div className="p-3" style={{ borderTop: '1px solid var(--cp-border)' }}>
         <div className="flex gap-2">
-          <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask about events..." className="flex-1 border-4 border-black px-3 py-2 text-sm outline-none focus:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all" style={{ background: 'var(--color-surface-container-base)' }} onKeyDown={(e) => { if (e.key === "Enter") sendMessage(); }} />
-          <button onClick={sendMessage} disabled={loading} className="px-4 py-2 text-sm font-label font-black uppercase tracking-wider border-4 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none disabled:opacity-50 transition-all" style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}>Send</button>
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Ask about events..."
+            className="input-base flex-1 text-sm"
+            onKeyDown={(e) => { if (e.key === "Enter") sendMessage(); }}
+          />
+          <button
+            onClick={sendMessage}
+            disabled={loading}
+            className="w-10 h-10 rounded-xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+            style={{ background: 'var(--cp-primary)', color: 'white' }}
+          >
+            <Send size={16} />
+          </button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

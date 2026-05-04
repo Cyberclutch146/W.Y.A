@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { motion } from 'framer-motion'
 import { ArrowLeft, Users, Globe, Shield, Code, Briefcase, HeartHandshake, Sparkles, ArrowUpRight } from 'lucide-react'
 
 const TEAM_MEMBERS = [
@@ -10,7 +11,7 @@ const TEAM_MEMBERS = [
     summary: 'Leads backend architecture, managing databases, APIs, and map integrations to ensure scalable AI powered features for reliable system performance.',
     linkedin: 'https://www.linkedin.com/in/swagata-ganguly-453aa6327',
     github: 'https://github.com/Cyberclutch146',
-    bg: '--color-tertiary-container-base',
+    gradient: 'linear-gradient(135deg, var(--cp-primary), var(--cp-violet))',
   },
   {
     name: 'Anuvab Das',
@@ -18,7 +19,7 @@ const TEAM_MEMBERS = [
     summary: 'Drives UI/UX design, implements payment system integration, and refines backend logic for seamless user experience and performance.',
     linkedin: 'https://www.linkedin.com/in/anv-dev/',
     github: 'https://github.com/Stewy8506',
-    bg: '--color-primary-container-base',
+    gradient: 'linear-gradient(135deg, var(--cp-orange), var(--cp-pink))',
   },
   {
     name: 'Debadree Sekhar Das',
@@ -26,7 +27,7 @@ const TEAM_MEMBERS = [
     summary: 'Develops and integrates AI-driven features, powering intelligent search, content generation, and contextual automation across the platform.',
     linkedin: 'https://www.linkedin.com/in/swagata-ganguly-453aa6327',
     github: 'https://github.com/Cyberclutch146',
-    bg: '--color-secondary-container-base',
+    gradient: 'linear-gradient(135deg, var(--cp-secondary), var(--cp-lime))',
   },
   {
     name: 'Dhritiman Siva',
@@ -34,7 +35,7 @@ const TEAM_MEMBERS = [
     summary: 'Builds and maintains core backend services including authentication, messaging systems, email workflows, and server-side operations.',
     linkedin: 'https://www.linkedin.com/in/dhritiman-siva-8501b9324/',
     github: 'https://github.com/Dhritiman-Siva',
-    bg: '--color-primary-container-base',
+    gradient: 'linear-gradient(135deg, var(--cp-gold), var(--cp-orange))',
   }
 ]
 
@@ -43,19 +44,19 @@ const VALUES = [
     icon: Users,
     title: 'Community First',
     desc: 'Every interaction is built to reduce friction between people who need help and people ready to step in.',
-    bg: '--color-primary-container-base',
+    gradient: 'linear-gradient(135deg, var(--cp-primary), var(--cp-violet))',
   },
   {
     icon: Globe,
     title: 'Local, Not Distant',
     desc: 'We focus on neighborhood-scale coordination so support stays immediate, visible, and actionable.',
-    bg: '--color-secondary-container-base',
+    gradient: 'linear-gradient(135deg, var(--cp-secondary), var(--cp-lime))',
   },
   {
     icon: Shield,
     title: 'Trust Through Clarity',
     desc: 'Transparent organizers, visible needs, and live safety context help people act with confidence.',
-    bg: '--color-tertiary-container-base',
+    gradient: 'linear-gradient(135deg, var(--cp-orange), var(--cp-pink))',
   },
 ]
 
@@ -63,81 +64,87 @@ const VALUES = [
 
 function ValueCard({ card, index }: { card: typeof VALUES[0], index: number }) {
   return (
-    <div
-      className="p-6 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150"
-      style={{ background: `var(${card.bg})` }}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.1 + 0.2 }}
+      className="p-6 rounded-2xl transition-all hover:shadow-lg group"
+      style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-sm)' }}
     >
       <div
-        className="w-14 h-14 flex items-center justify-center mb-6 border-4 border-black"
-        style={{ background: 'var(--color-surface-container-lowest-base)' }}
+        className="w-12 h-12 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform"
+        style={{ background: card.gradient }}
       >
-        <card.icon size={28} className="text-on-surface" />
+        <card.icon size={22} className="text-white" />
       </div>
-      <h3 className="font-headline font-black text-xl uppercase tracking-tight text-on-surface mb-3">{card.title}</h3>
-      <p className="text-on-surface-variant leading-relaxed font-body">{card.desc}</p>
-    </div>
+      <h3 className="font-headline font-bold text-xl mb-3" style={{ color: 'var(--cp-text-1)' }}>{card.title}</h3>
+      <p className="leading-relaxed text-sm" style={{ color: 'var(--cp-text-2)' }}>{card.desc}</p>
+    </motion.div>
   )
 }
 
 function TeamMemberCard({ member, index }: { member: typeof TEAM_MEMBERS[0], index: number }) {
   return (
-    <div
-      className="group overflow-hidden border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 flex flex-col h-full"
-      style={{ background: 'var(--color-surface-container-lowest-base)' }}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.1 + 0.3 }}
+      className="group overflow-hidden rounded-2xl flex flex-col h-full transition-all hover:shadow-lg"
+      style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-sm)' }}
     >
       {/* Top accent bar */}
-      <div className="h-3 border-b-4 border-black" style={{ background: `var(${member.bg})` }} />
+      <div className="h-1.5" style={{ background: member.gradient }} />
 
-      <div className="flex flex-col h-full p-6">
+      <div className="flex flex-col h-full p-5">
         <div className="flex items-start justify-between gap-3">
           <div
-            className="w-14 h-14 flex items-center justify-center text-2xl font-headline font-black text-on-surface border-4 border-black"
-            style={{ background: `var(${member.bg})` }}
+            className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold text-white group-hover:scale-110 transition-transform"
+            style={{ background: member.gradient }}
           >
             {member.name.charAt(0)}
           </div>
           <span
-            className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-label font-bold uppercase tracking-[0.14em] border-2 border-black"
-            style={{ background: 'var(--color-surface-container-base)' }}
+            className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md"
+            style={{ background: 'var(--cp-surface-dim)', color: 'var(--cp-text-3)' }}
           >
             Core
           </span>
         </div>
 
-        <h3 className="mt-5 text-lg font-headline font-black uppercase tracking-tight text-on-surface">{member.name}</h3>
-        <p className="mt-1 text-sm font-label font-bold uppercase tracking-wider text-on-surface-variant">
+        <h3 className="mt-4 text-lg font-headline font-bold" style={{ color: 'var(--cp-text-1)' }}>{member.name}</h3>
+        <p className="mt-1 text-sm font-semibold" style={{ color: 'var(--cp-text-3)' }}>
           {member.role}
         </p>
-        <p className="mt-4 text-sm leading-relaxed text-on-surface-variant flex-1 font-body">
+        <p className="mt-3 text-sm leading-relaxed flex-1" style={{ color: 'var(--cp-text-2)' }}>
           {member.summary}
         </p>
 
-        <div className="mt-6 flex items-center gap-3 pt-4 border-t-2 border-black">
+        <div className="mt-5 flex items-center gap-2 pt-4" style={{ borderTop: '1px solid var(--cp-border)' }}>
           <a
             href={member.linkedin}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-3 py-2 text-sm font-label font-bold uppercase tracking-wider border-2 border-black hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all duration-150 text-on-surface"
-            style={{ background: 'var(--color-surface-container-base)' }}
+            className="inline-flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-lg transition-all hover:shadow-sm"
+            style={{ background: 'var(--cp-surface-dim)', color: 'var(--cp-text-2)', border: '1px solid var(--cp-border)' }}
             title="LinkedIn Profile"
           >
-            <Briefcase size={16} />
+            <Briefcase size={14} />
             LinkedIn
           </a>
           <a
             href={member.github.includes('github.com') ? member.github : `https://${member.github}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-3 py-2 text-sm font-label font-bold uppercase tracking-wider border-2 border-black hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all duration-150 text-on-surface"
-            style={{ background: 'var(--color-surface-container-base)' }}
+            className="inline-flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-lg transition-all hover:shadow-sm"
+            style={{ background: 'var(--cp-surface-dim)', color: 'var(--cp-text-2)', border: '1px solid var(--cp-border)' }}
             title="GitHub Profile"
           >
-            <Code size={16} />
+            <Code size={14} />
             GitHub
           </a>
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
 
@@ -148,40 +155,55 @@ export default function AboutPage() {
     <main className="flex-1 p-4 md:p-10 max-w-7xl mx-auto w-full pb-24">
       <button
         onClick={() => router.back()}
-        className="inline-flex items-center gap-2 px-4 py-2 text-on-surface-variant font-label font-bold uppercase tracking-wider mb-10 border-2 border-black hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all duration-150"
-        style={{ background: 'var(--color-surface-container-base)' }}
+        className="btn-secondary mb-10"
       >
-        <ArrowLeft size={18} />
+        <ArrowLeft size={16} />
         Back
       </button>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 md:p-8 lg:p-10" style={{ background: 'var(--color-primary-container-base)' }}>
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative overflow-hidden rounded-3xl p-6 md:p-8 lg:p-10"
+        style={{
+          background: 'linear-gradient(135deg, hsl(from var(--cp-primary) h s l / 0.08), hsl(from var(--cp-violet) h s l / 0.05))',
+          border: '1px solid var(--cp-border)',
+          boxShadow: 'var(--shadow-lg)',
+        }}
+      >
         <div className="relative z-10 grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)] lg:items-end">
           <div>
             <div
-              className="inline-flex items-center gap-2 px-3 py-1.5 text-[10px] font-label font-bold uppercase tracking-[0.16em] border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] mb-5"
-              style={{ background: 'var(--color-surface-container-lowest-base)' }}
+              className="inline-flex items-center gap-2 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-full mb-5"
+              style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)' }}
             >
-              <HeartHandshake size={14} />
-              Our mission
+              <HeartHandshake size={14} style={{ color: 'var(--cp-primary)' }} />
+              <span style={{ color: 'var(--cp-text-2)' }}>Our mission</span>
             </div>
 
-            <h1 className="font-headline font-black text-4xl md:text-5xl lg:text-6xl uppercase tracking-tight text-on-surface leading-none">
-              Building calmer, faster campus response.
+            <h1 className="font-headline font-bold tracking-tight leading-[1.05]" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', color: 'var(--cp-text-1)' }}>
+              Building calmer, faster{' '}
+              <span style={{ color: 'var(--cp-primary)' }}>campus response.</span>
             </h1>
 
-            <p className="mt-4 max-w-3xl text-lg md:text-xl text-on-surface-variant leading-relaxed font-body">
+            <p className="mt-4 max-w-3xl text-lg leading-relaxed" style={{ color: 'var(--cp-text-2)' }}>
               CampusPulse helps students organize events, surface urgent needs, and respond with more clarity when time matters most.
             </p>
 
-            <div className="mt-6 flex flex-wrap gap-3">
-              <span className="inline-flex items-center gap-2 px-4 py-2 text-sm font-label font-bold uppercase tracking-wider border-2 border-black" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
-                <Sparkles size={15} />
+            <div className="mt-6 flex flex-wrap gap-2">
+              <span
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-full"
+                style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', color: 'var(--cp-text-1)' }}
+              >
+                <Sparkles size={14} style={{ color: 'var(--cp-primary)' }} />
                 Student-centered
               </span>
-              <span className="inline-flex items-center gap-2 px-4 py-2 text-sm font-label font-bold uppercase tracking-wider border-2 border-black" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
-                <Shield size={15} />
+              <span
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-full"
+                style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', color: 'var(--cp-text-1)' }}
+              >
+                <Shield size={14} style={{ color: 'var(--cp-secondary)' }} />
                 Trusted action
               </span>
             </div>
@@ -196,27 +218,27 @@ export default function AboutPage() {
             ].map((item) => (
               <div
                 key={item.label}
-                className="p-4 border-4 border-black"
-                style={{ background: 'var(--color-surface-container-lowest-base)' }}
+                className="p-4 rounded-xl"
+                style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)' }}
               >
-                <p className="text-[10px] font-label font-bold uppercase tracking-[0.14em] text-on-surface-variant">{item.label}</p>
-                <p className="mt-2 text-xl md:text-2xl font-headline font-black tracking-tight text-on-surface">{item.value}</p>
-                <div className="mt-3 h-2 border-2 border-black" style={{ background: 'var(--color-secondary-container-base)' }} />
+                <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--cp-text-3)' }}>{item.label}</p>
+                <p className="mt-2 text-xl md:text-2xl font-headline font-bold tracking-tight" style={{ color: 'var(--cp-text-1)' }}>{item.value}</p>
+                <div className="mt-3 h-1 rounded-full w-full" style={{ background: 'var(--cp-primary)', opacity: 0.2 }} />
               </div>
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
 
       {/* Values */}
-      <section className="mt-10">
+      <section className="mt-12">
         <div className="mb-6">
-          <p className="text-[10px] font-label font-bold uppercase tracking-[0.16em] text-on-surface-variant">Principles</p>
-          <h2 className="mt-2 font-headline font-black text-3xl md:text-4xl uppercase tracking-tight text-on-surface">The values behind every interaction.</h2>
+          <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--cp-text-3)' }}>Principles</p>
+          <h2 className="mt-2 font-headline font-bold text-3xl md:text-4xl tracking-tight" style={{ color: 'var(--cp-text-1)' }}>The values behind every interaction.</h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {VALUES.map((card, i) => (
             <ValueCard key={card.title} card={card} index={i} />
           ))}
@@ -224,16 +246,16 @@ export default function AboutPage() {
       </section>
 
       {/* Team */}
-      <section className="mt-14 pt-10 border-t-4 border-black">
+      <section className="mt-14 pt-10" style={{ borderTop: '1px solid var(--cp-border)' }}>
         <div className="mb-8">
-          <p className="text-[10px] font-label font-bold uppercase tracking-[0.16em] text-on-surface-variant">The team</p>
-          <h2 className="mt-2 font-headline font-black text-3xl md:text-4xl uppercase tracking-tight text-on-surface">The people shaping the platform.</h2>
-          <p className="mt-3 text-on-surface-variant text-lg max-w-2xl font-body">
+          <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--cp-text-3)' }}>The team</p>
+          <h2 className="mt-2 font-headline font-bold text-3xl md:text-4xl tracking-tight" style={{ color: 'var(--cp-text-1)' }}>The people shaping the platform.</h2>
+          <p className="mt-3 text-lg max-w-2xl" style={{ color: 'var(--cp-text-2)' }}>
             A focused team of builders working across interface design, intelligence, systems, and campus tooling.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
           {TEAM_MEMBERS.map((member, index) => (
             <TeamMemberCard key={member.name} member={member} index={index} />
           ))}
@@ -241,29 +263,35 @@ export default function AboutPage() {
       </section>
 
       {/* CTA */}
-      <section
-        className="mt-12 p-6 md:p-8 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"
-        style={{ background: 'var(--color-secondary-container-base)' }}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="mt-12 p-6 md:p-8 rounded-3xl"
+        style={{
+          background: 'linear-gradient(135deg, hsl(from var(--cp-secondary) h s l / 0.06), hsl(from var(--cp-lime) h s l / 0.04))',
+          border: '1px solid var(--cp-border)',
+          boxShadow: 'var(--shadow-md)',
+        }}
       >
         <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
           <div className="max-w-2xl">
-            <p className="text-[10px] font-label font-bold uppercase tracking-[0.16em] text-on-surface-variant">Join the mission</p>
-            <h2 className="mt-2 font-headline font-black text-3xl md:text-4xl uppercase tracking-tight text-on-surface">Turn campus intent into coordinated action.</h2>
-            <p className="mt-3 text-on-surface-variant leading-relaxed font-body">
+            <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--cp-text-3)' }}>Join the mission</p>
+            <h2 className="mt-2 font-headline font-bold text-3xl md:text-4xl tracking-tight" style={{ color: 'var(--cp-text-1)' }}>Turn campus intent into coordinated action.</h2>
+            <p className="mt-3 leading-relaxed" style={{ color: 'var(--cp-text-2)' }}>
               Explore live events, volunteer where you can help most, and build stronger campus connections together.
             </p>
           </div>
 
           <button
             onClick={() => router.push('/feed')}
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 font-label font-black text-sm uppercase tracking-wider border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150"
-            style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}
+            className="btn-primary"
           >
             Explore the platform
             <ArrowUpRight size={16} />
           </button>
         </div>
-      </section>
+      </motion.section>
     </main>
   )
 }

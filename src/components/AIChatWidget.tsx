@@ -23,7 +23,7 @@ function renderMessageContent(content: string) {
   const parts = content.split(/(\*\*[^*]+\*\*)/g);
   return parts.map((part, i) => {
     if (part.startsWith('**') && part.endsWith('**')) {
-      return <strong key={i} className="font-black">{part.slice(2, -2)}</strong>;
+      return <strong key={i} className="font-bold">{part.slice(2, -2)}</strong>;
     }
     const lines = part.split('\n');
     return lines.map((line, j) => (
@@ -53,8 +53,8 @@ export default function AIChatWidget() {
     setIsOpen(!isOpen);
     if (!isOpen && messages.length === 0) {
       const greeting = user && profile
-        ? `Hi ${profile.displayName?.split(' ')[0] || 'there'}! 👋 I'm the CampusPulse AI assistant. I can help you find events, sign you up to volunteer, and navigate the platform. What would you like to do?`
-        : 'Hi there! 👋 I\'m the CampusPulse AI assistant. How can I help you today?';
+        ? `Hi ${profile.displayName?.split(' ')[0] || 'there'}! 👋 I'm the CampusPulse AI. I can help you find events, sign you up to volunteer, and navigate the platform. What would you like to do?`
+        : "Hi there! 👋 I'm the CampusPulse AI assistant. How can I help you today?";
       setMessages([{ role: 'assistant', content: greeting }]);
     }
   };
@@ -104,7 +104,7 @@ export default function AIChatWidget() {
       }
     } catch (error: any) {
       if (!error.message?.includes('Rate limits hit')) console.error('Chat error:', error);
-      setMessages(prev => [...prev, { role: 'assistant', content: error.message || 'Sorry, I\'m having trouble connecting right now. Please try again later.' }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: error.message || "Sorry, I'm having trouble connecting right now. Please try again later." }]);
     } finally {
       setIsLoading(false);
     }
@@ -112,77 +112,116 @@ export default function AIChatWidget() {
 
   return (
     <>
-      {/* Floating Button — Neo-Brutalist */}
-      <button
+      {/* Floating Button */}
+      <motion.button
         onClick={toggleChat}
-        className="fixed bottom-[calc(6rem+env(safe-area-inset-bottom))] right-4 md:bottom-8 md:right-8 z-[60] p-4 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all active:scale-95"
+        whileHover={{ scale: 1.08 }}
+        whileTap={{ scale: 0.93 }}
+        className="fixed bottom-[calc(6rem+env(safe-area-inset-bottom))] right-4 md:bottom-8 md:right-8 z-[60] w-14 h-14 rounded-2xl flex items-center justify-center transition-all"
         aria-label="Toggle AI Chat"
-        style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}
+        style={{
+          background: 'linear-gradient(135deg, var(--cp-primary), hsl(290,90%,60%))',
+          boxShadow: '0 8px 30px -6px hsl(from var(--cp-primary) h s l / 0.6)',
+        }}
       >
         <AnimatePresence mode="wait">
           {isOpen ? (
-            <motion.div key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.15 }}><X size={24} /></motion.div>
+            <motion.div key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.15 }}>
+              <X size={22} className="text-white" />
+            </motion.div>
           ) : (
-            <motion.div key="open" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} transition={{ duration: 0.15 }}><MessageCircle size={24} /></motion.div>
+            <motion.div key="open" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} transition={{ duration: 0.15 }}>
+              <MessageCircle size={22} className="text-white" />
+            </motion.div>
           )}
         </AnimatePresence>
-      </button>
+      </motion.button>
 
-      {/* Chat Modal — Neo-Brutalist */}
+      {/* Chat Modal */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.2 }}
-            className="fixed bottom-[calc(6rem+env(safe-area-inset-bottom))] right-4 md:bottom-24 md:right-8 z-[60] w-[calc(100vw-32px)] md:w-[420px] h-[540px] max-h-[calc(100vh-7rem-env(safe-area-inset-bottom))] md:max-h-[calc(100vh-120px)] flex flex-col overflow-hidden border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
-            style={{ background: 'var(--color-surface-container-lowest-base)' }}
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed bottom-[calc(6rem+env(safe-area-inset-bottom))] right-4 md:bottom-24 md:right-8 z-[60] w-[calc(100vw-32px)] md:w-[400px] flex flex-col overflow-hidden"
+            style={{
+              height: 'min(540px, calc(100vh - 7rem - env(safe-area-inset-bottom)))',
+              background: 'var(--cp-surface)',
+              border: '1px solid var(--cp-border)',
+              borderRadius: 'var(--r-2xl)',
+              boxShadow: 'var(--shadow-xl), 0 0 0 1px rgba(0,0,0,0.04)',
+            }}
           >
             {/* Header */}
-            <div className="p-4 flex items-center justify-between border-b-4 border-black" style={{ background: 'var(--color-primary-container-base)' }}>
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 flex items-center justify-center border-2 border-black" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
-                  <Bot size={18} />
+            <div
+              className="flex items-center justify-between p-4 shrink-0"
+              style={{ borderBottom: '1px solid var(--cp-border)', background: 'var(--cp-surface)' }}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-9 h-9 flex items-center justify-center rounded-xl"
+                  style={{ background: 'linear-gradient(135deg, var(--cp-primary), hsl(290,90%,60%))' }}
+                >
+                  <Bot size={18} className="text-white" />
                 </div>
                 <div>
-                  <h3 className="font-headline font-black text-sm uppercase tracking-tight">CampusPulse AI</h3>
-                  <div className="flex items-center gap-1 text-on-surface-variant text-[10px] font-label font-bold uppercase tracking-wider">
-                    <Sparkles size={10} />
+                  <h3 className="font-headline font-bold text-sm" style={{ color: 'var(--cp-text-1)' }}>CampusPulse AI</h3>
+                  <div className="flex items-center gap-1 text-xs font-medium" style={{ color: 'var(--cp-text-3)' }}>
+                    <Sparkles size={10} style={{ color: 'var(--cp-secondary)' }} />
                     <span>Search • Sign up • Navigate</span>
                   </div>
                 </div>
               </div>
-              <button onClick={toggleChat} className="w-8 h-8 flex items-center justify-center border-2 border-black hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
+              <button
+                onClick={toggleChat}
+                className="w-8 h-8 flex items-center justify-center rounded-xl transition-all"
+                style={{ color: 'var(--cp-text-2)' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--cp-surface-dim)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+              >
                 <X size={16} />
               </button>
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{ background: 'var(--color-surface-container-base)' }}>
+            <div className="flex-1 overflow-y-auto p-4 space-y-3" style={{ background: 'var(--cp-surface-dim)' }}>
               {messages.map((msg, idx) => (
                 <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div
-                    className={`max-w-[85%] p-3 text-sm border-2 border-black ${msg.role === 'user' ? 'shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]' : ''}`}
-                    style={msg.role === 'user' ? { background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' } : { background: 'var(--color-surface-container-lowest-base)' }}
+                    className="max-w-[85%] px-3.5 py-2.5 text-sm leading-relaxed"
+                    style={{
+                      borderRadius: msg.role === 'user' ? 'var(--r-lg) var(--r-lg) var(--r-sm) var(--r-lg)' : 'var(--r-lg) var(--r-lg) var(--r-lg) var(--r-sm)',
+                      background: msg.role === 'user'
+                        ? 'linear-gradient(135deg, var(--cp-primary), hsl(290,90%,60%))'
+                        : 'var(--cp-surface)',
+                      color: msg.role === 'user' ? 'white' : 'var(--cp-text-1)',
+                      boxShadow: 'var(--shadow-xs)',
+                      border: msg.role === 'user' ? 'none' : '1px solid var(--cp-border)',
+                    }}
                   >
-                    <div className="whitespace-pre-wrap leading-relaxed">{renderMessageContent(msg.content)}</div>
+                    <div className="whitespace-pre-wrap">{renderMessageContent(msg.content)}</div>
 
                     {msg.action && (
-                      <div className="mt-2.5 pt-2 border-t-2 border-black">
+                      <div className="mt-2.5 pt-2.5" style={{ borderTop: '1px solid rgba(255,255,255,0.2)' }}>
                         {msg.action.type === 'navigate' && msg.action.url && (
-                          <button onClick={() => handleNavigate(msg.action!.url!)} className="inline-flex items-center gap-1.5 text-xs font-label font-black uppercase tracking-wider px-3 py-1.5 border-2 border-black hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all" style={{ background: 'var(--color-secondary-container-base)' }}>
-                            <ExternalLink size={12} /> View Page
+                          <button
+                            onClick={() => handleNavigate(msg.action!.url!)}
+                            className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full transition-all"
+                            style={{ background: msg.role === 'user' ? 'rgba(255,255,255,0.25)' : 'var(--cp-primary-light)', color: msg.role === 'user' ? 'white' : 'var(--cp-primary)' }}
+                          >
+                            <ExternalLink size={11} /> View Page
                           </button>
                         )}
                         {msg.action.type === 'signed_up' && (
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="inline-flex items-center gap-1 text-xs font-label font-black uppercase px-2.5 py-1 border-2 border-black" style={{ background: 'var(--color-primary-container-base)' }}>
-                              <CheckCircle2 size={12} /> Signed up!
+                            <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: 'rgba(255,255,255,0.2)' }}>
+                              <CheckCircle2 size={11} /> Signed up!
                             </span>
                             {msg.action.url && (
-                              <button onClick={() => handleNavigate(msg.action!.url!)} className="inline-flex items-center gap-1 text-xs font-label font-bold uppercase px-3 py-1.5 border-2 border-black hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all" style={{ background: 'var(--color-surface-container-base)' }}>
-                                <ExternalLink size={12} /> View Event
+                              <button onClick={() => handleNavigate(msg.action!.url!)} className="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1 rounded-full transition-all" style={{ background: 'rgba(255,255,255,0.2)' }}>
+                                <ExternalLink size={11} /> View Event
                               </button>
                             )}
                           </div>
@@ -190,15 +229,22 @@ export default function AIChatWidget() {
                         {msg.action.type === 'search_results' && msg.action.results && msg.action.results.length > 0 && (
                           <div className="space-y-1.5 mt-1">
                             {msg.action.results.slice(0, 3).map((r) => (
-                              <button key={r.id} onClick={() => handleNavigate(`/event/${r.id}`)} className="w-full text-left text-xs px-3 py-2 border-2 border-black hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-between" style={{ background: 'var(--color-surface-container-base)' }}>
-                                <div><span className="font-bold">{r.title}</span><span className="text-on-surface-variant ml-1.5">• {r.category}</span></div>
-                                <ExternalLink size={10} className="opacity-60" />
+                              <button
+                                key={r.id}
+                                onClick={() => handleNavigate(`/event/${r.id}`)}
+                                className="w-full text-left text-xs px-3 py-2 rounded-xl flex items-center justify-between transition-all"
+                                style={{ background: 'var(--cp-surface-dim)', border: '1px solid var(--cp-border)', color: 'var(--cp-text-1)' }}
+                                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--cp-primary)'; }}
+                                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--cp-border)'; }}
+                              >
+                                <div><span className="font-semibold">{r.title}</span><span style={{ color: 'var(--cp-text-3)' }} className="ml-1.5">• {r.category}</span></div>
+                                <ExternalLink size={10} style={{ color: 'var(--cp-text-3)' }} />
                               </button>
                             ))}
                           </div>
                         )}
                         {msg.action.type === 'confirm_signup' && (
-                          <span className="text-xs text-on-surface-variant font-label font-bold uppercase">💬 Reply &quot;yes&quot; to confirm</span>
+                          <span className="text-xs font-medium opacity-80">💬 Reply &quot;yes&quot; to confirm</span>
                         )}
                       </div>
                     )}
@@ -208,9 +254,12 @@ export default function AIChatWidget() {
 
               {isLoading && (
                 <div className="flex justify-start">
-                  <div className="p-3 flex items-center gap-2 text-on-surface-variant border-2 border-black" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
-                    <Loader2 size={16} className="animate-spin" />
-                    <span className="text-sm">Thinking...</span>
+                  <div
+                    className="px-3.5 py-2.5 flex items-center gap-2 text-sm"
+                    style={{ borderRadius: 'var(--r-lg) var(--r-lg) var(--r-lg) var(--r-sm)', background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', color: 'var(--cp-text-2)', boxShadow: 'var(--shadow-xs)' }}
+                  >
+                    <Loader2 size={14} className="animate-spin" style={{ color: 'var(--cp-primary)' }} />
+                    <span>Thinking...</span>
                   </div>
                 </div>
               )}
@@ -218,23 +267,27 @@ export default function AIChatWidget() {
             </div>
 
             {/* Input */}
-            <form onSubmit={handleSendMessage} className="p-3 flex gap-2 border-t-4 border-black" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
+            <form
+              onSubmit={handleSendMessage}
+              className="p-3 flex gap-2 shrink-0"
+              style={{ background: 'var(--cp-surface)', borderTop: '1px solid var(--cp-border)' }}
+            >
               <input
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 placeholder={user ? "Ask me anything..." : "Log in for full features..."}
-                className="flex-1 px-4 py-2.5 text-sm outline-none text-on-surface border-4 border-black focus:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
-                style={{ background: 'var(--color-surface-container-base)' }}
+                className="input-base"
+                style={{ flex: 1, fontSize: '0.875rem', padding: '0.625rem 1rem', borderRadius: 'var(--r-lg)' }}
                 disabled={isLoading}
               />
               <button
                 type="submit"
                 disabled={!inputMessage.trim() || isLoading}
-                className="p-2.5 border-4 border-black disabled:opacity-40 disabled:cursor-not-allowed shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all active:scale-95"
-                style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}
+                className="flex items-center justify-center w-10 h-10 rounded-xl transition-all shrink-0"
+                style={{ background: 'linear-gradient(135deg, var(--cp-primary), hsl(290,90%,60%))', color: 'white', boxShadow: '0 4px 16px -4px hsl(from var(--cp-primary) h s l / 0.5)', opacity: !inputMessage.trim() || isLoading ? 0.5 : 1 }}
               >
-                <Send size={18} />
+                <Send size={16} />
               </button>
             </form>
           </motion.div>

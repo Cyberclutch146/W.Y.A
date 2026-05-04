@@ -15,7 +15,7 @@ export function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <div className="w-10 h-10 flex items-center justify-center border-4 border-black opacity-50" style={{ background: 'var(--color-surface-container-base)' }} />
+      <div className="w-10 h-10 flex items-center justify-center rounded-full bg-surface-variant/50 opacity-50" />
     );
   }
 
@@ -24,8 +24,7 @@ export function ThemeToggle() {
   return (
     <button
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="relative w-10 h-10 flex items-center justify-center border-4 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 active:scale-95 overflow-hidden"
-      style={{ background: isDark ? 'var(--color-tertiary-container-base)' : 'var(--color-secondary-container-base)' }}
+      className="relative w-10 h-10 flex items-center justify-center rounded-full glass-panel hover:bg-surface-variant/30 transition-all duration-300 active:scale-95 overflow-hidden"
       aria-label="Toggle Theme"
     >
       <motion.div
@@ -35,7 +34,7 @@ export function ThemeToggle() {
           scale: isDark ? 0 : 1,
           opacity: isDark ? 0 : 1,
         }}
-        transition={{ duration: 0.2 }}
+        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
         className="absolute"
       >
         <Sun className="w-5 h-5 text-on-surface" />
@@ -48,7 +47,7 @@ export function ThemeToggle() {
           scale: isDark ? 1 : 0,
           opacity: isDark ? 1 : 0,
         }}
-        transition={{ duration: 0.2 }}
+        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
         className="absolute"
       >
         <Moon className="w-5 h-5 text-on-surface" />

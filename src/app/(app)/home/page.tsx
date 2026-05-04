@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { Plus, Calendar, MapPin, Users, Mail, Loader2 } from 'lucide-react'
+import { Plus, PlusCircle, Calendar, MapPin, Users, Mail, Loader2, Zap, ArrowRight } from 'lucide-react'
 import { getEvents } from '@/services/eventService'
 import { useAuth } from '@/context/AuthContext'
 import { CommunityEvent } from '@/types'
@@ -12,8 +12,21 @@ import { EventCard } from '@/components/EventCard'
 import { getRecommendedEvents, getMatchPercentage } from '@/services/recommendationService'
 import { getUserProfile, updateUserProfile } from '@/services/userService'
 import { motion } from 'framer-motion'
-import { SquigglyDivider } from '@/components/SquigglyDivider'
 import { LiveBadge } from '@/components/LiveBadge'
+
+const QUICK_FILTERS = [
+  { label: '🎸 Music', q: 'Music', color: 'var(--cp-pink)' },
+  { label: '⚽ Sports', q: 'Sports', color: 'var(--cp-lime)' },
+  { label: '💻 Tech', q: 'Tech', color: 'var(--cp-cyan)' },
+  { label: '🎉 Party', q: 'Party', color: 'var(--cp-violet)' },
+  { label: '🎨 Arts', q: 'Arts', color: 'var(--cp-orange)' },
+]
+
+const LIVE_ACTIVITY = [
+  { initial: 'J', color: 'var(--cp-cyan)', name: 'Jason M.', action: "just RSVP'd to an event", ago: '2 mins ago' },
+  { initial: 'S', color: 'var(--cp-pink)', name: 'Sarah T.', action: 'earned 50 XP in Tech', ago: '12 mins ago' },
+  { initial: 'M', color: 'var(--cp-violet)', name: 'Mike R.', action: 'created a new event', ago: '1 hr ago' },
+]
 
 export default function HomePage() {
   const router = useRouter()
@@ -52,9 +65,7 @@ export default function HomePage() {
     }
   }, [featured?.organizerId])
 
-  const recommendedEvents = profile 
-    ? getRecommendedEvents(profile, events, 6)
-    : []
+  const recommendedEvents = profile ? getRecommendedEvents(profile, events, 6) : []
 
   const handleContactOrganizer = (eventTitle: string) => {
     if (organizerEmail) {
@@ -65,18 +76,16 @@ export default function HomePage() {
   }
 
   const handleDismissRecommendation = async (eventId: string) => {
-    if (!profile) return;
+    if (!profile) return
     try {
-      const currentDismissed = profile.dismissedEventIds || [];
+      const currentDismissed = profile.dismissedEventIds || []
       if (!currentDismissed.includes(eventId)) {
-        await updateUserProfile(profile.id, {
-          dismissedEventIds: [...currentDismissed, eventId]
-        });
+        await updateUserProfile(profile.id, { dismissedEventIds: [...currentDismissed, eventId] })
       }
     } catch (err) {
-      console.error('Failed to dismiss recommendation:', err);
+      console.error('Failed to dismiss recommendation:', err)
     }
-  };
+  }
 
   const formatDate = (ts: CommunityEvent['createdAt']) => {
     if (!ts) return 'TBD'
@@ -91,259 +100,306 @@ export default function HomePage() {
   const volPercent = Math.min(Math.round((volCurrent / volGoal) * 100), 100)
 
   const getGreeting = () => {
-    const hour = new Date().getHours()
-    if (hour < 12) return { text: 'Good morning', emoji: '☀️' }
-    if (hour < 18) return { text: 'Good afternoon', emoji: '☕' }
+    const h = new Date().getHours()
+    if (h < 12) return { text: 'Good morning', emoji: '☀️' }
+    if (h < 18) return { text: 'Good afternoon', emoji: '☕' }
     return { text: 'Good evening', emoji: '🌙' }
   }
   const greeting = getGreeting()
 
   if (loading) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center min-h-[60vh]">
+      <div className="flex-1 flex flex-col items-center justify-center min-h-[60vh] gap-6">
         <div
-          className="w-14 h-14 flex items-center justify-center border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-          style={{ background: 'var(--color-primary-container-base)' }}
+          className="w-24 h-24 rounded-[2.5rem] flex items-center justify-center animate-bounce shadow-glow"
+          style={{ 
+            background: 'linear-gradient(135deg, var(--cp-primary), var(--cp-violet))'
+          }}
         >
-          <Loader2 className="w-6 h-6 animate-spin text-on-surface" />
+          <Zap className="w-12 h-12 text-white fill-current" />
         </div>
-        <p className="mt-4 font-label font-bold text-sm uppercase tracking-widest text-on-surface-variant">Loading events…</p>
+        <div className="text-center animate-fade-in-up">
+          <h2 className="text-2xl font-headline font-black tracking-tight" style={{ color: 'var(--cp-text-1)' }}>Powering Up...</h2>
+          <p className="text-sm mt-1 font-medium" style={{ color: 'var(--cp-text-3)' }}>Syncing campus energy</p>
+        </div>
       </div>
     )
   }
 
   if (events.length === 0) {
     return (
-      <div className="flex-1 flex flex-col text-on-surface">
-        <div className="px-6 md:px-10 mt-10 flex justify-between items-start">
+      <div className="flex-1 flex flex-col p-6 md:p-10" style={{ color: 'var(--cp-text-1)' }}>
+        <div className="flex justify-between items-start mb-12">
           <div>
-            <h1 className="font-headline font-black text-4xl md:text-5xl uppercase tracking-tight text-on-background">Upcoming Events</h1>
-            <p className="mt-3 text-on-surface-variant max-w-xl leading-relaxed">Your campus, live. Be the first to create an event.</p>
+            <h1 className="font-headline font-black text-4xl md:text-6xl tracking-tighter" style={{ color: 'var(--cp-text-1)' }}>Upcoming</h1>
+            <p className="mt-2 text-lg" style={{ color: 'var(--cp-text-2)' }}>The campus is quiet... for now.</p>
           </div>
-          <button
-            onClick={() => router.push('/create')}
-            className="flex items-center gap-2 px-6 py-3 font-label font-bold text-sm uppercase tracking-wider border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 mt-1"
-            style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}
-          >
-            <Plus size={16} /> Create Event
+          <button onClick={() => router.push('/create')} className="btn-primary scale-110">
+            <Plus size={18} /> Create Event
           </button>
         </div>
-        <div className="px-10 mt-20 flex flex-col items-center justify-center text-center gap-4">
-          <div className="w-20 h-20 flex items-center justify-center border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" style={{ background: 'var(--color-surface-container-base)' }}>
-            <Calendar size={36} className="text-on-surface-variant" />
+        <div className="flex-1 flex flex-col items-center justify-center text-center gap-6 py-20">
+          <div className="w-32 h-32 rounded-[2.5rem] flex items-center justify-center rotate-3" style={{ background: 'var(--cp-surface-dim)', border: '2px dashed var(--cp-border)' }}>
+            <Calendar size={48} style={{ color: 'var(--cp-text-3)' }} className="opacity-50" />
           </div>
-          <p className="text-xl font-headline font-black uppercase text-on-surface">No events yet</p>
-          <p className="text-on-surface-variant max-w-sm">Be the first to create an event and rally your community.</p>
+          <div className="max-w-sm">
+            <h2 className="text-2xl font-headline font-bold mb-2">No events yet</h2>
+            <p style={{ color: 'var(--cp-text-2)' }}>Be the spark that starts the next campus movement.</p>
+          </div>
+          <button onClick={() => router.push('/create')} className="btn-primary py-4 px-8 rounded-2xl">
+            Drop the First Event
+          </button>
         </div>
       </div>
     )
   }
 
   return (
-    <main className="flex-1 flex flex-col text-on-surface w-full pb-32 md:pb-0 relative overflow-x-hidden">
+    <main className="flex-1 flex flex-col w-full pb-32 md:pb-0 relative overflow-x-hidden" style={{ color: 'var(--cp-text-1)' }}>
       <div className="max-w-7xl mx-auto w-full relative z-10">
 
         {/* Header */}
-        <div className="px-6 md:px-8 mt-8 md:mt-12 flex flex-col gap-6 lg:flex-row lg:items-end justify-between pb-8">
-          <div className="max-w-3xl">
-            <p className="font-label font-bold text-sm uppercase tracking-widest text-[var(--pop-electric-purple)] mb-2">
-              {greeting.text}, {profile?.displayName?.split(' ')[0] || 'Student'} {greeting.emoji}
-            </p>
-            <h1 className="font-headline font-black text-4xl md:text-5xl uppercase tracking-tight text-on-background">
-              <LiveBadge className="mr-3 scale-110 origin-bottom" />
-              Campus Events
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="px-6 md:px-8 mt-12 md:mt-16 flex flex-col gap-8 lg:flex-row lg:items-end justify-between pb-10"
+        >
+          <div className="max-w-2xl relative">
+            <div className="inline-flex items-center gap-2 mb-6 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20">
+              <Zap size={14} className="text-primary fill-current animate-pulse" />
+              <p className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: 'var(--cp-primary)' }}>
+                {greeting.text}, {profile?.displayName?.split(' ')[0] || 'Student'} {greeting.emoji}
+              </p>
+            </div>
+            <h1 className="font-headline font-black text-5xl md:text-7xl tracking-tighter leading-[0.9] mb-4" style={{ color: 'var(--cp-text-1)' }}>
+              Campus <span className="text-primary">Pulse</span>
             </h1>
-            <p className="mt-3 text-on-surface-variant leading-relaxed max-w-xl">
-              Discover what's happening on campus. RSVP, earn points, and show up.
+            <p className="text-lg md:text-xl font-medium max-w-lg leading-snug" style={{ color: 'var(--cp-text-2)' }}>
+              The heartbeat of your university. <span className="text-foreground">Discover, Connect, and Energize.</span>
             </p>
           </div>
-          <button
-            onClick={() => router.push('/create')}
-            className="flex items-center gap-2 px-6 py-3 font-label font-bold text-sm uppercase tracking-wider border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 w-fit"
-            style={{ background: 'var(--color-secondary-container-base)', color: 'var(--color-on-secondary-container-base)' }}
+          <button 
+            onClick={() => router.push('/create')} 
+            className="btn-primary px-8 py-5 text-base rounded-[2rem] shadow-2xl hover:scale-105 active:scale-95 transition-all"
+            style={{ boxShadow: '0 20px 40px -10px hsl(from var(--cp-primary) h s l / 0.4)' }}
           >
-            <Plus size={16} /> Drop an Event
+            <PlusCircle size={20} /> Drop an Event
           </button>
-        </div>
+        </motion.div>
 
-        <SquigglyDivider />
+        {/* Quick Filters */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="px-6 md:px-8 flex flex-wrap gap-3 mb-12"
+        >
+          {QUICK_FILTERS.map(({ label, q, color }) => (
+            <button
+              key={q}
+              onClick={() => router.push(`/feed?q=${q}`)}
+              className="px-6 py-3 rounded-2xl text-sm font-bold transition-all hover:scale-105 active:scale-95 border border-transparent shadow-sm flex items-center gap-2"
+              style={{
+                background: `linear-gradient(135deg, ${color}15, ${color}08)`,
+                color: color,
+              }}
+              onMouseEnter={e => { 
+                (e.currentTarget as HTMLElement).style.borderColor = `${color}40`;
+                (e.currentTarget as HTMLElement).style.background = `${color}20`;
+              }}
+              onMouseLeave={e => { 
+                (e.currentTarget as HTMLElement).style.borderColor = 'transparent';
+                (e.currentTarget as HTMLElement).style.background = `linear-gradient(135deg, ${color}15, ${color}08)`;
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </motion.div>
 
-        {/* Quick Actions */}
-        <div className="px-6 md:px-8 flex flex-wrap gap-3 mt-6 mb-2">
-          <button onClick={() => router.push('/feed?q=Music')} className="px-4 py-2 font-bold text-sm uppercase tracking-wide border-2 border-black bg-[var(--pop-hot-pink)] text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">
-            🎸 Music
-          </button>
-          <button onClick={() => router.push('/feed?q=Sports')} className="px-4 py-2 font-bold text-sm uppercase tracking-wide border-2 border-black bg-[var(--pop-acid-lime)] text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">
-            ⚽ Sports
-          </button>
-          <button onClick={() => router.push('/feed?q=Tech')} className="px-4 py-2 font-bold text-sm uppercase tracking-wide border-2 border-black bg-[var(--pop-sky-cyan)] text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">
-            💻 Tech
-          </button>
-          <button onClick={() => router.push('/feed?q=Party')} className="px-4 py-2 font-bold text-sm uppercase tracking-wide border-2 border-black bg-[var(--pop-electric-purple)] text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">
-            🎉 Party
-          </button>
-        </div>
-
-        {/* Main Section */}
-        <div className="px-6 md:px-10 mt-6 grid grid-cols-1 gap-6 items-start lg:grid-cols-3">
+        {/* Main Grid */}
+        <div className="px-6 md:px-8 grid grid-cols-1 gap-6 items-start lg:grid-cols-3">
 
           {/* Featured Card */}
-          <div className="lg:col-span-2">
+          <motion.div
+            className="lg:col-span-2"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          >
             <EventCard event={featured!} featured />
-          </div>
+          </motion.div>
 
-          {/* Details Panel */}
-          <div className="flex flex-col gap-4">
-            {/* Event Details */}
-            <div className="border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-6" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
-              <h3 className="font-headline font-black text-base uppercase tracking-tight text-on-surface mb-5">Event Details</h3>
-              <div className="space-y-4 text-sm">
-
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 shrink-0 flex items-center justify-center border-2 border-black" style={{ background: 'var(--color-primary-container-base)' }}>
-                    <Calendar size={16} className="text-on-surface" />
+          {/* Sidebar */}
+          <motion.div
+            className="flex flex-col gap-4"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {/* Event Details Card */}
+            <div className="card-elevated p-6 bg-gradient-to-br from-white to-[hsl(var(--cp-primary-light))] dark:from-[var(--cp-surface)] dark:to-[hsl(var(--cp-primary-light)/0.05)] border-primary/10">
+              <div className="flex items-center justify-between mb-8">
+                <h3 className="font-headline font-black text-sm uppercase tracking-widest" style={{ color: 'var(--cp-text-1)' }}>Live Stats</h3>
+                <LiveBadge />
+              </div>
+              <div className="space-y-6">
+                <div className="flex items-center gap-4 group">
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 transition-transform" style={{ background: 'var(--cp-surface-dim)', border: '1px solid var(--cp-border)' }}>
+                    <Calendar size={20} style={{ color: 'var(--cp-primary)' }} />
                   </div>
-                  <div>
-                    <p className="font-bold text-on-surface">{formatDate(featured!.createdAt)}</p>
-                    <p className="text-on-surface-variant text-xs">{featured!.location}</p>
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.15em] opacity-50">Scheduled</p>
+                    <p className="text-base font-black truncate" style={{ color: 'var(--cp-text-1)' }}>{formatDate(featured!.createdAt)}</p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 shrink-0 flex items-center justify-center border-2 border-black" style={{ background: 'var(--color-secondary-container-base)' }}>
-                    <MapPin size={16} className="text-on-surface" />
+                <div className="flex items-center gap-4 group">
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 transition-transform" style={{ background: 'var(--cp-surface-dim)', border: '1px solid var(--cp-border)' }}>
+                    <MapPin size={20} style={{ color: 'var(--cp-secondary)' }} />
                   </div>
-                  <div>
-                    <p className="font-bold text-on-surface">{featured!.location}</p>
-                    <p className="text-on-surface-variant text-xs">{featured!.distance || 'Nearby'}</p>
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.15em] opacity-50">Venue</p>
+                    <p className="text-base font-black truncate" style={{ color: 'var(--cp-text-1)' }}>{featured!.location}</p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 shrink-0 flex items-center justify-center border-2 border-black" style={{ background: 'var(--color-tertiary-container-base)' }}>
-                    <Users size={16} className="text-on-surface" />
+                <div className="pt-2">
+                  <div className="flex justify-between items-end mb-2">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.15em] opacity-50">Crew Capacity</p>
+                    <p className="text-sm font-black" style={{ color: 'var(--cp-secondary)' }}>{volPercent}%</p>
                   </div>
-                  <div className="w-full">
-                    <p className="font-bold text-on-surface mb-2">{volCurrent} / {volGoal} Volunteers</p>
-                    <div className="h-3 w-full overflow-hidden border-2 border-black" style={{ background: 'var(--color-surface-container-high-base)' }}>
-                      <div className="h-full transition-all duration-700 ease-out" style={{ width: `${volPercent}%`, background: 'var(--color-primary-container-base)' }} />
-                    </div>
+                  <div className="h-3 w-full rounded-full overflow-hidden p-0.5 shadow-inner" style={{ background: 'var(--cp-surface-dim)', border: '1px solid var(--cp-border)' }}>
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      animate={{ width: `${volPercent}%` }}
+                      transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+                      className="progress-bar-fill" 
+                    />
                   </div>
                 </div>
               </div>
 
               <button
                 onClick={() => router.push(`/event/${featured!.id}`)}
-                className="mt-6 w-full py-3 font-label font-black text-sm uppercase tracking-wider border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150"
-                style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}
+                className="btn-primary w-full mt-8 py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-primary/20 hover:shadow-primary/40 transition-all"
               >
-                Sign Up to Help →
+                Join the Crew <ArrowRight size={16} />
               </button>
             </div>
 
             {/* Organizer Card */}
-            <div className="border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-4 flex items-center justify-between" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
+            <div className="card-elevated p-4 flex items-center justify-between border-primary/5">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 border-2 border-black" style={{ background: 'var(--color-secondary-container-base)' }} />
+                <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 shadow-sm" style={{ background: 'var(--cp-primary-light)', border: '1px solid var(--cp-border)' }}>
+                  <span className="w-full h-full flex items-center justify-center font-bold text-sm" style={{ color: 'var(--cp-primary)' }}>
+                    {(featured!.organizer || 'C').charAt(0).toUpperCase()}
+                  </span>
+                </div>
                 <div>
-                  <p className="text-xs text-on-surface-variant font-label uppercase font-bold">Organized by</p>
-                  <p className="font-bold text-sm text-on-surface">{featured!.organizer || 'Community Organizer'}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.1em] opacity-50">Organized by</p>
+                  <p className="text-sm font-black" style={{ color: 'var(--cp-text-1)' }}>{featured!.organizer || 'Community Organizer'}</p>
                 </div>
               </div>
               <button
                 onClick={() => handleContactOrganizer(featured!.title)}
-                className="w-9 h-9 flex items-center justify-center border-4 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150"
-                style={{ background: 'var(--color-tertiary-container-base)' }}
+                className="w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110"
+                style={{ background: 'hsl(from var(--cp-accent) h s l / 0.12)', color: 'var(--cp-accent)' }}
                 title="Contact Organizer"
               >
-                <Mail size={16} />
+                <Mail size={15} />
               </button>
             </div>
 
-            {/* Latest Activity Sidebar */}
-            <div className="border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-5" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
-              <h3 className="font-headline font-black text-sm uppercase tracking-tight text-on-surface mb-4 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full animate-pulse bg-[var(--pop-acid-lime)] border border-black"></span>
-                Live Activity
+            {/* Live Activity */}
+            <div className="card-elevated p-6 bg-gradient-to-br from-white to-[hsl(var(--cp-secondary-light)/0.2)] dark:from-[var(--cp-surface)] dark:to-[hsl(var(--cp-secondary-light)/0.05)] border-secondary/5">
+              <h3 className="font-headline font-black text-sm uppercase tracking-[0.2em] mb-6 flex items-center gap-2" style={{ color: 'var(--cp-text-1)' }}>
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-secondary shadow-[0_0_8px_var(--cp-secondary)]"></span>
+                </span>
+                Live Pulse
               </h3>
-              <div className="flex flex-col gap-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-full border-2 border-black flex items-center justify-center font-bold text-xs bg-[var(--pop-sky-cyan)]">J</div>
-                  <div>
-                    <p className="text-sm font-bold text-on-surface">Jason M.</p>
-                    <p className="text-xs text-on-surface-variant">RSVP'd to {featured?.title || 'an event'}</p>
-                    <p className="text-[10px] text-on-surface-variant font-bold mt-1 opacity-60 uppercase">2 mins ago</p>
+              <div className="flex flex-col gap-6">
+                {LIVE_ACTIVITY.map((item, i) => (
+                  <div key={i} className="flex items-start gap-4 group cursor-default">
+                    <div
+                      className="w-11 h-11 rounded-2xl flex items-center justify-center font-black text-sm text-white shrink-0 shadow-lg transition-all group-hover:scale-110 group-hover:rotate-3"
+                      style={{ background: item.color, boxShadow: `0 8px 16px -4px ${item.color}40` }}
+                    >
+                      {item.initial}
+                    </div>
+                    <div className="min-w-0 pt-0.5">
+                      <p className="text-sm font-black leading-none mb-1" style={{ color: 'var(--cp-text-1)' }}>{item.name}</p>
+                      <p className="text-xs font-medium leading-relaxed opacity-70 mb-1" style={{ color: 'var(--cp-text-2)' }}>{item.action}</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest opacity-30">{item.ago}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-full border-2 border-black flex items-center justify-center font-bold text-xs bg-[var(--pop-hot-pink)]">S</div>
-                  <div>
-                    <p className="text-sm font-bold text-on-surface">Sarah T.</p>
-                    <p className="text-xs text-on-surface-variant">Earned 50 XP in Tech</p>
-                    <p className="text-[10px] text-on-surface-variant font-bold mt-1 opacity-60 uppercase">12 mins ago</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-full border-2 border-black flex items-center justify-center font-bold text-xs bg-[var(--pop-electric-purple)]">M</div>
-                  <div>
-                    <p className="text-sm font-bold text-on-surface">Mike R.</p>
-                    <p className="text-xs text-on-surface-variant">Created a new event</p>
-                    <p className="text-[10px] text-on-surface-variant font-bold mt-1 opacity-60 uppercase">1 hr ago</p>
-                  </div>
-                </div>
+                ))}
               </div>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Map Section */}
+      <div className="mt-14 w-full relative z-10">
+        <div
+          className="py-12"
+          style={{ background: 'linear-gradient(135deg, hsl(from var(--cp-primary) h s l / 0.06), hsl(from var(--cp-secondary) h s l / 0.04))', borderTop: '1px solid var(--cp-border)', borderBottom: '1px solid var(--cp-border)' }}
+        >
+          <div className="max-w-7xl mx-auto w-full px-6 md:px-10">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="font-headline font-bold text-2xl" style={{ color: 'var(--cp-text-1)' }}>Explore on Map</h2>
+              <button onClick={() => router.push('/feed')} className="btn-ghost text-sm" style={{ color: 'var(--cp-text-2)' }}>
+                View All <ArrowRight size={14} />
+              </button>
+            </div>
+            <div
+              className="h-[400px] w-full overflow-hidden"
+              style={{ borderRadius: 'var(--r-xl)', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-lg)' }}
+            >
+              <MapWrapper events={events} alerts={alerts} />
             </div>
           </div>
         </div>
       </div>
 
-        {/* Map Section */}
-        <div className="mt-14 py-12 w-full bg-[var(--pop-sky-cyan)] bg-pattern-crosshatch border-y-4 border-black relative z-10">
+      {/* Recommended */}
+      {recommendedEvents.length > 0 && (
+        <div className="py-16 w-full relative z-10">
           <div className="max-w-7xl mx-auto w-full px-6 md:px-10">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="font-headline font-black text-2xl uppercase tracking-tight text-black">Explore on Map</h2>
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: 'var(--cp-primary)' }}>Curated for you</p>
+                <h2 className="font-headline font-bold text-2xl" style={{ color: 'var(--cp-text-1)' }}>Recommended Events</h2>
+              </div>
+              <button onClick={() => router.push('/feed')} className="btn-ghost text-sm" style={{ color: 'var(--cp-text-2)' }}>
+                View All <ArrowRight size={14} />
+              </button>
             </div>
-            <div className="h-[400px] w-full overflow-hidden border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-white">
-              <MapWrapper events={events} alerts={alerts} />
+            <div className="grid grid-cols-1 gap-4 min-[560px]:grid-cols-2 md:gap-5 lg:grid-cols-3">
+              {recommendedEvents.map((item, index) => (
+                <motion.div
+                  key={item.event.id}
+                  initial={{ opacity: 0, y: 24 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.07, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <EventCard
+                    event={item.event}
+                    recommendationPercentage={getMatchPercentage(item.score)}
+                    matchedInterests={item.matchedInterests}
+                    reasons={item.reasons}
+                    onDismiss={handleDismissRecommendation}
+                  />
+                </motion.div>
+              ))}
             </div>
           </div>
         </div>
-
-        {/* Recommended */}
-        {recommendedEvents.length > 0 && (
-          <div className="py-16 w-full bg-pattern-graph relative z-10">
-            <div className="max-w-7xl mx-auto w-full px-6 md:px-10">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="font-headline font-black text-2xl uppercase tracking-tight text-on-background">Recommended for You</h2>
-                <button
-                  onClick={() => router.push('/feed')}
-                  className="font-label font-bold text-sm uppercase tracking-wider text-on-surface-variant hover:text-on-surface transition-colors border-b-2 border-transparent hover:border-black"
-                >
-                  View All →
-                </button>
-              </div>
-              <div className="grid grid-cols-1 gap-4 min-[560px]:grid-cols-2 md:gap-6 lg:grid-cols-3">
-                {recommendedEvents.map((item, index) => (
-                  <motion.div
-                    key={item.event.id}
-                    initial={{ opacity: 0, y: 30, rotate: -2 }}
-                    animate={{ opacity: 1, y: 0, rotate: 0 }}
-                    transition={{ delay: index * 0.08, type: "spring", stiffness: 200 }}
-                  >
-                    <EventCard 
-                      event={item.event} 
-                      recommendationPercentage={getMatchPercentage(item.score)}
-                      matchedInterests={item.matchedInterests}
-                      reasons={item.reasons}
-                      onDismiss={handleDismissRecommendation}
-                    />
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
+      )}
     </main>
   )
 }

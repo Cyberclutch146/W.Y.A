@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { getEventVolunteers, EventVolunteer } from '@/services/eventService';
 import { motion } from 'framer-motion';
+import { Users, Verified, Heart, Loader2 } from 'lucide-react';
 
 export function VolunteerLeaderboard({ eventId }: { eventId: string }) {
   const [volunteers, setVolunteers] = useState<EventVolunteer[]>([]);
@@ -24,57 +25,77 @@ export function VolunteerLeaderboard({ eventId }: { eventId: string }) {
 
   if (loading) {
     return (
-      <div className="p-6 flex justify-center items-center min-h-[200px] border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
-        <div className="w-8 h-8 border-4 border-black border-t-transparent animate-spin" />
+      <div
+        className="p-6 flex justify-center items-center min-h-[200px] rounded-2xl"
+        style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)' }}
+      >
+        <Loader2 size={24} className="animate-spin" style={{ color: 'var(--cp-primary)' }} />
       </div>
     );
   }
 
   return (
-    <div className="border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
-      <div className="flex items-center gap-3 p-5 border-b-4 border-black" style={{ background: 'var(--color-secondary-container-base)' }}>
-        <div className="w-8 h-8 flex items-center justify-center border-2 border-black" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
-          <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>group</span>
+    <div
+      className="overflow-hidden rounded-2xl"
+      style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-md)' }}
+    >
+      <div
+        className="flex items-center gap-3 px-5 py-4"
+        style={{ borderBottom: '1px solid var(--cp-border)' }}
+      >
+        <div
+          className="w-8 h-8 rounded-lg flex items-center justify-center"
+          style={{ background: 'linear-gradient(135deg, var(--cp-secondary), var(--cp-lime))' }}
+        >
+          <Users size={14} className="text-white" />
         </div>
-        <h3 className="font-headline text-base font-black uppercase tracking-tight text-on-surface">Community Heroes</h3>
+        <h3 className="font-headline text-base font-bold" style={{ color: 'var(--cp-text-1)' }}>Community Heroes</h3>
       </div>
       
       {volunteers.length === 0 ? (
-        <div className="text-center py-10 px-5 text-on-surface-variant">
-          <span className="material-symbols-outlined text-[48px] mb-3 block opacity-40">volunteer_activism</span>
-          <p className="font-label font-bold text-sm uppercase tracking-wider">Be the first to step up!</p>
+        <div className="text-center py-10 px-5">
+          <Heart size={36} className="mx-auto mb-3 opacity-20" style={{ color: 'var(--cp-text-3)' }} />
+          <p className="text-sm font-semibold" style={{ color: 'var(--cp-text-3)' }}>Be the first to step up!</p>
         </div>
       ) : (
-        <div className="divide-y-2 divide-black">
+        <div>
           {volunteers.slice(0, 5).map((volunteer, index) => (
             <motion.div 
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}
               key={volunteer.id} 
-              className="flex items-center justify-between p-4 hover:translate-x-[2px] transition-transform"
-              style={{ background: index === 0 ? 'var(--color-primary-container-base)' : 'transparent' }}
+              className="flex items-center justify-between px-5 py-3 transition-colors"
+              style={{
+                background: index === 0 ? 'hsl(from var(--cp-primary) h s l / 0.05)' : 'transparent',
+                borderBottom: '1px solid var(--cp-border)',
+              }}
             >
               <div className="flex items-center gap-3">
                 <div
-                  className="w-10 h-10 flex items-center justify-center font-headline font-black text-on-surface border-2 border-black"
-                  style={{ background: index === 0 ? 'var(--color-tertiary-container-base)' : 'var(--color-surface-container-base)' }}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold"
+                  style={{
+                    background: index === 0
+                      ? 'linear-gradient(135deg, var(--cp-orange), var(--cp-pink))'
+                      : 'var(--cp-surface-dim)',
+                    color: index === 0 ? 'white' : 'var(--cp-text-2)',
+                  }}
                 >
                   {index + 1}
                 </div>
                 <div>
-                  <p className="font-body font-bold text-on-surface text-sm">{volunteer.userName || 'Anonymous'}</p>
-                  <p className="text-[10px] font-label font-bold uppercase tracking-wider text-on-surface-variant">
+                  <p className="font-semibold text-sm" style={{ color: 'var(--cp-text-1)' }}>{volunteer.userName || 'Anonymous'}</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--cp-text-3)' }}>
                     Joined {volunteer.signedUpAt?.seconds ? new Date(volunteer.signedUpAt.seconds * 1000).toLocaleDateString() : 'recently'}
                   </p>
                 </div>
               </div>
-              <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1", color: 'var(--color-secondary-base)' }}>verified</span>
+              <Verified size={15} style={{ color: 'var(--cp-secondary)' }} />
             </motion.div>
           ))}
           {volunteers.length > 5 && (
-            <div className="text-center p-3" style={{ background: 'var(--color-surface-container-base)' }}>
-              <span className="text-[10px] font-label font-black uppercase tracking-wider text-on-surface">
+            <div className="text-center px-5 py-3" style={{ background: 'var(--cp-surface-dim)' }}>
+              <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--cp-text-2)' }}>
                 + {volunteers.length - 5} more heroes joined
               </span>
             </div>

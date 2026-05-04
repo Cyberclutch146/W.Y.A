@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { toast } from 'sonner';
+import { QrCode, StopCircle, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 
 interface ScannerViewProps {
   eventId: string;
@@ -47,39 +48,46 @@ export default function ScannerView({ eventId, onScanSuccess }: ScannerViewProps
 
   useEffect(() => { return () => { stopScanning(); }; }, []);
 
-  const statusBg = scanResult === 'success' ? 'var(--color-primary-container-base)' : scanResult === 'error' ? 'var(--color-error-container-base)' : scanResult === 'processing' ? 'var(--color-tertiary-container-base)' : 'var(--color-surface-container-base)';
+  const statusBorder = scanResult === 'success' ? 'hsl(140 70% 45%)' : scanResult === 'error' ? 'hsl(0 80% 55%)' : scanResult === 'processing' ? 'hsl(45 90% 50%)' : 'var(--cp-border)';
+  const statusBg = scanResult === 'success' ? 'hsl(140 70% 45% / 0.1)' : scanResult === 'error' ? 'hsl(0 80% 55% / 0.1)' : scanResult === 'processing' ? 'hsl(45 90% 50% / 0.1)' : 'var(--cp-surface)';
 
   return (
-    <div className="space-y-6">
-      <div className="relative overflow-hidden border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all" style={{ borderColor: scanResult === 'success' ? '#16a34a' : scanResult === 'error' ? '#dc2626' : scanResult === 'processing' ? '#ca8a04' : 'black' }}>
-        <div id="qr-reader" className="w-full" style={{ minHeight: '300px', background: 'var(--color-surface-container-base)' }} />
+    <div className="space-y-4">
+      <div
+        className="relative overflow-hidden transition-all"
+        style={{ borderRadius: 'var(--r-xl)', border: `2px solid ${statusBorder}`, boxShadow: 'var(--shadow-md)' }}
+      >
+        <div id="qr-reader" className="w-full" style={{ minHeight: '300px', background: 'var(--cp-surface-dim)' }} />
         {!isScanning && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4" style={{ background: 'var(--color-surface-container-base)' }}>
-            <div className="w-20 h-20 flex items-center justify-center border-4 border-black" style={{ background: 'var(--color-primary-container-base)' }}>
-              <span className="material-symbols-outlined text-4xl">qr_code_scanner</span>
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4" style={{ background: 'var(--cp-surface)' }}>
+            <div
+              className="w-20 h-20 flex items-center justify-center rounded-2xl"
+              style={{ background: 'linear-gradient(135deg, hsl(258 90% 63% / 0.15), hsl(280 80% 60% / 0.1))', border: '1.5px solid var(--cp-border)' }}
+            >
+              <QrCode size={36} style={{ color: 'var(--cp-primary)' }} />
             </div>
-            <p className="text-on-surface-variant text-sm font-label font-bold uppercase tracking-wider text-center max-w-[200px]">Tap below to start scanning tickets</p>
+            <p className="text-sm font-semibold text-center max-w-[200px]" style={{ color: 'var(--cp-text-2)' }}>Tap below to start scanning tickets</p>
           </div>
         )}
       </div>
 
       {lastScanned && (
-        <div className="p-4 flex items-center gap-4 border-4 border-black" style={{ background: statusBg }}>
-          <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>
-            {scanResult === 'success' ? 'check_circle' : scanResult === 'error' ? 'error' : 'pending'}
-          </span>
+        <div
+          className="p-4 flex items-center gap-4 rounded-xl"
+          style={{ background: statusBg, border: `1.5px solid ${statusBorder}` }}
+        >
+          {scanResult === 'success' ? <CheckCircle size={28} style={{ color: 'hsl(140 70% 45%)' }} /> : scanResult === 'error' ? <XCircle size={28} style={{ color: 'hsl(0 80% 55%)' }} /> : <Loader2 size={28} className="animate-spin" style={{ color: 'hsl(45 90% 50%)' }} />}
           <div>
-            <p className="font-label font-black text-sm uppercase text-on-surface">{scanResult === 'success' ? 'Check-in Successful!' : scanResult === 'error' ? 'Check-in Failed' : 'Processing...'}</p>
-            <p className="text-xs text-on-surface-variant font-mono tracking-wider">Ticket: {lastScanned}</p>
+            <p className="font-bold text-sm" style={{ color: 'var(--cp-text-1)' }}>{scanResult === 'success' ? 'Check-in Successful!' : scanResult === 'error' ? 'Check-in Failed' : 'Processing...'}</p>
+            <p className="text-xs font-mono tracking-wider" style={{ color: 'var(--cp-text-3)' }}>Ticket: {lastScanned}</p>
           </div>
         </div>
       )}
 
       <button onClick={isScanning ? stopScanning : startScanning}
-        className="w-full py-4 font-label font-black text-base uppercase tracking-wider flex items-center justify-center gap-3 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all active:scale-[0.98]"
-        style={isScanning ? { background: 'var(--color-surface-container-base)', color: 'var(--color-on-surface-base)' } : { background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}
+        className={isScanning ? 'btn-secondary w-full flex items-center justify-center gap-3' : 'btn-primary w-full flex items-center justify-center gap-3'}
       >
-        <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>{isScanning ? 'stop_circle' : 'qr_code_scanner'}</span>
+        {isScanning ? <StopCircle size={18} /> : <QrCode size={18} />}
         {isScanning ? 'Stop Scanner' : 'Start Scanner'}
       </button>
     </div>

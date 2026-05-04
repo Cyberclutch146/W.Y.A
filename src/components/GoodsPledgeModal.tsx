@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { pledgeGoods } from '@/services/eventService';
 import { useAuth } from '@/context/AuthContext';
+import { X, Package, Check, Loader2 } from 'lucide-react';
 
 interface GoodsPledgeModalProps {
   isOpen: boolean;
@@ -80,43 +81,54 @@ export function GoodsPledgeModal({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black/70"
+            className="absolute inset-0"
+            style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}
             onClick={onClose}
           />
 
           {/* Modal */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="relative w-full max-w-md overflow-hidden border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
-            style={{ background: 'var(--color-surface-container-lowest-base)' }}
+            initial={{ opacity: 0, y: 24, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 24, scale: 0.96 }}
+            transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+            className="relative w-full max-w-md overflow-hidden"
+            style={{
+              background: 'var(--cp-surface)',
+              border: '1px solid var(--cp-border)',
+              borderRadius: 'var(--r-2xl)',
+              boxShadow: 'var(--shadow-xl)',
+            }}
           >
             {/* Header */}
             <div
-              className="px-6 py-4 border-b-4 border-black flex items-center justify-between"
-              style={{ background: 'var(--color-tertiary-container-base)' }}
+              className="flex items-center justify-between px-6 py-4"
+              style={{ borderBottom: '1px solid var(--cp-border)' }}
             >
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 flex items-center justify-center border-2 border-black" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
-                  <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>inventory_2</span>
+                <div
+                  className="w-9 h-9 rounded-xl flex items-center justify-center"
+                  style={{ background: 'linear-gradient(135deg, var(--cp-orange), var(--cp-pink))' }}
+                >
+                  <Package size={16} className="text-white" />
                 </div>
                 <div>
-                  <h3 className="font-headline font-black text-base uppercase tracking-tight" style={{ color: 'var(--color-on-tertiary-container-base)' }}>
+                  <h3 className="font-headline font-bold text-base" style={{ color: 'var(--cp-text-1)' }}>
                     Contribute Goods
                   </h3>
-                  <p className="text-[10px] font-label font-bold uppercase tracking-wider opacity-70">
+                  <p className="text-xs" style={{ color: 'var(--cp-text-3)' }}>
                     for {eventTitle}
                   </p>
                 </div>
               </div>
               <button
                 onClick={onClose}
-                className="w-8 h-8 flex items-center justify-center border-2 border-black hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all duration-150"
-                style={{ background: 'var(--color-error-container-base)' }}
+                className="w-8 h-8 rounded-xl flex items-center justify-center transition-all"
+                style={{ color: 'var(--cp-text-2)' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--cp-surface-dim)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
               >
-                <span className="material-symbols-outlined text-base">close</span>
+                <X size={16} />
               </button>
             </div>
 
@@ -124,7 +136,7 @@ export function GoodsPledgeModal({
             <div className="px-6 py-5 space-y-5 max-h-[60vh] overflow-y-auto">
               {/* Requested Items */}
               <div>
-                <p className="text-[10px] font-label font-bold uppercase tracking-[0.14em] text-on-surface mb-3">
+                <p className="text-xs font-semibold mb-3" style={{ color: 'var(--cp-text-2)' }}>
                   Select items you can bring:
                 </p>
                 <div className="space-y-2">
@@ -134,36 +146,29 @@ export function GoodsPledgeModal({
                       <button
                         key={item}
                         onClick={() => toggleItem(item)}
-                        className={`w-full flex items-center gap-3 px-4 py-3 border-4 text-left text-sm font-body font-bold transition-all duration-150 ${
-                          isSelected
-                            ? 'border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] translate-x-[-2px] translate-y-[-2px]'
-                            : 'border-black/40 hover:border-black hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
-                        }`}
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-sm font-semibold transition-all"
                         style={{
-                          background: isSelected ? 'var(--color-primary-container-base)' : 'var(--color-surface-container-base)',
-                          color: isSelected ? 'var(--color-on-primary-container-base)' : undefined,
+                          background: isSelected ? 'hsl(from var(--cp-primary) h s l / 0.1)' : 'var(--cp-surface-dim)',
+                          color: isSelected ? 'var(--cp-primary)' : 'var(--cp-text-1)',
+                          border: isSelected ? '1.5px solid var(--cp-primary)' : '1px solid var(--cp-border)',
+                          transform: isSelected ? 'scale(1.01)' : 'scale(1)',
                         }}
                       >
                         {/* Checkbox */}
                         <span
-                          className={`flex-shrink-0 w-5 h-5 border-2 border-black flex items-center justify-center ${
-                            isSelected ? '' : ''
-                          }`}
-                          style={{ background: isSelected ? 'var(--color-on-primary-container-base)' : 'var(--color-surface-container-lowest-base)' }}
+                          className="flex-shrink-0 w-5 h-5 rounded-md flex items-center justify-center transition-all"
+                          style={{
+                            background: isSelected ? 'var(--cp-primary)' : 'transparent',
+                            border: isSelected ? '1.5px solid var(--cp-primary)' : '1.5px solid var(--cp-border)',
+                          }}
                         >
                           {isSelected && (
-                            <motion.svg
+                            <motion.div
                               initial={{ scale: 0 }}
                               animate={{ scale: 1 }}
-                              width="12"
-                              height="12"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="white"
-                              strokeWidth="3"
                             >
-                              <path d="M20 6L9 17l-5-5" />
-                            </motion.svg>
+                              <Check size={12} className="text-white" strokeWidth={3} />
+                            </motion.div>
                           )}
                         </span>
                         <span>{item}</span>
@@ -174,17 +179,18 @@ export function GoodsPledgeModal({
               </div>
 
               {/* Divider */}
-              <div className="flex items-center gap-3 text-[10px] font-label font-bold uppercase tracking-[0.14em] text-on-surface-variant">
-                <span className="flex-1 h-[3px] bg-black" />
-                or
-                <span className="flex-1 h-[3px] bg-black" />
+              <div className="flex items-center gap-3">
+                <span className="flex-1 h-px" style={{ background: 'var(--cp-border)' }} />
+                <span className="text-xs font-semibold" style={{ color: 'var(--cp-text-3)' }}>or</span>
+                <span className="flex-1 h-px" style={{ background: 'var(--cp-border)' }} />
               </div>
 
               {/* Other Items */}
               <div>
                 <label
                   htmlFor="other-items"
-                  className="text-[10px] font-label font-bold uppercase tracking-[0.14em] text-on-surface mb-2 block"
+                  className="text-xs font-semibold mb-2 block"
+                  style={{ color: 'var(--cp-text-2)' }}
                 >
                   Something else?
                 </label>
@@ -194,30 +200,30 @@ export function GoodsPledgeModal({
                   onChange={(e) => setOtherItems(e.target.value)}
                   placeholder="e.g. First Aid Kit, Sleeping Bags, Tarps..."
                   rows={3}
-                  className="w-full border-4 border-black px-4 py-3 text-sm font-body text-on-surface placeholder:text-on-surface-variant/50 focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:translate-x-[-2px] focus:translate-y-[-2px] outline-none resize-none transition-all"
-                  style={{ background: 'var(--color-surface-container-base)' }}
+                  className="input-base resize-none"
                 />
               </div>
             </div>
 
             {/* Footer */}
-            <div className="px-6 py-4 border-t-4 border-black flex items-center gap-3" style={{ background: 'var(--color-surface-container-base)' }}>
+            <div
+              className="px-6 py-4 flex items-center gap-3"
+              style={{ background: 'var(--cp-surface-dim)', borderTop: '1px solid var(--cp-border)' }}
+            >
               <button
                 onClick={onClose}
-                className="flex-1 py-3 font-label font-black text-sm uppercase tracking-wider border-4 border-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all duration-150 text-on-surface"
-                style={{ background: 'var(--color-surface-container-lowest-base)' }}
+                className="btn-secondary flex-1 justify-center py-3"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSubmit}
                 disabled={loading || !hasSelection}
-                className="flex-1 py-3 font-label font-black text-sm uppercase tracking-wider border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
-                style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}
+                className="btn-primary flex-1 justify-center py-3 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <span className="flex items-center justify-center gap-2">
-                    <div className="w-4 h-4 border-2 border-black/30 border-t-black animate-spin" />
+                    <Loader2 size={15} className="animate-spin" />
                     Saving...
                   </span>
                 ) : (

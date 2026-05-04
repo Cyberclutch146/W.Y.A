@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, User, Mail, Lock, ShieldCheck, Download, CalendarPlus, Copy, Loader2, Heart } from 'lucide-react';
 
 interface VolunteerModalProps {
   isOpen: boolean;
@@ -175,212 +177,257 @@ export function VolunteerModal({
     return `${baseUrl}&text=${text}&details=${details}&location=${location}&dates=${dates}`;
   })();
 
-  const inputClass = "w-full px-4 py-3.5 border-4 border-black bg-transparent text-sm font-body outline-none transition-all focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:translate-x-[-2px] focus:translate-y-[-2px] placeholder:text-on-surface-variant/50";
-
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div 
-        className="absolute inset-0 bg-black/70"
-        onClick={onClose}
-      />
-      
-      <div
-        className="relative w-full max-w-md overflow-hidden border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
-        style={{ background: 'var(--color-surface-container-lowest-base)' }}
-      >
-        {/* Header bar */}
-        <div
-          className="px-6 py-4 border-b-4 border-black flex items-center justify-between"
-          style={{ background: 'var(--color-primary-container-base)' }}
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4"
         >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 flex items-center justify-center border-2 border-black" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
-              <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>
-                {step === 'form' ? 'volunteer_activism' : 'verified'}
-              </span>
-            </div>
-            <h2 className="font-headline font-black text-lg uppercase tracking-tight" style={{ color: 'var(--color-on-primary-container-base)' }}>
-              {step === 'form' ? 'Be a Hero' : "You're All Set!"}
-            </h2>
-          </div>
-          <button 
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0"
+            style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center border-2 border-black hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all duration-150"
-            style={{ background: 'var(--color-error-container-base)' }}
+          />
+
+          {/* Modal */}
+          <motion.div
+            initial={{ opacity: 0, y: 24, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 24, scale: 0.96 }}
+            transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+            className="relative w-full max-w-md overflow-hidden"
+            style={{
+              background: 'var(--cp-surface)',
+              border: '1px solid var(--cp-border)',
+              borderRadius: 'var(--r-2xl)',
+              boxShadow: 'var(--shadow-xl)',
+            }}
           >
-            <span className="material-symbols-outlined text-base">close</span>
-          </button>
-        </div>
-
-        <div className="p-6 md:p-8">
-          {step === 'form' ? (
-            <form onSubmit={handleRegister} className="space-y-5">
-              <div>
-                <label className="block text-[10px] font-label font-bold uppercase tracking-[0.14em] text-on-surface mb-2" htmlFor="vol-name">
-                  Full Name
-                </label>
-                <div className="relative">
-                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">person</span>
-                  <input
-                    id="vol-name"
-                    type="text"
-                    required
-                    className={`${inputClass} pl-10`}
-                    style={{ background: 'var(--color-surface-container-base)' }}
-                    placeholder="John Doe"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  />
+            {/* Header */}
+            <div
+              className="flex items-center justify-between px-6 py-4"
+              style={{ borderBottom: '1px solid var(--cp-border)' }}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-9 h-9 rounded-xl flex items-center justify-center"
+                  style={{ background: 'linear-gradient(135deg, var(--cp-secondary), var(--cp-lime))' }}
+                >
+                  {step === 'form' ? (
+                    <Heart size={16} className="text-white" />
+                  ) : (
+                    <ShieldCheck size={16} className="text-white" />
+                  )}
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-label font-bold uppercase tracking-[0.14em] text-on-surface mb-2" htmlFor="vol-email">
-                  Email Address
-                </label>
-                <div className="flex gap-2">
-                  <div className="relative flex-1">
-                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">mail</span>
-                    <input
-                      id="vol-email"
-                      type="email"
-                      required
-                      className={`${inputClass} pl-10`}
-                      style={{ background: 'var(--color-surface-container-base)' }}
-                      placeholder="john@example.com"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleSendOtp}
-                    disabled={sendingOtp || !formData.email}
-                    className="px-4 font-label font-black text-xs uppercase tracking-wider border-4 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 disabled:opacity-50 whitespace-nowrap"
-                    style={{ background: 'var(--color-secondary-container-base)', color: 'var(--color-on-secondary-container-base)' }}
-                  >
-                    {sendingOtp ? '...' : 'Verify'}
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-label font-bold uppercase tracking-[0.14em] text-on-surface mb-2" htmlFor="vol-otp">
-                  Verification Code
-                </label>
-                <div className="relative">
-                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">lock</span>
-                  <input
-                    id="vol-otp"
-                    type="text"
-                    required
-                    maxLength={6}
-                    className={`${inputClass} pl-10 font-mono tracking-[0.5em] text-center text-lg`}
-                    style={{ background: 'var(--color-surface-container-base)' }}
-                    placeholder="000000"
-                    value={formData.otp}
-                    onChange={(e) => setFormData({ ...formData, otp: e.target.value.replace(/\D/g, '') })}
-                  />
-                </div>
-                {otpSent && (
-                  <p className="text-[10px] font-label font-bold uppercase tracking-wider mt-2 px-3 py-1.5 border-2 border-black inline-block" style={{ background: 'var(--color-secondary-container-base)', color: 'var(--color-on-secondary-container-base)' }}>
-                    ✓ Code sent! Check inbox.
+                <div>
+                  <h2 className="font-headline font-bold text-base" style={{ color: 'var(--cp-text-1)' }}>
+                    {step === 'form' ? 'Be a Hero' : "You're All Set!"}
+                  </h2>
+                  <p className="text-xs" style={{ color: 'var(--cp-text-3)' }}>
+                    {step === 'form' ? 'Volunteer registration' : 'Registration confirmed'}
                   </p>
-                )}
+                </div>
               </div>
-
               <button
-                type="submit"
-                disabled={loading || !otpSent}
-                className="w-full py-4 font-label font-black text-sm uppercase tracking-wider border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 mt-2"
-                style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}
+                onClick={onClose}
+                className="w-8 h-8 rounded-xl flex items-center justify-center transition-all"
+                style={{ color: 'var(--cp-text-2)' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--cp-surface-dim)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
               >
-                {loading ? (
-                  <>
-                    <div className="w-5 h-5 border-3 border-black/30 border-t-black animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>volunteer_activism</span>
-                    Confirm Registration →
-                  </>
-                )}
+                <X size={16} />
               </button>
-            </form>
-          ) : (
-            <div className="text-center">
-              {/* Success icon */}
-              <div className="mb-6 inline-flex items-center justify-center w-16 h-16 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" style={{ background: 'var(--color-secondary-container-base)' }}>
-                <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>verified_user</span>
-              </div>
-              
-              <h3 className="font-headline font-black text-xl uppercase tracking-tight text-on-surface mb-2">Registration Confirmed</h3>
-              <p className="text-on-surface-variant text-sm mb-6">
-                Thank you for joining<br />
-                <span className="font-headline font-black text-base uppercase text-on-surface">{eventTitle}</span>
-              </p>
-
-              {/* Ticket Card */}
-              <div className="border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-5 mb-6 text-left" style={{ background: 'var(--color-surface-container-base)' }}>
-                <div className="grid grid-cols-2 gap-4 mb-5">
-                  <div>
-                    <span className="block text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant mb-1">Queue Pos</span>
-                    <span className="text-xl font-headline font-black text-on-surface">#{enrolledCount + 1}</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="block text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant mb-1">Time</span>
-                    <span className="text-sm font-bold text-on-surface leading-tight block">{eventTime}</span>
-                  </div>
-                </div>
-
-                <div className="flex justify-center mb-4">
-                  <div className="bg-white p-4 border-4 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] inline-block hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150 cursor-pointer">
-                    <img src={qrUrl} alt="Ticket QR Code" className="w-32 h-32" />
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-center gap-2">
-                  <code className="px-4 py-2 text-sm font-mono font-black tracking-widest border-2 border-black" style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}>
-                    {ticketId}
-                  </code>
-                  <button 
-                    onClick={copyTicketId}
-                    className="p-2 border-2 border-black hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all duration-150"
-                    style={{ background: 'var(--color-secondary-container-base)' }}
-                    title="Copy ID"
-                  >
-                    <span className="material-symbols-outlined text-sm">content_copy</span>
-                  </button>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <a 
-                  href={qrUrl} 
-                  download={`volunteer-ticket-${ticketId}.png`}
-                  className="flex items-center justify-center gap-2 w-full py-3.5 font-label font-black text-sm uppercase tracking-wider border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150"
-                  style={{ background: 'var(--color-primary-container-base)', color: 'var(--color-on-primary-container-base)' }}
-                >
-                  <span className="material-symbols-outlined text-lg">download</span>
-                  Save Digital Ticket
-                </a>
-
-                <a 
-                  href={calendarUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 w-full py-3.5 font-label font-bold text-sm uppercase tracking-wider border-4 border-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all duration-150 text-on-surface"
-                  style={{ background: 'var(--color-surface-container-base)' }}
-                >
-                  <span className="material-symbols-outlined text-lg">calendar_add_on</span>
-                  Sync to Calendar
-                </a>
-              </div>
             </div>
-          )}
-        </div>
-      </div>
-    </div>
+
+            <div className="p-6">
+              {step === 'form' ? (
+                <form onSubmit={handleRegister} className="space-y-5">
+                  {/* Name */}
+                  <div>
+                    <label className="block text-xs font-semibold mb-2" style={{ color: 'var(--cp-text-2)' }} htmlFor="vol-name">
+                      Full Name
+                    </label>
+                    <div className="relative">
+                      <User size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'var(--cp-text-3)' }} />
+                      <input
+                        id="vol-name"
+                        type="text"
+                        required
+                        className="input-base pl-10"
+                        placeholder="John Doe"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Email */}
+                  <div>
+                    <label className="block text-xs font-semibold mb-2" style={{ color: 'var(--cp-text-2)' }} htmlFor="vol-email">
+                      Email Address
+                    </label>
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'var(--cp-text-3)' }} />
+                        <input
+                          id="vol-email"
+                          type="email"
+                          required
+                          className="input-base pl-10"
+                          placeholder="john@example.com"
+                          value={formData.email}
+                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleSendOtp}
+                        disabled={sendingOtp || !formData.email}
+                        className="px-4 py-2.5 rounded-xl text-xs font-bold transition-all disabled:opacity-50 whitespace-nowrap"
+                        style={{
+                          background: 'hsl(from var(--cp-secondary) h s l / 0.12)',
+                          color: 'var(--cp-secondary)',
+                          border: '1px solid hsl(from var(--cp-secondary) h s l / 0.3)',
+                        }}
+                      >
+                        {sendingOtp ? <Loader2 size={14} className="animate-spin" /> : 'Verify'}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* OTP */}
+                  <div>
+                    <label className="block text-xs font-semibold mb-2" style={{ color: 'var(--cp-text-2)' }} htmlFor="vol-otp">
+                      Verification Code
+                    </label>
+                    <div className="relative">
+                      <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'var(--cp-text-3)' }} />
+                      <input
+                        id="vol-otp"
+                        type="text"
+                        required
+                        maxLength={6}
+                        className="input-base pl-10 font-mono tracking-[0.4em] text-center text-lg"
+                        placeholder="000000"
+                        value={formData.otp}
+                        onChange={(e) => setFormData({ ...formData, otp: e.target.value.replace(/\D/g, '') })}
+                      />
+                    </div>
+                    {otpSent && (
+                      <div
+                        className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 rounded-lg text-xs font-semibold"
+                        style={{ background: 'hsl(from var(--cp-secondary) h s l / 0.1)', color: 'var(--cp-secondary)' }}
+                      >
+                        <ShieldCheck size={12} /> Code sent! Check inbox.
+                      </div>
+                    )}
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading || !otpSent}
+                    className="btn-primary w-full justify-center py-4 text-sm mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading ? (
+                      <><Loader2 size={16} className="animate-spin" /> Processing...</>
+                    ) : (
+                      <><Heart size={16} /> Confirm Registration →</>
+                    )}
+                  </button>
+                </form>
+              ) : (
+                <div className="text-center">
+                  {/* Success icon */}
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1, rotate: [0, -10, 10, 0] }}
+                    transition={{ type: 'spring', damping: 12, stiffness: 200 }}
+                    className="mb-6 inline-flex items-center justify-center w-16 h-16 rounded-2xl"
+                    style={{ background: 'linear-gradient(135deg, var(--cp-secondary), var(--cp-lime))', boxShadow: '0 12px 32px -6px hsl(from var(--cp-secondary) h s l / 0.5)' }}
+                  >
+                    <ShieldCheck size={28} className="text-white" />
+                  </motion.div>
+                  
+                  <h3 className="font-headline font-bold text-xl mb-2" style={{ color: 'var(--cp-text-1)' }}>Registration Confirmed</h3>
+                  <p className="text-sm mb-6" style={{ color: 'var(--cp-text-2)' }}>
+                    Thank you for joining<br />
+                    <span className="font-headline font-bold" style={{ color: 'var(--cp-text-1)' }}>{eventTitle}</span>
+                  </p>
+
+                  {/* Ticket Card */}
+                  <div
+                    className="rounded-2xl p-5 mb-6 text-left"
+                    style={{ background: 'var(--cp-surface-dim)', border: '1px solid var(--cp-border)' }}
+                  >
+                    <div className="grid grid-cols-2 gap-4 mb-5">
+                      <div>
+                        <span className="block text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--cp-text-3)' }}>Queue Pos</span>
+                        <span className="text-xl font-headline font-bold" style={{ color: 'var(--cp-text-1)' }}>#{enrolledCount + 1}</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="block text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--cp-text-3)' }}>Time</span>
+                        <span className="text-sm font-bold leading-tight block" style={{ color: 'var(--cp-text-1)' }}>{eventTime}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-center mb-4">
+                      <div
+                        className="p-3 rounded-xl inline-block"
+                        style={{ background: 'white', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-md)' }}
+                      >
+                        <img src={qrUrl} alt="Ticket QR Code" className="w-32 h-32 rounded-lg" />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-center gap-2">
+                      <code
+                        className="px-4 py-2 text-sm font-mono font-bold tracking-widest rounded-lg"
+                        style={{ background: 'hsl(from var(--cp-primary) h s l / 0.1)', color: 'var(--cp-primary)', border: '1px solid hsl(from var(--cp-primary) h s l / 0.2)' }}
+                      >
+                        {ticketId}
+                      </code>
+                      <button
+                        onClick={copyTicketId}
+                        className="w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110"
+                        style={{ background: 'hsl(from var(--cp-secondary) h s l / 0.12)', color: 'var(--cp-secondary)' }}
+                        title="Copy ID"
+                      >
+                        <Copy size={14} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <a
+                      href={qrUrl}
+                      download={`volunteer-ticket-${ticketId}.png`}
+                      className="btn-primary w-full justify-center py-3.5 text-sm"
+                    >
+                      <Download size={16} /> Save Digital Ticket
+                    </a>
+
+                    <a
+                      href={calendarUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-secondary w-full justify-center py-3.5 text-sm"
+                    >
+                      <CalendarPlus size={16} /> Sync to Calendar
+                    </a>
+                  </div>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

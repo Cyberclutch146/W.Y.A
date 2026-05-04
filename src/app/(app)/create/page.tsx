@@ -9,6 +9,8 @@ import { toast } from 'sonner';
 import LocationPickerWrapper from '@/components/LocationPickerWrapper';
 import DateTimePicker from '@/components/DateTimePicker';
 import PromotionModal from '@/components/PromotionModal';
+import { Sparkles, ImageIcon, CloudUpload, Loader2, Plus, X, Megaphone, Rocket, MapPin } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function CreateEventPage() {
   const router = useRouter();
@@ -25,10 +27,8 @@ export default function CreateEventPage() {
 
   const [needFunds, setNeedFunds] = useState(false);
   const [fundGoal, setFundGoal] = useState(1000);
-
   const [needVols, setNeedVols] = useState(false);
   const [volGoal, setVolGoal] = useState(10);
-
   const [needGoods, setNeedGoods] = useState(false);
   const [goodsItem, setGoodsItem] = useState('');
   const [goodsList, setGoodsList] = useState<string[]>([]);
@@ -48,18 +48,12 @@ export default function CreateEventPage() {
     setLoading(true);
     try {
       const newEventId = await createEvent({
-        title,
-        description,
+        title, description,
         organizer: profile.displayName || 'Anonymous',
         organizerId: user.uid,
         location: locationName || profile.location || 'Unknown Location',
-        lat,
-        lng,
-        distance,
-        category,
-        urgency,
-        imageUrl: image,
-        eventDate,
+        lat, lng, distance, category, urgency,
+        imageUrl: image, eventDate,
         needs: {
           ...(needFunds ? { funds: { goal: fundGoal, current: 0 } } : {}),
           ...(needVols ? { volunteers: { goal: volGoal, current: 0 } } : {}),
@@ -75,55 +69,48 @@ export default function CreateEventPage() {
     }
   };
 
-  // Shared brutalist input class
-  const inputCls = 'w-full border-2 border-black bg-white py-3 px-4 text-sm text-black font-medium focus:outline-none focus:ring-2 focus:ring-[#ffd93d] transition-all placeholder:text-black/40';
-  const labelCls = 'block text-sm font-black text-black mb-2 uppercase';
+  const CATEGORIES = ['Urgent Needs', 'Food Drive', 'Volunteers', 'Community'];
+  const URGENCY_OPTS = [
+    { key: 'normal' as const, label: '🟢 Normal', accent: 'var(--cp-secondary)', bg: 'hsl(from var(--cp-secondary) h s l / 0.1)' },
+    { key: 'high' as const, label: '🔴 High', accent: 'var(--cp-accent)', bg: 'hsl(from var(--cp-accent) h s l / 0.1)' },
+  ];
 
   return (
-    <main className="flex-1 p-4 md:p-10 max-w-7xl mx-auto w-full pb-28 md:pb-10">
+    <main className="flex-1 p-4 md:p-10 max-w-5xl mx-auto w-full pb-28 md:pb-10" style={{ color: 'var(--cp-text-1)' }}>
       {/* Header */}
-      <div className="mb-10 animate-fade-in-up">
-        <div
-          className="inline-flex items-center gap-2 px-3 py-1 border-2 border-black text-xs font-black uppercase tracking-widest mb-4 bg-[#93f59c]"
-          style={{ boxShadow: '2px 2px 0 #000' }}
-        >
-          <span className="material-symbols-outlined text-base">add_circle</span>
-          Organizer
+      <motion.div className="mb-10" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-4" style={{ background: 'hsl(from var(--cp-secondary) h s l / 0.12)', color: 'var(--cp-secondary)', border: '1px solid hsl(from var(--cp-secondary) h s l / 0.3)' }}>
+          <Rocket size={12} /> Organizer
         </div>
-        <h1 className="text-4xl md:text-6xl font-black tracking-tight text-black uppercase leading-none mb-2">
-          Create an <span className="bg-[#ffd93d] px-2 border-4 border-black">Event</span>
+        <h1 className="font-headline font-bold text-5xl md:text-7xl tracking-tight leading-none mb-3" style={{ color: 'var(--cp-text-1)' }}>
+          Create an <span className="energy-gradient-text">Event</span>
         </h1>
-        <p className="text-black/60 font-medium mt-2">Start a campus response initiative and rally your community.</p>
-      </div>
+        <p className="max-w-md leading-relaxed" style={{ color: 'var(--cp-text-2)' }}>Start a campus response initiative and rally your community around real change.</p>
+      </motion.div>
 
       {/* Form Card */}
-      <div
-        className="border-4 border-black p-6 md:p-8 bg-white animate-fade-in-up delay-100"
-        style={{ boxShadow: '6px 6px 0 #000' }}
+      <motion.div
+        className="rounded-2xl p-6 md:p-10"
+        style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-lg)' }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       >
-        <p className="text-black/60 font-medium mb-6 pb-6 border-b-2 border-black">
-          Share your vision and rally your community around local needs.
-        </p>
-
-        <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
+        <form onSubmit={handleSubmit} className="space-y-8 max-w-2xl">
           {/* Title */}
           <div>
-            <label className={labelCls}>Event Title</label>
+            <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--cp-text-2)' }}>Event Title</label>
             <input
-              type="text"
-              required
-              className={inputCls}
+              type="text" required className="input-base"
               placeholder="e.g. Campus Cleanup Drive"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              style={{ boxShadow: '2px 2px 0 #000' }}
+              value={title} onChange={(e) => setTitle(e.target.value)}
             />
           </div>
 
           {/* Description */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className={labelCls}>Description</label>
+              <label className="text-sm font-semibold" style={{ color: 'var(--cp-text-2)' }}>Description</label>
               <button
                 type="button"
                 onClick={async () => {
@@ -142,59 +129,42 @@ export default function CreateEventPage() {
                   finally { setGeneratingAi(false); }
                 }}
                 disabled={generatingAi}
-                className="text-xs flex items-center gap-1 font-black border-2 border-black px-3 py-1 bg-[#ffd93d] hover:bg-black hover:text-white transition-colors uppercase disabled:opacity-50"
-                style={{ boxShadow: '2px 2px 0 #000' }}
+                className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full transition-all disabled:opacity-50"
+                style={{ background: 'hsl(from var(--cp-primary) h s l / 0.1)', color: 'var(--cp-primary)', border: '1px solid hsl(from var(--cp-primary) h s l / 0.2)' }}
               >
-                {generatingAi ? (
-                  <span className="material-symbols-outlined text-[16px] animate-spin">refresh</span>
-                ) : (
-                  <span className="material-symbols-outlined text-[16px]">smart_toy</span>
-                )}
+                {generatingAi ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />}
                 {generatingAi ? 'Generating...' : 'AI Generate'}
               </button>
             </div>
             <textarea
-              required
-              className={`${inputCls} h-32 resize-none`}
+              required className="input-base h-32 resize-none"
               placeholder="Describe the goal of your event..."
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              style={{ boxShadow: '2px 2px 0 #000' }}
+              value={description} onChange={(e) => setDescription(e.target.value)}
             />
           </div>
 
           {/* Category + Urgency */}
           <div className="flex flex-col md:flex-row gap-6">
             <div className="flex-1">
-              <label className={labelCls}>Category</label>
-              <select
-                className={inputCls}
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                style={{ boxShadow: '2px 2px 0 #000' }}
-              >
-                <option>Urgent Needs</option>
-                <option>Food Drive</option>
-                <option>Volunteers</option>
-                <option>Community</option>
+              <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--cp-text-2)' }}>Category</label>
+              <select className="input-base" value={category} onChange={(e) => setCategory(e.target.value)}>
+                {CATEGORIES.map(c => <option key={c}>{c}</option>)}
               </select>
             </div>
             <div className="flex-1">
-              <label className={labelCls}>Urgency Level</label>
+              <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--cp-text-2)' }}>Urgency Level</label>
               <div className="flex gap-3">
-                {(['normal', 'high'] as const).map((u) => (
+                {URGENCY_OPTS.map((u) => (
                   <button
-                    key={u}
-                    type="button"
-                    onClick={() => setUrgency(u)}
-                    className={`flex-1 py-3 text-sm font-black border-2 border-black uppercase transition-all ${
-                      urgency === u
-                        ? u === 'high' ? 'bg-red-500 text-white' : 'bg-black text-white'
-                        : 'bg-white text-black hover:bg-[#ffd93d]'
-                    }`}
-                    style={{ boxShadow: urgency === u ? 'none' : '2px 2px 0 #000' }}
+                    key={u.key} type="button" onClick={() => setUrgency(u.key)}
+                    className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all"
+                    style={{
+                      background: urgency === u.key ? u.bg : 'var(--cp-surface-dim)',
+                      color: urgency === u.key ? u.accent : 'var(--cp-text-2)',
+                      border: urgency === u.key ? `1.5px solid ${u.accent}` : '1px solid var(--cp-border)',
+                    }}
                   >
-                    {u === 'high' ? '🔴 High' : '🟢 Normal'}
+                    {u.label}
                   </button>
                 ))}
               </div>
@@ -204,12 +174,12 @@ export default function CreateEventPage() {
           {/* Date + Image */}
           <div className="flex flex-col md:flex-row gap-6">
             <div className="flex-1">
-              <label className={labelCls}>Event Date &amp; Time</label>
+              <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--cp-text-2)' }}>Event Date & Time</label>
               <DateTimePicker value={eventDate} onChange={(val) => setEventDate(val)} />
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between mb-2">
-                <label className={labelCls}>Event Image</label>
+                <label className="text-sm font-semibold" style={{ color: 'var(--cp-text-2)' }}>Event Image</label>
                 <button
                   type="button"
                   onClick={async () => {
@@ -219,8 +189,7 @@ export default function CreateEventPage() {
                       toast.info('Generating image with AI...');
                       const prompt = `High-quality cover photo for a campus event: ${title}. ${category}. Beautiful lighting, no text.`;
                       const response = await fetch('/api/generate-image', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ prompt }),
                       });
                       if (!response.ok) { const d = await response.json().catch(() => ({})); throw new Error(d.error || 'Failed'); }
@@ -233,24 +202,22 @@ export default function CreateEventPage() {
                     finally { setGeneratingImage(false); }
                   }}
                   disabled={generatingImage || uploadingImage}
-                  className="text-xs flex items-center gap-1 font-black border-2 border-black px-3 py-1 bg-[#ffd93d] hover:bg-black hover:text-white transition-colors uppercase disabled:opacity-50"
-                  style={{ boxShadow: '2px 2px 0 #000' }}
+                  className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full transition-all disabled:opacity-50"
+                  style={{ background: 'hsl(from var(--cp-cyan) h s l / 0.1)', color: 'var(--cp-cyan)', border: '1px solid hsl(from var(--cp-cyan) h s l / 0.25)' }}
                 >
-                  {generatingImage ? <span className="material-symbols-outlined text-[16px] animate-spin">refresh</span> : <span className="material-symbols-outlined text-[16px]">image</span>}
+                  {generatingImage ? <Loader2 size={13} className="animate-spin" /> : <ImageIcon size={13} />}
                   {generatingImage ? 'Generating...' : 'AI Image'}
                 </button>
               </div>
               <div className="flex items-center gap-3">
                 <label
-                  className={`border-2 border-black px-4 py-3 text-sm font-black flex-1 text-center cursor-pointer flex items-center justify-center gap-2 bg-white hover:bg-[#ccdcff] transition-colors uppercase ${generatingImage ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  style={{ boxShadow: '2px 2px 0 #000' }}
+                  className={`flex-1 flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold cursor-pointer transition-all ${generatingImage ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-80'}`}
+                  style={{ background: 'var(--cp-surface-dim)', border: '1px dashed var(--cp-border)', color: 'var(--cp-text-2)' }}
                 >
-                  <span className="material-symbols-outlined text-[18px]">cloud_upload</span>
+                  <CloudUpload size={16} style={{ color: 'var(--cp-text-3)' }} />
                   {uploadingImage ? 'Uploading...' : 'Choose File'}
                   <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
+                    type="file" accept="image/*" className="hidden"
                     disabled={uploadingImage || generatingImage}
                     onChange={async (e) => {
                       const file = e.target.files?.[0];
@@ -265,109 +232,95 @@ export default function CreateEventPage() {
                   />
                 </label>
                 {image && (
-                  <div className="w-14 h-14 border-2 border-black overflow-hidden flex-shrink-0">
+                  <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0" style={{ border: '2px solid var(--cp-border)' }}>
                     <img src={image} alt="Preview" className="w-full h-full object-cover" />
                   </div>
                 )}
               </div>
-              <p className="text-xs text-black/50 mt-2 font-medium">Optional. Leave blank to use a default image.</p>
+              <p className="text-xs mt-2" style={{ color: 'var(--cp-text-3)' }}>Optional. Leave blank to use a default image.</p>
             </div>
           </div>
 
           {/* Location */}
-          <div className="pt-6 border-t-2 border-black">
-            <label className={labelCls}>Event Location</label>
-            <p className="text-xs text-black/50 mb-4 font-medium">Search for an address or click on the map to set the exact location.</p>
+          <div className="pt-6" style={{ borderTop: '1px solid var(--cp-border)' }}>
+            <div className="flex items-center gap-2 mb-2">
+              <MapPin size={15} style={{ color: 'var(--cp-primary)' }} />
+              <label className="text-sm font-semibold" style={{ color: 'var(--cp-text-2)' }}>Event Location</label>
+            </div>
+            <p className="text-xs mb-4" style={{ color: 'var(--cp-text-3)' }}>Search for an address or click on the map to set the exact location.</p>
             <LocationPickerWrapper
-              onLocationSelect={(loc) => {
-                setLocationName(loc.name);
-                setLat(loc.lat);
-                setLng(loc.lng);
-              }}
+              onLocationSelect={(loc) => { setLocationName(loc.name); setLat(loc.lat); setLng(loc.lng); }}
             />
           </div>
 
           {/* Needs */}
-          <div
-            className="border-2 border-black p-5 bg-[#ffd93d]/10"
-            style={{ boxShadow: '2px 2px 0 #000' }}
-          >
-            <div className="font-black text-sm mb-4 text-black uppercase border-b-2 border-black pb-3">What do you need?</div>
+          <div className="rounded-xl p-5" style={{ background: 'var(--cp-surface-dim)', border: '1px solid var(--cp-border)' }}>
+            <div className="text-sm font-semibold mb-4" style={{ color: 'var(--cp-text-2)', paddingBottom: '0.75rem', borderBottom: '1px solid var(--cp-border)' }}>What do you need?</div>
             <div className="space-y-4">
+              {/* Funds */}
               <div className="flex items-center gap-4">
-                <input type="checkbox" id="needFunds" checked={needFunds} onChange={(e) => setNeedFunds(e.target.checked)} className="w-5 h-5 border-2 border-black accent-black" />
-                <label htmlFor="needFunds" className="text-sm font-black uppercase cursor-pointer">💰 Funds</label>
+                <input type="checkbox" id="needFunds" checked={needFunds} onChange={(e) => setNeedFunds(e.target.checked)} className="w-4 h-4 rounded cursor-pointer" style={{ accentColor: 'var(--cp-primary)' }} />
+                <label htmlFor="needFunds" className="text-sm font-semibold cursor-pointer flex-1" style={{ color: 'var(--cp-text-1)' }}>💰 Funds</label>
                 {needFunds && (
                   <input
-                    type="number"
-                    value={fundGoal}
-                    onChange={(e) => setFundGoal(Number(e.target.value))}
-                    placeholder="Goal ($)"
-                    className="ml-auto w-32 border-2 border-black px-3 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#ffd93d] bg-white"
-                    style={{ boxShadow: '2px 2px 0 #000' }}
+                    type="number" value={fundGoal} onChange={(e) => setFundGoal(Number(e.target.value))}
+                    placeholder="Goal ($)" className="input-base w-32"
+                    style={{ padding: '0.5rem 0.75rem', fontSize: '0.8125rem' }}
                   />
                 )}
               </div>
+              {/* Volunteers */}
               <div className="flex items-center gap-4">
-                <input type="checkbox" id="needVols" checked={needVols} onChange={(e) => setNeedVols(e.target.checked)} className="w-5 h-5 border-2 border-black accent-black" />
-                <label htmlFor="needVols" className="text-sm font-black uppercase cursor-pointer">🙋 Volunteers</label>
+                <input type="checkbox" id="needVols" checked={needVols} onChange={(e) => setNeedVols(e.target.checked)} className="w-4 h-4 rounded cursor-pointer" style={{ accentColor: 'var(--cp-primary)' }} />
+                <label htmlFor="needVols" className="text-sm font-semibold cursor-pointer flex-1" style={{ color: 'var(--cp-text-1)' }}>🙋 Volunteers</label>
                 {needVols && (
                   <input
-                    type="number"
-                    value={volGoal}
-                    onChange={(e) => setVolGoal(Number(e.target.value))}
-                    placeholder="Goal (people)"
-                    className="ml-auto w-32 border-2 border-black px-3 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#ffd93d] bg-white"
-                    style={{ boxShadow: '2px 2px 0 #000' }}
+                    type="number" value={volGoal} onChange={(e) => setVolGoal(Number(e.target.value))}
+                    placeholder="Goal (people)" className="input-base w-32"
+                    style={{ padding: '0.5rem 0.75rem', fontSize: '0.8125rem' }}
                   />
                 )}
               </div>
+              {/* Goods */}
               <div className="space-y-3">
                 <div className="flex items-center gap-4">
-                  <input type="checkbox" id="needGoods" checked={needGoods} onChange={(e) => setNeedGoods(e.target.checked)} className="w-5 h-5 border-2 border-black accent-black" />
-                  <label htmlFor="needGoods" className="text-sm font-black uppercase cursor-pointer">📦 Specific Goods</label>
+                  <input type="checkbox" id="needGoods" checked={needGoods} onChange={(e) => setNeedGoods(e.target.checked)} className="w-4 h-4 rounded cursor-pointer" style={{ accentColor: 'var(--cp-primary)' }} />
+                  <label htmlFor="needGoods" className="text-sm font-semibold cursor-pointer" style={{ color: 'var(--cp-text-1)' }}>📦 Specific Goods</label>
                 </div>
                 {needGoods && (
-                  <div className="pl-9 space-y-3">
+                  <div className="pl-8 space-y-3">
                     <div className="flex gap-2">
                       <input
-                        type="text"
-                        value={goodsItem}
-                        onChange={(e) => setGoodsItem(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            if (goodsItem.trim()) { setGoodsList([...goodsList, goodsItem.trim()]); setGoodsItem(''); }
-                          }
-                        }}
+                        type="text" value={goodsItem} onChange={(e) => setGoodsItem(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); if (goodsItem.trim()) { setGoodsList([...goodsList, goodsItem.trim()]); setGoodsItem(''); } } }}
                         placeholder="Add item (e.g. Blankets) then Enter"
-                        className="flex-1 border-2 border-black px-3 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#ffd93d] bg-white"
-                        style={{ boxShadow: '2px 2px 0 #000' }}
+                        className="input-base flex-1" style={{ padding: '0.5rem 0.875rem', fontSize: '0.8125rem' }}
                       />
                       <button
                         type="button"
                         onClick={() => { if (goodsItem.trim()) { setGoodsList([...goodsList, goodsItem.trim()]); setGoodsItem(''); } }}
-                        className="px-4 py-1.5 border-2 border-black text-sm font-black bg-black text-white hover:bg-[#ffd93d] hover:text-black transition-colors uppercase"
-                        style={{ boxShadow: '2px 2px 0 #555' }}
+                        className="btn-primary px-4"
+                        style={{ padding: '0.5rem 0.875rem', fontSize: '0.8125rem' }}
                       >
-                        Add
+                        <Plus size={15} />
                       </button>
                     </div>
                     {goodsList.length > 0 && (
-                      <ul className="space-y-2">
+                      <ul className="space-y-1.5">
                         {goodsList.map((item, index) => (
                           <li
                             key={index}
-                            className="flex justify-between items-center px-3 py-2 text-sm border-2 border-black bg-white font-medium"
-                            style={{ boxShadow: '2px 2px 0 #000' }}
+                            className="flex justify-between items-center px-3 py-2 rounded-lg text-sm font-medium"
+                            style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', color: 'var(--cp-text-1)' }}
                           >
                             <span>{item}</span>
                             <button
                               type="button"
                               onClick={() => setGoodsList(goodsList.filter((_, i) => i !== index))}
-                              className="text-red-500 hover:bg-red-50 p-1 border border-red-200 transition-colors"
+                              className="w-6 h-6 rounded-lg flex items-center justify-center transition-all hover:opacity-80"
+                              style={{ background: 'hsl(from var(--cp-accent) h s l / 0.1)', color: 'var(--cp-accent)' }}
                             >
-                              <span className="material-symbols-outlined text-[16px]">close</span>
+                              <X size={13} />
                             </button>
                           </li>
                         ))}
@@ -384,24 +337,20 @@ export default function CreateEventPage() {
             <button
               type="submit"
               disabled={loading || !user}
-              className="flex-1 px-8 py-4 border-2 border-black font-black text-white bg-black hover:bg-[#ffd93d] hover:text-black transition-colors uppercase disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97]"
-              style={{ boxShadow: '4px 4px 0 #555' }}
+              className="btn-primary flex-1 justify-center text-base py-4 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Publishing...' : user ? '🚀 Publish Event' : 'Sign in to publish'}
+              {loading ? <><Loader2 size={17} className="animate-spin" /> Publishing...</> : <><Rocket size={17} /> {user ? 'Publish Event' : 'Sign in to publish'}</>}
             </button>
-
             <button
               type="button"
               onClick={() => setPromotionModalOpen(true)}
-              className="flex-1 px-8 py-4 border-2 border-black font-black text-black bg-[#ccdcff] hover:bg-[#ffd93d] transition-colors uppercase flex items-center justify-center gap-2 active:scale-[0.97]"
-              style={{ boxShadow: '4px 4px 0 #000' }}
+              className="btn-secondary flex-1 justify-center text-base py-4"
             >
-              <span className="material-symbols-outlined text-[20px]">campaign</span>
-              Promote Event
+              <Megaphone size={17} /> Promote Event
             </button>
           </div>
         </form>
-      </div>
+      </motion.div>
 
       <PromotionModal isOpen={promotionModalOpen} onClose={() => setPromotionModalOpen(false)} />
     </main>

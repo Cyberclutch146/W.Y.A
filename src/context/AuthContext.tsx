@@ -65,7 +65,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               interests: [],
               xp: 0,
               badges: [],
-              eventsAttended: 0
+              eventsAttended: 0,
+              rsvpEventIds: [],
+              savedEventIds: [],
+              dismissedEventIds: []
             });
           } else {
             setProfile(userProfile);

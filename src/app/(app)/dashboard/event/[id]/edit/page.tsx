@@ -8,7 +8,7 @@ import { uploadImage } from '@/services/storageService';
 import { toast } from 'sonner';
 import LocationPickerWrapper from '@/components/LocationPickerWrapper';
 import DateTimePicker from '@/components/DateTimePicker';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader2, Bot, ImageIcon, Upload } from 'lucide-react';
 
 export default function EditEventPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -105,7 +105,7 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-[50vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-12 w-12" style={{ border: '3px solid var(--cp-border)', borderTopColor: 'var(--cp-primary)' }}></div>
       </div>
     );
   }
@@ -114,25 +114,25 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
     <main className="flex-1 p-6 md:p-10 max-w-7xl mx-auto w-full pb-28 md:pb-10">
       <button 
         onClick={() => router.push(`/dashboard/event/${eventId}`)}
-        className="flex items-center gap-2 text-on-surface-variant hover:text-on-surface mb-6 transition-colors"
+        className="btn-secondary mb-6"
       >
-        <ArrowLeft size={20} />
+        <ArrowLeft size={16} />
         Back to Event Dashboard
       </button>
 
       <div className="mb-10">
-        <h2 className="font-headline text-3xl md:text-4xl text-on-surface font-bold">Edit Event</h2>
-        <p className="text-secondary font-medium mt-2">Update the event details and keep your support efforts on track.</p>
+        <h2 className="font-headline text-3xl md:text-4xl font-bold" style={{ color: 'var(--cp-text-1)' }}>Edit Event</h2>
+        <p className="mt-2 font-medium" style={{ color: 'var(--cp-text-2)' }}>Update the event details and keep your support efforts on track.</p>
       </div>
 
-      <div className="premium-panel p-8">
+      <div className="p-6 md:p-8 rounded-2xl" style={{ background: 'var(--cp-surface)', border: '1.5px solid var(--cp-border)', boxShadow: 'var(--shadow-md)' }}>
         <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
           <div>
-            <label className="block text-sm font-semibold text-on-surface mb-2">Event Title</label>
+            <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--cp-text-1)' }}>Event Title</label>
             <input 
               type="text" 
               required
-              className="w-full bg-surface-container-low border border-outline-variant/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-on-surface" 
+              className="input-base w-full" 
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
@@ -140,7 +140,7 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
           
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-semibold text-on-surface">Description</label>
+              <label className="block text-sm font-semibold" style={{ color: 'var(--cp-text-1)' }}>Description</label>
               <button 
                 type="button" 
                 onClick={async () => {
@@ -169,19 +169,20 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
                   }
                 }}
                 disabled={generatingAi}
-                className="text-xs flex items-center gap-1 font-bold text-primary hover:text-primary-container transition-colors disabled:opacity-50"
+                className="text-xs flex items-center gap-1 font-bold transition-colors disabled:opacity-50"
+                style={{ color: 'var(--cp-primary)' }}
               >
                 {generatingAi ? (
-                  <span className="material-symbols-outlined text-[16px] animate-spin">refresh</span>
+                  <Loader2 size={14} className="animate-spin" />
                 ) : (
-                  <span className="material-symbols-outlined text-[16px]">smart_toy</span>
+                  <Bot size={14} />
                 )}
                 {generatingAi ? 'Generating...' : 'Generate with AI'}
               </button>
             </div>
             <textarea 
               required
-              className="w-full h-32 bg-surface-container-low border border-outline-variant/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-on-surface resize-none" 
+              className="input-base w-full h-32 resize-none" 
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             ></textarea>
@@ -189,9 +190,9 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
 
           <div className="flex flex-col md:flex-row gap-6">
             <div className="flex-1">
-              <label className="block text-sm font-semibold text-on-surface mb-2">Category</label>
+              <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--cp-text-1)' }}>Category</label>
               <select 
-                className="w-full bg-surface-container-low border border-outline-variant/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-on-surface"
+                className="input-base w-full"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
               >
@@ -202,19 +203,21 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
               </select>
             </div>
             <div className="flex-1">
-              <label className="block text-sm font-semibold text-on-surface mb-2">Urgency Level</label>
+              <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--cp-text-1)' }}>Urgency Level</label>
               <div className="flex gap-4">
                 <button
                   type="button"
                   onClick={() => setUrgency('normal')}
-                  className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-colors ${urgency === 'normal' ? 'bg-primary text-on-primary' : 'bg-surface-container-low text-on-surface border border-outline-variant/50'}`}
+                  className="flex-1 py-3 rounded-xl text-sm font-semibold transition-all"
+                  style={urgency === 'normal' ? { background: 'var(--cp-primary)', color: '#fff' } : { background: 'var(--cp-surface-dim)', color: 'var(--cp-text-1)', border: '1.5px solid var(--cp-border)' }}
                 >
                   Normal
                 </button>
                 <button
                   type="button"
                   onClick={() => setUrgency('high')}
-                  className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-colors ${urgency === 'high' ? 'bg-error text-on-error' : 'bg-surface-container-low text-on-surface border border-outline-variant/50'}`}
+                  className="flex-1 py-3 rounded-xl text-sm font-semibold transition-all"
+                  style={urgency === 'high' ? { background: 'hsl(0 80% 55%)', color: '#fff' } : { background: 'var(--cp-surface-dim)', color: 'var(--cp-text-1)', border: '1.5px solid var(--cp-border)' }}
                 >
                   High
                 </button>
@@ -224,7 +227,7 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
 
           <div className="flex flex-col md:flex-row gap-6">
             <div className="flex-1">
-              <label className="block text-sm font-semibold text-on-surface mb-2">Event Date & Time</label>
+              <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--cp-text-1)' }}>Event Date & Time</label>
               <DateTimePicker 
                 value={eventDate}
                 onChange={(val) => setEventDate(val)}
@@ -232,7 +235,7 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-semibold text-on-surface">Event Image</label>
+                <label className="block text-sm font-semibold" style={{ color: 'var(--cp-text-1)' }}>Event Image</label>
                 <button 
                   type="button" 
                   onClick={async () => {
@@ -270,19 +273,20 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
                     }
                   }}
                   disabled={generatingImage || uploadingImage}
-                  className="text-xs flex items-center gap-1 font-bold text-primary hover:text-primary-container transition-colors disabled:opacity-50"
+                  className="text-xs flex items-center gap-1 font-bold transition-colors disabled:opacity-50"
+                  style={{ color: 'var(--cp-primary)' }}
                 >
                   {generatingImage ? (
-                    <span className="material-symbols-outlined text-[16px] animate-spin">refresh</span>
+                    <Loader2 size={14} className="animate-spin" />
                   ) : (
-                    <span className="material-symbols-outlined text-[16px]">image</span>
+                    <ImageIcon size={14} />
                   )}
                   {generatingImage ? 'Generating...' : 'Generate with AI'}
                 </button>
               </div>
               <div className="flex items-center gap-4">
-                <label className={`bg-surface-container-low hover:bg-surface-container-high transition-colors border border-outline-variant/50 rounded-xl px-4 py-3 text-sm text-on-surface ${generatingImage ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} flex-1 text-center font-medium flex items-center justify-center gap-2`}>
-                  <span className="material-symbols-outlined text-[18px]">cloud_upload</span>
+                <label className={`flex-1 text-center font-medium flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm transition-all ${generatingImage ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:shadow-sm'}`} style={{ background: 'var(--cp-surface-dim)', color: 'var(--cp-text-1)', border: '1.5px solid var(--cp-border)' }}>
+                  <Upload size={16} />
                   {uploadingImage ? 'Uploading...' : 'Choose File'}
                   <input 
                     type="file" 
@@ -306,7 +310,7 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
                   />
                 </label>
                 {image && (
-                  <div className="w-12 h-12 rounded-lg relative overflow-hidden flex-shrink-0 border border-outline-variant/30">
+                  <div className="w-12 h-12 rounded-lg relative overflow-hidden flex-shrink-0" style={{ border: '1px solid var(--cp-border)' }}>
                     <img src={image} alt="Preview" className="w-full h-full object-cover" />
                   </div>
                 )}
@@ -314,9 +318,9 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
             </div>
           </div>
 
-          <div className="border-t border-outline-variant/30 pt-6">
-            <label className="block text-sm font-semibold text-on-surface mb-2">Event Location</label>
-            <p className="text-xs text-on-surface-variant mb-4">Current location: {locationName}</p>
+          <div className="pt-6" style={{ borderTop: '1px solid var(--cp-border)' }}>
+            <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--cp-text-1)' }}>Event Location</label>
+            <p className="text-xs mb-4" style={{ color: 'var(--cp-text-3)' }}>Current location: {locationName}</p>
             <LocationPickerWrapper 
               onLocationSelect={(loc) => {
                 setLocationName(loc.name);
@@ -326,11 +330,11 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
             />
           </div>
 
-          <div className="border-t border-outline-variant/30 pt-6">
+          <div className="pt-6" style={{ borderTop: '1px solid var(--cp-border)' }}>
             <button 
               type="submit" 
               disabled={saving || !user} 
-              className="w-full bg-primary text-on-primary px-8 py-3 rounded-xl font-semibold shadow-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary-container hover:text-on-primary-container transition-colors"
+              className="btn-primary w-full"
             >
               {saving ? 'Saving Changes...' : 'Save Changes'}
             </button>

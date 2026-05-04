@@ -50,7 +50,7 @@ export default function ScanPage({ params }: { params: Promise<{ id: string }> }
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-[50vh]">
-        <div className="w-12 h-12 border-4 border-black border-t-transparent animate-spin" />
+        <div className="w-12 h-12 rounded-full animate-spin" style={{ border: '3px solid var(--cp-border)', borderTopColor: 'var(--cp-primary)' }} />
       </div>
     );
   }
@@ -62,62 +62,83 @@ export default function ScanPage({ params }: { params: Promise<{ id: string }> }
 
   return (
     <main className="flex-1 p-4 md:p-10 max-w-3xl mx-auto w-full pb-28 md:pb-10">
-      <button onClick={() => router.push(`/dashboard/event/${eventId}`)} className="flex items-center gap-2 px-4 py-2.5 font-label font-bold text-sm uppercase tracking-wider border-4 border-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all text-on-surface mb-6" style={{ background: 'var(--color-surface-container-base)' }}>
-        <ArrowLeft size={18} /> Back to Event Dashboard
+      <button onClick={() => router.push(`/dashboard/event/${eventId}`)} className="btn-secondary mb-6">
+        <ArrowLeft size={16} /> Back to Event Dashboard
       </button>
 
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 flex items-center justify-center border-4 border-black" style={{ background: 'var(--color-primary-container-base)' }}>
-            <QrCode size={22} />
+          <div
+            className="w-10 h-10 flex items-center justify-center rounded-xl"
+            style={{ background: 'linear-gradient(135deg, var(--cp-primary), var(--cp-violet))' }}
+          >
+            <QrCode size={20} className="text-white" />
           </div>
           <div>
-            <h1 className="text-2xl md:text-4xl font-headline font-black uppercase tracking-tight text-on-surface">QR Check-in</h1>
-            <p className="text-on-surface-variant text-sm font-label font-bold uppercase tracking-wider">{event.title}</p>
+            <h1 className="text-2xl md:text-4xl font-headline font-bold tracking-tight" style={{ color: 'var(--cp-text-1)' }}>QR Check-in</h1>
+            <p className="text-sm font-semibold" style={{ color: 'var(--cp-text-3)' }}>{event.title}</p>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-8">
-        <div className="p-5 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" style={{ background: 'var(--color-primary-container-base)' }}>
+        <div
+          className="p-5 rounded-xl"
+          style={{ background: 'var(--cp-surface)', border: '1.5px solid var(--cp-border)', boxShadow: 'var(--shadow-sm)' }}
+        >
           <div className="flex items-center gap-2 mb-2">
-            <Users size={18} />
-            <span className="text-[10px] font-label font-black uppercase tracking-wider text-on-surface">Total Volunteers</span>
+            <Users size={16} style={{ color: 'var(--cp-primary)' }} />
+            <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--cp-text-2)' }}>Total Volunteers</span>
           </div>
-          <p className="text-3xl font-headline font-black text-on-surface">{totalVolunteers}</p>
+          <p className="text-3xl font-headline font-bold" style={{ color: 'var(--cp-text-1)' }}>{totalVolunteers}</p>
         </div>
-        <div className="p-5 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" style={{ background: 'var(--color-tertiary-container-base)' }}>
+        <div
+          className="p-5 rounded-xl"
+          style={{ background: 'var(--cp-surface)', border: '1.5px solid var(--cp-border)', boxShadow: 'var(--shadow-sm)' }}
+        >
           <div className="flex items-center gap-2 mb-2">
-            <CheckCircle size={18} />
-            <span className="text-[10px] font-label font-black uppercase tracking-wider text-on-surface">Checked In</span>
+            <CheckCircle size={16} style={{ color: 'hsl(140 70% 45%)' }} />
+            <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--cp-text-2)' }}>Checked In</span>
           </div>
-          <p className="text-3xl font-headline font-black text-on-surface">{checkedInCount} <span className="text-sm font-normal text-on-surface-variant">({checkInProgress}%)</span></p>
+          <p className="text-3xl font-headline font-bold" style={{ color: 'var(--cp-text-1)' }}>{checkedInCount} <span className="text-sm font-normal" style={{ color: 'var(--cp-text-3)' }}>({checkInProgress}%)</span></p>
         </div>
       </div>
 
       <div className="mb-8">
-        <div className="w-full h-4 overflow-hidden border-4 border-black" style={{ background: 'var(--color-surface-container-base)' }}>
-          <div className="h-full transition-all duration-1000 ease-out" style={{ width: `${checkInProgress}%`, background: 'var(--color-on-primary-container-base)' }} />
+        <div
+          className="w-full h-3 overflow-hidden rounded-full"
+          style={{ background: 'var(--cp-surface-dim)', border: '1px solid var(--cp-border)' }}
+        >
+          <div
+            className="h-full transition-all duration-1000 ease-out rounded-full"
+            style={{ width: `${checkInProgress}%`, background: 'var(--cp-primary)' }}
+          />
         </div>
       </div>
 
       <ScannerView eventId={eventId} onScanSuccess={handleScanSuccess} />
 
       {volunteers.filter(v => v.attended).length > 0 && (
-        <div className="mt-8 overflow-hidden border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" style={{ background: 'var(--color-surface-container-lowest-base)' }}>
-          <div className="p-5 border-b-4 border-black" style={{ background: 'var(--color-secondary-container-base)' }}>
-            <h3 className="font-headline font-black text-base uppercase tracking-tight text-on-surface flex items-center gap-2">
-              <CheckCircle size={20} /> Recently Checked In
+        <div
+          className="mt-8 overflow-hidden rounded-2xl"
+          style={{ background: 'var(--cp-surface)', border: '1.5px solid var(--cp-border)', boxShadow: 'var(--shadow-md)' }}
+        >
+          <div className="p-5" style={{ borderBottom: '1px solid var(--cp-border)', background: 'hsl(140 70% 45% / 0.06)' }}>
+            <h3 className="font-headline font-bold text-base tracking-tight flex items-center gap-2" style={{ color: 'var(--cp-text-1)' }}>
+              <CheckCircle size={18} style={{ color: 'hsl(140 70% 45%)' }} /> Recently Checked In
             </h3>
           </div>
-          <div className="divide-y-2 divide-black">
+          <div className="divide-y" style={{ borderColor: 'var(--cp-border)' }}>
             {volunteers.filter(v => v.attended).slice(0, 10).map(vol => (
               <div key={vol.id} className="flex items-center gap-3 px-5 py-3">
-                <div className="w-8 h-8 flex items-center justify-center font-black text-xs border-2 border-black" style={{ background: 'var(--color-primary-container-base)' }}>
+                <div
+                  className="w-8 h-8 flex items-center justify-center font-bold text-xs text-white rounded-lg"
+                  style={{ background: 'linear-gradient(135deg, var(--cp-primary), var(--cp-violet))' }}
+                >
                   {vol.userName.charAt(0).toUpperCase()}
                 </div>
-                <p className="flex-1 text-sm font-body font-bold text-on-surface">{vol.userName}</p>
-                <span className="material-symbols-outlined text-lg" style={{ color: 'var(--color-primary-base)', fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                <p className="flex-1 text-sm font-semibold" style={{ color: 'var(--cp-text-1)' }}>{vol.userName}</p>
+                <CheckCircle size={18} style={{ color: 'hsl(140 70% 45%)' }} />
               </div>
             ))}
           </div>
