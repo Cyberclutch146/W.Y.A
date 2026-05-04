@@ -4,10 +4,9 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { 
   User as FirebaseUser, 
   onAuthStateChanged, 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
-  signInAnonymously,
   GoogleAuthProvider,
   signInWithPopup
 } from 'firebase/auth';
@@ -19,9 +18,8 @@ interface AuthContextType {
   user: FirebaseUser | null;
   profile: UserProfile | null;
   loading: boolean;
-  login: (email: string, pass: string) => Promise<void>;
+  login: (email: string, pass: string) => Promise<FirebaseUser>;
   register: (email: string, pass: string) => Promise<FirebaseUser>;
-  loginAnonymously: () => Promise<void>;
   loginWithGoogle: () => Promise<FirebaseUser>;
   logout: () => Promise<void>;
 }
@@ -36,16 +34,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     let unsubscribeProfile: (() => void) | undefined;
 
-    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
-      setUser(user);
-      if (user) {
-        unsubscribeProfile = subscribeToUserProfile(user.uid, async (userProfile) => {
+    const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
+      // Reject anonymous sessions immediately
+      if (firebaseUser?.isAnonymous) {
+        await firebaseSignOut(auth);
+        return;
+      }
+
+      setUser(firebaseUser);
+
+      if (firebaseUser) {
+        unsubscribeProfile = subscribeToUserProfile(firebaseUser.uid, async (userProfile) => {
           if (!userProfile) {
-            // Hotfix: Auto-create a missing profile if the user account exists
             const { createUserProfile } = await import('@/services/userService');
-            await createUserProfile(user.uid, {
-              email: user.email || '',
-              displayName: user.displayName || 'Student',
+            await createUserProfile(firebaseUser.uid, {
+              email: firebaseUser.email || '',
+              displayName: firebaseUser.displayName || 'Student',
               bio: '',
               location: '',
               phone: '',
@@ -53,7 +57,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               equipment: [],
               travelRadius: 0,
               availability: 'anytime',
-              avatarUrl: '',
+              avatarUrl: firebaseUser.photoURL || '',
               role: 'student',
               volunteerHours: 0,
               totalDonated: 0,
@@ -77,38 +81,32 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         });
       } else {
         setProfile(null);
-        if (unsubscribeProfile) {
-          unsubscribeProfile();
-        }
+        if (unsubscribeProfile) unsubscribeProfile();
         setLoading(false);
       }
     });
 
     return () => {
       unsubscribeAuth();
-      if (unsubscribeProfile) {
-        unsubscribeProfile();
-      }
+      if (unsubscribeProfile) unsubscribeProfile();
     };
   }, []);
 
   const login = async (email: string, pass: string) => {
-    await signInWithEmailAndPassword(auth, email, pass);
+    const cred = await signInWithEmailAndPassword(auth, email, pass);
+    return cred.user;
   };
 
   const register = async (email: string, pass: string) => {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-    return userCredential.user;
-  };
-
-  const loginAnonymously = async () => {
-    await signInAnonymously(auth);
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    return cred.user;
   };
 
   const loginWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
-    const userCredential = await signInWithPopup(auth, provider);
-    return userCredential.user;
+    provider.setCustomParameters({ prompt: 'select_account' });
+    const cred = await signInWithPopup(auth, provider);
+    return cred.user;
   };
 
   const logout = async () => {
@@ -116,7 +114,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, login, register, loginAnonymously, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, profile, loading, login, register, loginWithGoogle, logout }}>
       {children}
     </AuthContext.Provider>
   );

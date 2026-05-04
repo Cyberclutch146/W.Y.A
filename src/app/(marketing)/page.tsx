@@ -44,7 +44,7 @@ const TESTIMONIALS = [
 ];
 
 export default function LandingPage() {
-  const { user, loading, loginAnonymously, loginWithGoogle } = useAuth();
+  const { user, loading, loginWithGoogle } = useAuth();
   const router = useRouter();
   const { resolvedTheme } = useTheme();
   const [authLoading, setAuthLoading] = useState(false);
@@ -59,10 +59,7 @@ export default function LandingPage() {
 
   const handleJoinUs = async (e: React.MouseEvent) => {
     if (user) { router.push('/home'); return; }
-    e.preventDefault();
-    setAuthLoading(true);
-    try { await loginAnonymously(); router.push('/home'); }
-    catch (err) { console.error('Failed to login anonymously:', err); setAuthLoading(false); }
+    router.push('/register');
   };
 
   const handleGoogleJoin = async () => {
@@ -179,7 +176,7 @@ export default function LandingPage() {
           </motion.div>
 
           {/* ─── Hero Visual (swap component to try different options) ─── */}
-          <HeroVisual />
+          <HeroVisualSwitcher />
         </div>
       </section>
 
@@ -788,3 +785,424 @@ function HeroVisual() {
     </div>
   );
 }
+
+function HeroVisualCalendar() {
+  const [events, setEvents] = useState<CommunityEvent[]>([]);
+  const router = useRouter();
+
+  useEffect(() => {
+    getEvents(4).then(({ events: evs }) => { if (evs?.length) setEvents(evs.slice(0, 4)); }).catch(() => {});
+  }, []);
+
+  const typeColors = ['primary', 'accent', 'secondary', 'violet'];
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  const displayEvents = events.length > 0 ? events : [
+    { id:'1', title:'Tech Summit', eventDate: new Date().toISOString(), location:'Main Hall', category:'Tech Talk' },
+    { id:'2', title:'Hackathon Kick-off', eventDate: new Date(Date.now()+86400000).toISOString(), location:'Lab Block', category:'Hackathon' },
+    { id:'3', title:'Music & Arts Fest', eventDate: new Date(Date.now()+172800000).toISOString(), location:'Open Stage', category:'Concert' },
+    { id:'4', title:'Career Fair', eventDate: new Date(Date.now()+259200000).toISOString(), location:'Convention Ctr', category:'Career Fair' },
+  ] as unknown as CommunityEvent[];
+
+  return (
+    <div className="hidden lg:flex relative w-full items-center justify-center" style={{ minHeight: 520 }}>
+      <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 65% 60% at 55% 45%, hsl(from var(--cp-primary) h s l / 0.1), transparent 70%)" }} />
+      <motion.div
+        initial={{ opacity: 0, y: 30, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1, ...float(-5, 5) }}
+        transition={{ duration: 0.9, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+        className="relative z-30 w-[360px] rounded-2xl overflow-hidden"
+        style={{ background: "var(--cp-surface)", border: "1px solid var(--cp-border)", boxShadow: "0 8px 40px -8px rgba(0,0,0,0.2), 0 0 80px -20px hsl(from var(--cp-primary) h s l / 0.15)" }}
+      >
+        {/* Header */}
+        <div className="px-5 pt-5 pb-4 flex justify-between items-center" style={{ borderBottom: '1px solid var(--cp-border)' }}>
+          <div>
+            <div className="text-[10px] uppercase tracking-widest font-semibold mb-0.5" style={{ color: 'var(--cp-text-3)' }}>Upcoming</div>
+            <h3 className="font-headline text-xl font-bold">Campus Events</h3>
+          </div>
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'var(--cp-primary-light)' }}>
+            <Calendar size={17} style={{ color: 'var(--cp-primary)' }} />
+          </div>
+        </div>
+
+        {/* Event rows */}
+        <div className="divide-y" style={{ borderColor: 'var(--cp-border)' }}>
+          {displayEvents.map((ev, i) => {
+            const d = ev.eventDate ? new Date(ev.eventDate) : new Date(Date.now() + i * 86400000);
+            const color = typeColors[i % typeColors.length];
+            return (
+              <motion.div
+                key={ev.id}
+                initial={{ opacity: 0, x: 16 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 + i * 0.1 }}
+                className="flex gap-4 items-center px-5 py-3.5 cursor-pointer group"
+                style={{ transition: 'background 0.15s' }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'var(--cp-surface-dim)')}
+                onMouseLeave={e => (e.currentTarget.style.background = '')}
+                onClick={() => router.push('/home')}
+              >
+                {/* Date block */}
+                <div className="flex flex-col items-center justify-center w-12 h-12 rounded-xl shrink-0" style={{ background: `var(--cp-${color}-light)`, color: `var(--cp-${color})` }}>
+                  <span className="text-[9px] uppercase font-bold leading-none">{days[d.getDay()]}</span>
+                  <span className="text-2xl font-black leading-tight">{d.getDate()}</span>
+                </div>
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-semibold text-sm leading-snug truncate" style={{ color: 'var(--cp-text-1)' }}>{ev.title}</h4>
+                  <div className="flex items-center gap-1.5 mt-0.5 text-[10px]" style={{ color: 'var(--cp-text-3)' }}>
+                    <MapPin size={9} />
+                    <span className="truncate">{ev.location || 'Campus'}</span>
+                  </div>
+                </div>
+                {/* Category pill */}
+                <div className="shrink-0 px-2 py-0.5 rounded-full text-[9px] font-bold" style={{ background: `var(--cp-${color}-light)`, color: `var(--cp-${color})` }}>
+                  {(ev.category || 'Event').toString().split(' ')[0]}
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {/* Footer CTA */}
+        <div className="px-5 py-4 flex items-center justify-between" style={{ borderTop: '1px solid var(--cp-border)' }}>
+          <span className="text-[11px]" style={{ color: 'var(--cp-text-3)' }}>+{events.length > 4 ? events.length - 4 : '24'} more events this week</span>
+          <button onClick={() => router.push('/home')} className="flex items-center gap-1 text-[11px] font-bold" style={{ color: 'var(--cp-primary)' }}>
+            See all <ChevronRight size={13} />
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function HeroVisualSocial() {
+  return (
+    <div className="hidden lg:flex relative w-full items-center justify-center" style={{ minHeight: 520 }}>
+      <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 65% 60% at 55% 45%, hsl(from var(--cp-secondary) h s l / 0.1), transparent 70%)" }} />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1, ...float(-5, 6) }}
+        className="relative z-30 w-[320px] rounded-2xl glass-panel p-5"
+        style={{ background: "var(--cp-surface)", border: "1px solid var(--cp-border)", boxShadow: "var(--shadow-xl)" }}
+      >
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-primary to-accent p-[2px]">
+            <img src="https://i.pravatar.cc/100?img=47" className="w-full h-full rounded-full border-2 border-surface object-cover" alt="" />
+          </div>
+          <div>
+            <div className="text-sm font-bold">Campus Life Updates</div>
+            <div className="text-xs text-on-surface-variant">@campus_pulse</div>
+          </div>
+        </div>
+        <div className="w-full h-40 rounded-xl mb-4 overflow-hidden relative">
+          <img src="/chaotic_collage_bg.png" className="w-full h-full object-cover" alt="" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-3">
+            <span className="text-white font-bold text-sm">Fest registrations open! 🔥</span>
+          </div>
+        </div>
+        <div className="flex justify-between items-center text-sm font-medium" style={{ color: 'var(--cp-text-3)' }}>
+          <span className="flex items-center gap-1"><Users size={14}/> 1.2k attending</span>
+          <button className="btn-primary px-4 py-2 text-[10px]">RSVP</button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function HeroVisualMusic() {
+  return (
+    <div className="hidden lg:flex relative w-full items-center justify-center" style={{ minHeight: 520 }}>
+      <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 65% 60% at 55% 45%, hsl(from var(--cp-violet) h s l / 0.15), transparent 70%)" }} />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
+        animate={{ opacity: 1, scale: 1, rotate: 0, ...float(-4, 4) }}
+        className="relative z-30 w-[320px] rounded-2xl glass-panel p-5 overflow-hidden"
+        style={{ background: "var(--cp-surface)", border: "1px solid var(--cp-border)", boxShadow: "var(--shadow-xl)" }}
+      >
+        <div className="w-full h-32 rounded-xl mb-4 relative overflow-hidden flex items-center justify-center bg-zinc-900">
+           <motion.div animate={{ scale: [1, 1.1, 1], rotate: [0, 180, 360] }} transition={{ duration: 10, repeat: Infinity, ease: "linear" }} className="w-20 h-20 rounded-full bg-gradient-to-tr from-violet-500 to-pink-500 blur-xl opacity-50" />
+           <div className="absolute inset-0 flex items-center justify-center">
+             <div className="w-16 h-16 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center border border-white/10">
+               <div className="w-6 h-6 border-t-2 border-r-2 border-transparent border-l-white border-b-transparent translate-x-1 rotate-45" />
+             </div>
+           </div>
+        </div>
+        <div className="text-center mb-4">
+          <div className="text-sm font-bold uppercase tracking-wider text-violet-500 mb-1">Live DJ Set</div>
+          <h3 className="font-headline text-xl font-bold mb-1">Neon Nights</h3>
+          <p className="text-xs text-on-surface-variant">EDM Society • Main Stage</p>
+        </div>
+        <div className="flex gap-2">
+           <button className="flex-1 btn-primary py-2 text-xs">Join Stream</button>
+           <button className="w-10 h-10 rounded-lg flex items-center justify-center bg-surface-dim border border-border"><Star size={16} /></button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function HeroVisualHackathon() {
+  return (
+    <div className="hidden lg:flex relative w-full items-center justify-center" style={{ minHeight: 520 }}>
+      <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 65% 60% at 55% 45%, hsl(from var(--cp-cyan) h s l / 0.1), transparent 70%)" }} />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0, ...float(-5, 5) }}
+        className="relative z-30 w-[360px] rounded-2xl glass-panel p-6 font-mono"
+        style={{ background: "var(--cp-surface)", border: "1px solid var(--cp-border)", boxShadow: "var(--shadow-xl)" }}
+      >
+        <div className="flex justify-between items-start mb-6">
+          <div>
+            <div className="text-cyan-500 text-xs font-bold mb-1">{">"} SYSTEM.ONLINE</div>
+            <h3 className="font-headline text-2xl font-black uppercase tracking-tighter">HackX 2025</h3>
+          </div>
+          <div className="text-right">
+            <div className="text-[10px] text-on-surface-variant uppercase">Time Remaining</div>
+            <div className="text-xl font-bold tracking-widest">14:02:59</div>
+          </div>
+        </div>
+        
+        <div className="space-y-3 mb-6">
+           <div className="bg-surface-dim rounded border border-border p-3 text-xs">
+              <span className="text-cyan-500">const</span> <span className="text-pink-500">team</span> = [<span className="text-green-500">'frontend'</span>, <span className="text-green-500">'backend'</span>];<br/>
+              <span className="text-cyan-500">await</span> team.build();
+           </div>
+        </div>
+
+        <div className="flex justify-between items-center border-t border-border pt-4">
+          <div className="flex -space-x-2">
+             <div className="w-8 h-8 rounded-full bg-cyan-500 border-2 border-surface"></div>
+             <div className="w-8 h-8 rounded-full bg-violet-500 border-2 border-surface"></div>
+             <div className="w-8 h-8 rounded-full bg-pink-500 border-2 border-surface"></div>
+          </div>
+          <button className="bg-cyan-500 text-black font-bold uppercase text-xs px-4 py-2 hover:bg-cyan-400 transition-colors">
+            Submit Project
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function HeroVisualSwitcher() {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const variants = [
+    { component: <HeroVisual />, label: "Card" },
+    { component: <HeroVisualCalendar />, label: "Calendar" },
+    { component: <HeroVisualRadar />, label: "Activity" },
+    { component: <HeroVisualIsometric />, label: "Tickets" },
+  ];
+
+
+  return (
+    <div className="w-full flex flex-col items-center">
+      <div className="w-full h-[520px] relative flex items-center justify-center">
+        {variants[activeIndex].component}
+      </div>
+      <div className="flex flex-wrap justify-center gap-2 mt-4 bg-surface/50 backdrop-blur-md p-2 rounded-full border border-border">
+        {variants.map((v, i) => (
+          <button 
+            key={i} 
+            onClick={() => setActiveIndex(i)}
+            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${activeIndex === i ? 'bg-primary text-primary-foreground' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-dim'}`}
+          >
+            {v.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function HeroVisualRadar() {
+  const [events, setEvents] = useState<CommunityEvent[]>([]);
+  const [tick, setTick] = useState(0);
+  const router = useRouter();
+
+  useEffect(() => {
+    getEvents(8).then(({ events: evs }) => { if (evs?.length) setEvents(evs); }).catch(() => {});
+    const id = setInterval(() => setTick(t => t + 1), 3000);
+    return () => clearInterval(id);
+  }, []);
+
+  const fallback: Partial<CommunityEvent>[] = [
+    { id:'a', title:'Hackathon Kick-off', category:'Hackathon', location:'Lab Block', needs:{ volunteers:{ current:38, goal:60 } } },
+    { id:'b', title:'Music Fest', category:'Concert', location:'Open Stage', needs:{ volunteers:{ current:210, goal:300 } } },
+    { id:'c', title:'Tech Summit', category:'Tech Talk', location:'Main Hall', needs:{ volunteers:{ current:92, goal:120 } } },
+    { id:'d', title:'Art & Design Expo', category:'Cultural Fest', location:'Gallery Wing', needs:{ volunteers:{ current:44, goal:80 } } },
+    { id:'e', title:'Career Fair', category:'Career Fair', location:'Convention Ctr', needs:{ volunteers:{ current:175, goal:200 } } },
+  ];
+  const display = (events.length > 0 ? events : fallback).slice(0, 5) as CommunityEvent[];
+
+  const categoryIcon = (cat: string) => {
+    if (!cat) return <Zap size={14} />;
+    if (cat.includes('Hack')) return <Trophy size={14} />;
+    if (cat.includes('Concert') || cat.includes('Music')) return <Star size={14} />;
+    if (cat.includes('Career')) return <TrendingUp size={14} />;
+    if (cat.includes('Sport')) return <Flame size={14} />;
+    return <Sparkles size={14} />;
+  };
+
+  return (
+    <div className="hidden lg:flex relative w-full items-center justify-center" style={{ minHeight: 520 }}>
+      <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 65% 60% at 55% 45%, hsl(from var(--cp-accent) h s l / 0.08), transparent 70%)" }} />
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className="relative z-30 w-[380px] rounded-2xl overflow-hidden"
+        style={{ background: "var(--cp-surface)", border: "1px solid var(--cp-border)", boxShadow: "0 8px 40px -8px rgba(0,0,0,0.2)" }}
+      >
+        {/* Header */}
+        <div className="px-5 pt-5 pb-4 flex items-center justify-between" style={{ borderBottom: '1px solid var(--cp-border)' }}>
+          <div className="flex items-center gap-2">
+            <span className="flex h-2 w-2"><span className="animate-ping absolute h-2 w-2 rounded-full opacity-75" style={{ background: 'var(--cp-secondary)' }} /><span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: 'var(--cp-secondary)' }} /></span>
+            <span className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--cp-text-3)' }}>Live Activity</span>
+          </div>
+          <span className="text-[10px] px-2 py-0.5 rounded-full font-bold" style={{ background: 'var(--cp-secondary-light)', color: 'var(--cp-secondary)' }}>{display.length} events active</span>
+        </div>
+
+        {/* Feed */}
+        <div className="divide-y" style={{ borderColor: 'var(--cp-border)' }}>
+          {display.map((ev, i) => {
+            const current = ev.needs?.volunteers?.current ?? 0;
+            const goal = ev.needs?.volunteers?.goal ?? 100;
+            const pct = Math.min(100, Math.round((current / goal) * 100));
+            const isHot = pct > 70;
+            return (
+              <motion.div
+                key={ev.id}
+                initial={{ opacity: 0, x: -12 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.08 }}
+                onClick={() => router.push('/home')}
+                className="flex items-center gap-3 px-5 py-3 cursor-pointer"
+                style={{ transition: 'background 0.15s' }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'var(--cp-surface-dim)')}
+                onMouseLeave={e => (e.currentTarget.style.background = '')}
+              >
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'var(--cp-primary-light)', color: 'var(--cp-primary)' }}>
+                  {categoryIcon(ev.category as string)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <span className="font-semibold text-sm truncate" style={{ color: 'var(--cp-text-1)' }}>{ev.title}</span>
+                    {isHot && <Flame size={11} style={{ color: 'var(--cp-orange)', flexShrink: 0 }} />}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: 'var(--cp-surface-dim)' }}>
+                      <motion.div className="h-full rounded-full" style={{ background: 'linear-gradient(90deg, var(--cp-primary), var(--cp-accent))' }}
+                        initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 1, delay: 0.3 + i * 0.08 }}
+                      />
+                    </div>
+                    <span className="text-[10px] font-bold shrink-0" style={{ color: 'var(--cp-text-3)' }}>{current}/{goal}</span>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        <div className="px-5 py-3.5 flex items-center justify-between" style={{ borderTop: '1px solid var(--cp-border)' }}>
+          <span className="text-[11px]" style={{ color: 'var(--cp-text-3)' }}>Updated just now</span>
+          <button onClick={() => router.push('/home')} className="flex items-center gap-1 text-[11px] font-bold" style={{ color: 'var(--cp-primary)' }}>Explore all <ChevronRight size={13} /></button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function HeroVisualIsometric() {
+  const [events, setEvents] = useState<CommunityEvent[]>([]);
+  const [active, setActive] = useState(0);
+  const router = useRouter();
+
+  useEffect(() => {
+    getEvents(3).then(({ events: evs }) => { if (evs?.length) setEvents(evs.slice(0, 3)); }).catch(() => {});
+  }, []);
+
+  const fallback: Partial<CommunityEvent>[] = [
+    { id:'x', title:'Spring Music Festival', category:'Concert', location:'Main Campus Square', needs:{ volunteers:{ current:210, goal:300 } }, tags:['open to all'] },
+    { id:'y', title:'National Hackathon', category:'Hackathon', location:'Innovation Hub', needs:{ volunteers:{ current:38, goal:60 } }, tags:['registration required'] },
+    { id:'z', title:'Career Connect Fair', category:'Career Fair', location:'Convention Centre', needs:{ volunteers:{ current:92, goal:120 } }, tags:['bring resume'] },
+  ];
+  const cards = (events.length > 0 ? events : fallback) as CommunityEvent[];
+  const ev = cards[active];
+  const current = ev?.needs?.volunteers?.current ?? 0;
+  const goal = ev?.needs?.volunteers?.goal ?? 100;
+  const pct = Math.min(100, Math.round((current / goal) * 100));
+  const gradients = [
+    'linear-gradient(135deg, var(--cp-primary), var(--cp-accent))',
+    'linear-gradient(135deg, var(--cp-violet), var(--cp-primary))',
+    'linear-gradient(135deg, var(--cp-secondary), var(--cp-accent))',
+  ];
+
+  return (
+    <div className="hidden lg:flex relative w-full items-center justify-center" style={{ minHeight: 520 }}>
+      <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 65% 60% at 55% 45%, hsl(from var(--cp-primary) h s l / 0.1), transparent 70%)" }} />
+
+      {/* Background fan cards */}
+      {cards.map((_, i) => i !== active && (
+        <motion.div key={i} className="absolute w-[280px] rounded-3xl shadow-xl cursor-pointer"
+          style={{ height: 380, background: 'var(--cp-surface)', border: '1px solid var(--cp-border)',
+            rotate: i < active ? -18 : 18, x: i < active ? -80 : 80, y: 30, zIndex: 1, originY: 1 }}
+          onClick={() => setActive(i)}
+          whileHover={{ y: 20, scale: 1.02 }}
+          transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+        >
+          <div className="h-1 w-full rounded-t-3xl" style={{ background: gradients[i % gradients.length] }} />
+          <div className="p-5 pt-4">
+            <div className="text-xs font-semibold truncate" style={{ color: 'var(--cp-text-3)' }}>{cards[i]?.title}</div>
+          </div>
+        </motion.div>
+      ))}
+
+      {/* Front card */}
+      <motion.div
+        key={active}
+        initial={{ scale: 0.9, y: 20, opacity: 0 }}
+        animate={{ scale: 1, y: 0, opacity: 1, ...float(-6, 5) }}
+        transition={{ duration: 0.6, type: 'spring', bounce: 0.35 }}
+        className="relative z-10 w-[300px] rounded-3xl overflow-hidden shadow-2xl"
+        style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)' }}
+      >
+        {/* Gradient header */}
+        <div className="h-36 relative" style={{ background: gradients[active % gradients.length] }}>
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, var(--cp-surface) 0%, transparent 50%)' }} />
+          <div className="absolute top-4 left-4 px-2.5 py-1 rounded-full text-[10px] font-bold bg-black/20 text-white backdrop-blur-sm">
+            {ev?.category || 'Event'}
+          </div>
+          <div className="absolute bottom-3 right-4 flex items-center gap-1 text-white/80 text-[11px]">
+            <MapPin size={10} />{ev?.location || 'Campus'}
+          </div>
+        </div>
+
+        <div className="px-5 pb-5 pt-2">
+          <h3 className="font-headline font-bold text-xl leading-snug mb-1" style={{ color: 'var(--cp-text-1)' }}>{ev?.title || 'Campus Event'}</h3>
+          <div className="text-[11px] mb-4" style={{ color: 'var(--cp-text-3)' }}>{(ev?.tags || ['Open to all'])[0]}</div>
+
+          {/* Progress */}
+          <div className="mb-4">
+            <div className="flex justify-between text-[10px] mb-1.5" style={{ color: 'var(--cp-text-3)' }}>
+              <span>Spots filled</span><span className="font-bold" style={{ color: 'var(--cp-primary)' }}>{current}/{goal}</span>
+            </div>
+            <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--cp-surface-dim)' }}>
+              <motion.div className="h-full rounded-full" style={{ background: gradients[active % gradients.length] }}
+                initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 1.2, ease: [0.16,1,0.3,1] }}
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-2">
+            <button onClick={() => router.push('/home')} className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white" style={{ background: gradients[active % gradients.length] }}>RSVP Now</button>
+            <button onClick={() => setActive((active + 1) % cards.length)} className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: 'var(--cp-surface-dim)', color: 'var(--cp-text-1)' }}>
+              <ChevronRight size={18} />
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+

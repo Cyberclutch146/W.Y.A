@@ -12,7 +12,7 @@
 /* ─── LIGHT MODE ─── */
 :root {
   /* Core Palette */
-  --cp-bg:             hsl(240, 20%, 98%);
+  --cp-bg:             hsl(270, 30%, 95%);
   --cp-surface:        hsl(0, 0%, 100%);
   --cp-surface-dim:    hsl(240, 15%, 95%);
   --cp-surface-raised: hsl(0, 0%, 100%);
@@ -296,6 +296,16 @@ body {
 
 /* ─────────────────── UTILITY CLASSES ─────────────────── */
 @layer utilities {
+
+  /* ── Infinite Scrolling Slideshow ── */
+  @keyframes slideLeftInfinite {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  .animate-slide-left {
+    animation: slideLeftInfinite 60s linear infinite;
+  }
 
   /* ── Card System ── */
   .card-base {

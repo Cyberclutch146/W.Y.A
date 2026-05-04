@@ -10,6 +10,7 @@ import { getUserAvatar } from '@/lib/avatar';
 import { Department, AcademicYear } from '@/types';
 import { Camera, Loader2, MapPin, Clock, ArrowLeft, CheckCircle, Wrench, BarChart3, Heart, Sparkles, Compass, ChevronDown, Check, GraduationCap, BookOpen, User, AlignLeft, Award, X, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import LanyardBadge from '@/components/LanyardBadge';
 
 const SKILL_COLORS = [
   'hsl(from var(--cp-primary) h s l / 0.12)', 'hsl(from var(--cp-secondary) h s l / 0.12)',
@@ -402,7 +403,8 @@ export default function ProfilePage() {
           <div className="absolute -bottom-32 -left-32 w-80 h-80 rounded-full opacity-[0.08] blur-[100px]" style={{ background: 'var(--cp-accent)' }} />
         </div>
 
-        <div className="relative z-10 max-w-2xl mx-auto px-4 md:px-6 py-8 md:py-14">
+        <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6 py-8 md:py-14">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-10 items-start">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
 
             {/* Header */}
@@ -509,6 +511,28 @@ export default function ProfilePage() {
               </motion.div>
             </form>
           </motion.div>
+
+            {/* ── Live ID Card Preview ── */}
+            <motion.div
+              className="hidden lg:flex flex-col items-center sticky top-24 mt-[72px]"
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <div className="rounded-3xl p-8 pt-6 flex flex-col items-center w-full" style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: '0 8px 40px -8px rgba(0,0,0,0.12)' }}>
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-5" style={{ color: 'var(--cp-text-3)' }}>Live ID Preview</p>
+                <LanyardBadge
+                  fullName={displayName}
+                  email={user?.email || ''}
+                  department={department}
+                  year={year}
+                  avatarUrl={profile?.avatarUrl || ''}
+                  verified={!!profile?.profileComplete}
+                  size="full"
+                />
+              </div>
+            </motion.div>
+          </div>
         </div>
       </main>
     );

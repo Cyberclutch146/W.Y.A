@@ -2,7 +2,6 @@
 
 import { useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-
 import { useAuth } from '@/context/AuthContext'
 
 export default function AppAccessGate({ children }: { children: React.ReactNode }) {
@@ -14,7 +13,7 @@ export default function AppAccessGate({ children }: { children: React.ReactNode 
 
   useEffect(() => {
     if (!loading && !user && !isPublicAppRoute) {
-      router.replace('/')
+      router.replace('/login')
     }
   }, [isPublicAppRoute, loading, router, user])
 

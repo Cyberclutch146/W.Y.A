@@ -1,52 +1,41 @@
-import { NextRequest, NextResponse } from "next/server";
-import { adminDb } from "@/lib/firebase-admin";
+import { NextRequest, NextResponse } from 'next/server';
+import { adminDb, initError } from '@/lib/firebase-admin';
 
 export async function POST(req: NextRequest) {
+  if (!adminDb) {
+    console.error('[verify-otp] Firebase Admin not initialized:', initError);
+    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+  }
   try {
-    const { email, code } = await req.json();
-
-    if (!email || !code) {
-      return NextResponse.json({ error: "Email and verification code are required." }, { status: 400 });
+    const { email, otp } = await req.json();
+    if (!email || !otp) {
+      return NextResponse.json({ error: 'Email and OTP are required' }, { status: 400 });
     }
 
-    if (!adminDb) {
-      const { initError } = require("@/lib/firebase-admin");
-      return NextResponse.json(
-        { 
-          error: "Server configuration error: Firebase Admin not initialized.",
-          details: initError || "Unknown initialization failure."
-        },
-        { status: 500 }
-      );
+    const key = email.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    const doc = await adminDb.collection('_otps').doc(key).get();
+
+    if (!doc.exists) {
+      return NextResponse.json({ error: 'No OTP found. Please request a new one.' }, { status: 400 });
     }
 
-    const verificationRef = adminDb.collection("verifications").doc(email);
-    const verificationSnap = await verificationRef.get();
+    const data = doc.data()!;
 
-    if (!verificationSnap.exists) {
-      return NextResponse.json({ error: "No verification code found. Please request a new one." }, { status: 404 });
+    if (Date.now() > data.expiresAt) {
+      await adminDb.collection('_otps').doc(key).delete();
+      return NextResponse.json({ error: 'OTP has expired. Please request a new one.' }, { status: 400 });
     }
 
-    const data = verificationSnap.data()!;
-
-    // Check if the OTP has expired
-    const expiresAt = data.expiresAt?.toDate ? data.expiresAt.toDate() : new Date(data.expiresAt);
-    if (new Date() > expiresAt) {
-      await verificationRef.delete(); // Clean up expired OTP
-      return NextResponse.json({ error: "Verification code has expired. Please request a new one." }, { status: 410 });
+    if (data.otp !== otp.trim()) {
+      return NextResponse.json({ error: 'Incorrect code. Please try again.' }, { status: 400 });
     }
 
-    // Check if the code matches
-    if (data.code !== code) {
-      return NextResponse.json({ error: "Invalid verification code." }, { status: 401 });
-    }
+    // Valid — delete OTP so it can't be reused
+    await adminDb.collection('_otps').doc(key).delete();
 
-    // Mark as verified and clean up
-    await verificationRef.update({ verified: true });
-
-    return NextResponse.json({ success: true, verified: true });
-  } catch (error: any) {
-    console.error("Verify OTP Error:", error);
-    return NextResponse.json({ error: error.message || "Verification failed." }, { status: 500 });
+    return NextResponse.json({ success: true });
+  } catch (err: any) {
+    console.error('[verify-otp]', err);
+    return NextResponse.json({ error: 'Verification failed' }, { status: 500 });
   }
 }
