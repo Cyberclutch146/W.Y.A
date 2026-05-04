@@ -7,7 +7,7 @@ import { updateUserProfile } from '@/services/userService';
 import { uploadImage } from '@/services/storageService';
 import { toast } from 'sonner';
 import { getUserAvatar } from '@/lib/avatar';
-import { Camera, Loader2, MapPin, Clock, ArrowLeft, CheckCircle, Wrench, BarChart3, Heart, Sparkles, Compass, ChevronDown, Check, GraduationCap, BookOpen } from 'lucide-react';
+import { Camera, Loader2, MapPin, Clock, ArrowLeft, CheckCircle, Wrench, BarChart3, Heart, Sparkles, Compass, ChevronDown, Check, GraduationCap, BookOpen, User, AlignLeft, Award, X, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const SKILL_COLORS = [
@@ -16,6 +16,28 @@ const SKILL_COLORS = [
   'hsl(from var(--cp-orange) h s l / 0.12)'
 ];
 const SKILL_TEXT_COLORS = ['var(--cp-primary)', 'var(--cp-secondary)', 'var(--cp-accent)', 'var(--cp-cyan)', 'var(--cp-orange)'];
+
+const SKILL_DATABASE = [
+  // Tech & Engineering
+  'React', 'Next.js', 'TypeScript', 'JavaScript', 'Python', 'Java', 'C++', 'Go', 'Rust', 'Node.js', 
+  'Express', 'Django', 'Flask', 'PostgreSQL', 'MongoDB', 'Firebase', 'AWS', 'Docker', 'Kubernetes', 
+  'Git', 'Tailwind CSS', 'CSS3', 'HTML5', 'Flutter', 'React Native', 'Android Dev', 'iOS Dev',
+  // Data & AI
+  'Machine Learning', 'Deep Learning', 'Data Science', 'Artificial Intelligence', 'SQL', 'R', 
+  'Pandas', 'NumPy', 'TensorFlow', 'PyTorch', 'Scikit-learn', 'Tableau', 'Power BI', 'Excel',
+  // Design & Creative
+  'UI/UX Design', 'Product Design', 'Figma', 'Adobe XD', 'Photoshop', 'Illustrator', 'Premiere Pro', 
+  'After Effects', 'Lightroom', 'Photography', 'Videography', 'Motion Graphics', 'Blender', '3D Modeling', 
+  'Canva', 'Graphic Design', 'Sketch',
+  // Marketing & Business
+  'Digital Marketing', 'Social Media Management', 'SEO', 'SEM', 'Content Writing', 'Copywriting', 
+  'Public Speaking', 'Leadership', 'Project Management', 'Agile', 'Scrum', 'Entrepreneurship', 
+  'Financial Analysis', 'Business Strategy', 'Marketing Research', 'Sales',
+  // Soft Skills & Campus
+  'Communication', 'Teamwork', 'Problem Solving', 'Critical Thinking', 'Time Management', 
+  'Event Planning', 'Volunteering', 'Community Organizing', 'Debate', 'Foreign Languages', 
+  'First Aid', 'Music Production', 'Guitar', 'Piano', 'Cooking', 'Fitness'
+].sort();
 
 interface CustomSelectProps {
   label: string;
@@ -92,7 +114,7 @@ function CustomSelect({ label, value, options, onChange, placeholder, icon }: Cu
                     onChange(opt);
                     setIsOpen(false);
                   }}
-                  className="w-full text-left px-4 py-3 rounded-xl text-sm font-semibold transition-all flex items-center justify-between group/item"
+                  className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold transition-all flex items-center justify-between ${value !== opt ? 'hover:bg-[var(--cp-surface-dim)]' : ''}`}
                   style={{
                     background: value === opt ? 'linear-gradient(135deg, var(--cp-primary), hsl(290,90%,60%))' : 'transparent',
                     color: value === opt ? 'white' : 'var(--cp-text-1)',
@@ -110,6 +132,152 @@ function CustomSelect({ label, value, options, onChange, placeholder, icon }: Cu
   );
 }
 
+function SkillTagInput({ value, onChange }: { value: string[]; onChange: (val: string[]) => void }) {
+  const [inputValue, setInputValue] = useState('');
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  const addTag = (tag: string) => {
+    const trimmed = tag.trim();
+    if (trimmed && !value.includes(trimmed)) {
+      onChange([...value, trimmed]);
+      setInputValue('');
+      setSuggestions([]);
+      setSelectedIndex(-1);
+    }
+  };
+
+  useEffect(() => {
+    if (inputValue.trim()) {
+      const filtered = SKILL_DATABASE.filter(
+        skill => skill.toLowerCase().includes(inputValue.toLowerCase()) && !value.includes(skill)
+      ).slice(0, 6);
+      setSuggestions(filtered);
+      setShowSuggestions(true);
+      setSelectedIndex(filtered.length > 0 ? 0 : -1);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+  }, [inputValue, value]);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (selectedIndex >= 0 && suggestions[selectedIndex]) {
+        addTag(suggestions[selectedIndex]);
+      } else {
+        addTag(inputValue);
+      }
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedIndex(prev => (prev < suggestions.length - 1 ? prev + 1 : prev));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIndex(prev => (prev > 0 ? prev - 1 : prev));
+    } else if (e.key === 'Escape') {
+      setShowSuggestions(false);
+    } else if (e.key === 'Backspace' && !inputValue && value.length > 0) {
+      onChange(value.slice(0, -1));
+    }
+  };
+
+  return (
+    <div className="space-y-3 relative" ref={containerRef}>
+      <div className="relative group">
+        <Award size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors z-10" style={{ color: 'var(--cp-text-3)' }} />
+        <input 
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onFocus={() => inputValue && setShowSuggestions(true)}
+          placeholder={value.length === 0 ? "Add skills (e.g. React, Figma...)" : "Add another..."}
+          className="input-base w-full h-[48px] pl-11 pr-12 text-sm font-medium rounded-xl transition-all focus:bg-surface"
+          style={{ background: 'var(--cp-surface-dim)', paddingLeft: '2.75rem' }}
+        />
+        <button 
+          type="button"
+          onClick={() => addTag(inputValue)}
+          className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:bg-primary/10 text-primary"
+        >
+          <Plus size={18} />
+        </button>
+
+        {/* Suggestions Dropdown */}
+        <AnimatePresence>
+          {showSuggestions && suggestions.length > 0 && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="absolute left-0 right-0 top-full mt-2 z-[100] rounded-2xl overflow-hidden shadow-xl glass-panel p-1.5"
+              style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)' }}
+            >
+              {suggestions.map((skill, idx) => (
+                <button
+                  key={skill}
+                  type="button"
+                  onClick={() => addTag(skill)}
+                  onMouseEnter={() => setSelectedIndex(idx)}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all text-left"
+                  style={{ 
+                    background: selectedIndex === idx ? 'var(--cp-surface-dim)' : 'transparent',
+                    color: selectedIndex === idx ? 'var(--cp-primary)' : 'var(--cp-text-2)'
+                  }}
+                >
+                  <Sparkles size={14} className={selectedIndex === idx ? 'text-primary' : 'text-text-3'} />
+                  {skill}
+                </button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+      
+      <div className="flex flex-wrap gap-2 min-h-[32px]">
+        <AnimatePresence mode="popLayout">
+          {value.map((tag, idx) => (
+            <motion.span
+              key={tag}
+              initial={{ opacity: 0, scale: 0.8, x: -10 }}
+              animate={{ opacity: 1, scale: 1, x: 0 }}
+              exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.15 } }}
+              layout
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all hover:scale-[1.03] hover:shadow-sm select-none"
+              style={{ 
+                background: SKILL_COLORS[idx % SKILL_COLORS.length], 
+                color: SKILL_TEXT_COLORS[idx % SKILL_TEXT_COLORS.length],
+                borderColor: `hsl(from ${SKILL_TEXT_COLORS[idx % SKILL_TEXT_COLORS.length]} h s l / 0.15)`
+              }}
+            >
+              {tag}
+              <button 
+                type="button" 
+                onClick={() => onChange(value.filter(t => t !== tag))}
+                className="p-0.5 rounded-full hover:bg-black/5 transition-colors"
+              >
+                <X size={12} />
+              </button>
+            </motion.span>
+          ))}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
 export default function ProfilePage() {
   const { user, profile } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
@@ -120,7 +288,7 @@ export default function ProfilePage() {
   const [displayName, setDisplayName] = useState('');
   const [bio, setBio] = useState('');
   const [location, setLocation] = useState('');
-  const [skills, setSkills] = useState('');
+  const [skills, setSkills] = useState<string[]>([]);
   const [department, setDepartment] = useState('');
   const [year, setYear] = useState('');
   const [availability, setAvailability] = useState('anytime');
@@ -130,7 +298,7 @@ export default function ProfilePage() {
       setDisplayName(profile.displayName || '');
       setBio(profile.bio || '');
       setLocation(profile.location || '');
-      setSkills(profile.skills ? profile.skills.join(', ') : '');
+      setSkills(profile.skills || []);
       setDepartment(profile.department || '');
       setYear(profile.year || '');
       setAvailability(profile.availability || 'anytime');
@@ -191,7 +359,7 @@ export default function ProfilePage() {
         displayName: displayName.trim(),
         bio: bio.trim(),
         location: location.trim(),
-        skills: skills.split(',').map(s => s.trim()).filter(Boolean),
+        skills: skills.map(s => s.trim()).filter(Boolean),
         department,
         year,
         availability,
@@ -226,132 +394,121 @@ export default function ProfilePage() {
 
   if (isEditing) {
     return (
-      <main className="flex-grow w-full max-w-2xl mx-auto px-4 md:px-6 py-6 md:py-12 pb-24 md:pb-12" style={{ color: 'var(--cp-text-1)' }}>
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}>
-          {/* Header */}
-          <div className="flex items-center gap-3 mb-8">
-            <button
-              onClick={() => setIsEditing(false)}
-              className="w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-105"
-              style={{ background: 'var(--cp-surface-dim)', border: '1px solid var(--cp-border)' }}
-              aria-label="Go back"
-            >
-              <ArrowLeft size={17} style={{ color: 'var(--cp-text-2)' }} />
-            </button>
-            <div>
-              <h1 className="font-headline font-bold text-2xl md:text-3xl" style={{ color: 'var(--cp-text-1)' }}>Edit Profile</h1>
-              <p className="text-sm" style={{ color: 'var(--cp-text-3)' }}>Keep your info current.</p>
-            </div>
-          </div>
+      <main className="flex-grow w-full relative min-h-screen overflow-hidden pb-28 md:pb-12" style={{ color: 'var(--cp-text-1)' }}>
+        {/* Ambient bg */}
+        <div className="fixed inset-0 pointer-events-none -z-10">
+          <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full opacity-[0.08] blur-[100px]" style={{ background: 'var(--cp-primary)' }} />
+          <div className="absolute -bottom-32 -left-32 w-80 h-80 rounded-full opacity-[0.08] blur-[100px]" style={{ background: 'var(--cp-accent)' }} />
+        </div>
 
-          <form onSubmit={handleSave} className="space-y-7 rounded-2xl p-6 md:p-8" style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-md)' }}>
-            {/* Photo */}
-            <div className="flex flex-col items-center sm:flex-row sm:items-start gap-8 pb-8" style={{ borderBottom: '1px solid var(--cp-border)' }}>
-              <div className="relative group">
-                <div className="w-32 h-32 rounded-full p-1 bg-gradient-to-tr from-[var(--cp-primary)] to-[var(--cp-accent)] shadow-glow transition-transform group-hover:scale-105">
-                  <div className="w-full h-full rounded-full overflow-hidden bg-surface relative border-4 border-surface">
-                    {uploadingImage ? (
-                      <div className="w-full h-full flex items-center justify-center" style={{ background: 'var(--cp-surface-dim)' }}>
-                        <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--cp-primary)' }} />
+        <div className="relative z-10 max-w-2xl mx-auto px-4 md:px-6 py-8 md:py-14">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
+
+            {/* Header */}
+            <div className="flex items-center gap-4 mb-8">
+              <button onClick={() => setIsEditing(false)} className="w-11 h-11 rounded-2xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 group" style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-sm)' }} aria-label="Go back" type="button">
+                <ArrowLeft size={18} className="transition-transform group-hover:-translate-x-0.5" style={{ color: 'var(--cp-text-2)' }} />
+              </button>
+              <div>
+                <h1 className="font-headline font-bold text-2xl md:text-3xl tracking-tight">Edit Profile</h1>
+                <p className="text-sm font-medium mt-0.5" style={{ color: 'var(--cp-text-3)' }}>Personalize your campus presence</p>
+              </div>
+            </div>
+
+            <form onSubmit={handleSave} className="space-y-5">
+
+              {/* ═══ CARD 1: Photo ═══ */}
+              <motion.div className="rounded-3xl p-6 md:p-8" style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: '0 4px 24px -4px rgba(0,0,0,0.06)' }} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+                <div className="flex flex-col items-center sm:flex-row sm:items-center gap-6">
+                  <div className="relative group shrink-0">
+                    <div className="w-28 h-28 md:w-32 md:h-32 rounded-full p-1 bg-gradient-to-tr from-[var(--cp-primary)] to-[var(--cp-accent)] shadow-glow transition-transform duration-500 group-hover:scale-[1.04]">
+                      <div className="w-full h-full rounded-full overflow-hidden relative border-[3px]" style={{ borderColor: 'var(--cp-surface)', background: 'var(--cp-surface-dim)' }}>
+                        {uploadingImage ? <div className="w-full h-full flex items-center justify-center"><Loader2 className="w-7 h-7 animate-spin" style={{ color: 'var(--cp-primary)' }} /></div> : <Image src={currentAvatar} alt={profile.displayName || 'User'} className="w-full h-full object-cover" fill />}
                       </div>
-                    ) : (
-                      <Image src={currentAvatar} alt={profile.displayName || 'User'} className="w-full h-full object-cover" fill />
-                    )}
+                    </div>
+                    <button type="button" onClick={() => fileInputRef.current?.click()} className="absolute -bottom-1 -right-1 w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95" style={{ background: 'linear-gradient(135deg, var(--cp-primary), hsl(290,90%,60%))', boxShadow: '0 6px 20px -4px hsl(from var(--cp-primary) h s l / 0.5)', border: '3px solid var(--cp-surface)' }}>
+                      <Camera size={15} className="text-white" />
+                    </button>
+                    <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleImageUpload} disabled={uploadingImage} />
+                  </div>
+                  <div className="text-center sm:text-left flex-1">
+                    <h2 className="font-headline font-bold text-lg mb-1">Profile Photo</h2>
+                    <p className="text-xs leading-relaxed mb-3" style={{ color: 'var(--cp-text-3)' }}>A recognizable photo helps others find you at events.</p>
+                    <div className="flex gap-2 justify-center sm:justify-start">
+                      <button type="button" onClick={() => fileInputRef.current?.click()} className="text-xs font-bold px-4 py-2 rounded-xl transition-all hover:opacity-80" style={{ color: 'var(--cp-primary)', background: 'var(--cp-primary-light)', border: '1px solid hsl(from var(--cp-primary) h s l / 0.15)' }}>Upload New</button>
+                      {profile.avatarUrl && <button onClick={handleRemoveImage} disabled={uploadingImage} className="text-xs font-bold px-4 py-2 rounded-xl transition-all hover:opacity-80" type="button" style={{ color: 'var(--cp-accent)', background: 'var(--cp-accent-light)', border: '1px solid hsl(from var(--cp-accent) h s l / 0.15)' }}>Remove</button>}
+                    </div>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="absolute bottom-0 right-0 w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110"
-                  style={{ background: 'linear-gradient(135deg, var(--cp-primary), hsl(290,90%,60%))', boxShadow: 'var(--shadow-md)', border: '3px solid var(--cp-surface)' }}
-                >
-                  <Camera size={16} className="text-white" />
-                </button>
-                <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleImageUpload} disabled={uploadingImage} />
-              </div>
-              <div className="flex-1 mt-2 sm:mt-0 text-center sm:text-left">
-                <h2 className="font-headline font-bold text-xl mb-1" style={{ color: 'var(--cp-text-1)' }}>Profile Photo</h2>
-                <p className="text-sm mb-4" style={{ color: 'var(--cp-text-3)' }}>A clear photo helps build trust in the community.</p>
-                {profile.avatarUrl && (
-                  <button onClick={handleRemoveImage} disabled={uploadingImage} className="text-xs font-bold px-4 py-2 transition-all hover:text-accent-dark" type="button" style={{ color: 'var(--cp-accent)', borderRadius: 'var(--r-full)', background: 'var(--cp-accent-light)', border: '1px solid hsl(from var(--cp-accent) h s l / 0.2)' }}>
-                    Remove Photo
-                  </button>
-                )}
-              </div>
-            </div>
+              </motion.div>
 
-            {/* Fields */}
-            <div className="space-y-5">
-              <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--cp-text-2)' }} htmlFor="displayName">Display Name</label>
-                <input id="displayName" type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="How should we call you?" className="input-base" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--cp-text-2)' }} htmlFor="bio">Bio</label>
-                <textarea id="bio" value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Tell the community about yourself..." rows={4} className="input-base resize-y" />
-                <p className="text-xs mt-1 text-right" style={{ color: 'var(--cp-text-3)' }}>{bio.length} / 300</p>
-              </div>
-              <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--cp-text-2)' }} htmlFor="location">Location</label>
-                <div className="relative">
-                  <MapPin size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'var(--cp-text-3)' }} />
-                  <input id="location" type="text" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="City, State or Region" className="input-base" style={{ paddingLeft: '2.5rem' }} />
+              {/* ═══ CARD 2: Personal Info ═══ */}
+              <motion.div className="rounded-3xl p-6 md:p-8 space-y-5" style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: '0 4px 24px -4px rgba(0,0,0,0.06)' }} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+                <div className="flex items-center gap-3 pb-4" style={{ borderBottom: '1px solid var(--cp-border)' }}>
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'var(--cp-primary-light)', color: 'var(--cp-primary)' }}><User size={18} /></div>
+                  <div><h3 className="font-headline font-bold text-sm">Personal Info</h3><p className="text-[11px]" style={{ color: 'var(--cp-text-3)' }}>How you appear to the community</p></div>
                 </div>
-              </div>
-              <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--cp-text-2)' }} htmlFor="skills">Skills <span style={{ color: 'var(--cp-text-3)', fontWeight: 400 }}>(comma separated)</span></label>
-                <input id="skills" type="text" value={skills} onChange={(e) => setSkills(e.target.value)} placeholder="e.g. Design, Photography, Coding" className="input-base" />
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <CustomSelect
-                  label="Department / Major"
-                  value={department}
-                  options={DEPARTMENTS}
-                  onChange={setDepartment}
-                  placeholder="Select Major"
-                  icon={<GraduationCap size={18} />}
-                />
-                <CustomSelect
-                  label="Academic Year"
-                  value={year}
-                  options={YEARS}
-                  onChange={setYear}
-                  placeholder="Select Year"
-                  icon={<BookOpen size={18} />}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold mb-3" style={{ color: 'var(--cp-text-2)' }}>Availability</label>
-                <div className="flex flex-wrap gap-2">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider mb-2 px-0.5" style={{ color: 'var(--cp-text-3)' }}>Display Name</label>
+                  <input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Your name on campus" className="input-base w-full h-[48px] text-sm font-medium rounded-xl" style={{ background: 'var(--cp-surface-dim)' }} />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider mb-2 px-0.5" style={{ color: 'var(--cp-text-3)' }}>Bio</label>
+                  <div className="relative">
+                    <textarea value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Tell the community about yourself..." rows={3} className="input-base w-full text-sm font-medium resize-none rounded-xl" style={{ background: 'var(--cp-surface-dim)' }} maxLength={300} />
+                    <span className="absolute bottom-2.5 right-3 text-[10px] font-bold tabular-nums px-1.5 py-0.5 rounded" style={{ color: bio.length > 260 ? 'var(--cp-accent)' : 'var(--cp-text-3)', background: bio.length > 260 ? 'var(--cp-accent-light)' : 'transparent' }}>{bio.length}/300</span>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider mb-2 px-0.5" style={{ color: 'var(--cp-text-3)' }}>Location</label>
+                  <div className="relative">
+                    <MapPin size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'var(--cp-text-3)' }} />
+                    <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Campus / City" className="input-base w-full h-[48px] pl-11 text-sm font-medium rounded-xl" style={{ background: 'var(--cp-surface-dim)', paddingLeft: '2.75rem' }} />
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* ═══ CARD 3: Academic ═══ */}
+              <motion.div className="rounded-3xl p-6 md:p-8 space-y-5" style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: '0 4px 24px -4px rgba(0,0,0,0.06)' }} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+                <div className="flex items-center gap-3 pb-4" style={{ borderBottom: '1px solid var(--cp-border)' }}>
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'var(--cp-secondary-light)', color: 'var(--cp-secondary)' }}><GraduationCap size={18} /></div>
+                  <div><h3 className="font-headline font-bold text-sm">Academics</h3><p className="text-[11px]" style={{ color: 'var(--cp-text-3)' }}>Helps match events to your department</p></div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <CustomSelect label="Department / Major" value={department} options={DEPARTMENTS} onChange={setDepartment} placeholder="Select Major" icon={<GraduationCap size={16} />} />
+                  <CustomSelect label="Academic Year" value={year} options={YEARS} onChange={setYear} placeholder="Select Year" icon={<BookOpen size={16} />} />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider mb-2 px-0.5" style={{ color: 'var(--cp-text-3)' }}>Skills & Interests</label>
+                  <SkillTagInput value={skills} onChange={setSkills} />
+                </div>
+              </motion.div>
+
+              {/* ═══ CARD 4: Availability ═══ */}
+              <motion.div className="rounded-3xl p-6 md:p-8 space-y-4" style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: '0 4px 24px -4px rgba(0,0,0,0.06)' }} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+                <div className="flex items-center gap-3 pb-4" style={{ borderBottom: '1px solid var(--cp-border)' }}>
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'var(--cp-accent-light)', color: 'var(--cp-accent)' }}><Clock size={18} /></div>
+                  <div><h3 className="font-headline font-bold text-sm">Availability</h3><p className="text-[11px]" style={{ color: 'var(--cp-text-3)' }}>When are you free for events?</p></div>
+                </div>
+                <div className="flex flex-wrap gap-2.5">
                   {AVAIL_OPTIONS.map((opt) => (
-                    <button
-                      key={opt.key}
-                      type="button"
-                      onClick={() => setAvailability(opt.key)}
-                      className="px-4 py-2 rounded-full text-sm font-semibold transition-all"
-                      style={{
-                        background: availability === opt.key ? 'linear-gradient(135deg, var(--cp-primary), hsl(290,90%,60%))' : 'var(--cp-surface-dim)',
-                        color: availability === opt.key ? 'white' : 'var(--cp-text-2)',
-                        border: availability === opt.key ? 'none' : '1px solid var(--cp-border)',
-                        boxShadow: availability === opt.key ? '0 4px 16px -4px hsl(from var(--cp-primary) h s l / 0.4)' : 'none',
-                      }}
-                    >
+                    <button key={opt.key} type="button" onClick={() => setAvailability(opt.key)} className="px-5 py-2.5 rounded-2xl text-sm font-bold transition-all active:scale-95" style={{ background: availability === opt.key ? 'linear-gradient(135deg, var(--cp-primary), hsl(290,90%,60%))' : 'var(--cp-surface-dim)', color: availability === opt.key ? 'white' : 'var(--cp-text-2)', border: availability === opt.key ? 'none' : '1px solid var(--cp-border)', boxShadow: availability === opt.key ? '0 6px 20px -6px hsl(from var(--cp-primary) h s l / 0.45)' : 'none' }}>
                       {opt.label}
                     </button>
                   ))}
                 </div>
-              </div>
-            </div>
+              </motion.div>
 
-            {/* Actions */}
-            <div className="pt-6 flex flex-col-reverse sm:flex-row justify-end gap-3" style={{ borderTop: '1px solid var(--cp-border)' }}>
-              <button onClick={() => setIsEditing(false)} disabled={loading} className="btn-secondary" type="button">Cancel</button>
-              <button disabled={loading} className="btn-primary" type="submit">
-                {loading ? <><Loader2 size={15} className="animate-spin" /> Saving...</> : 'Save Changes'}
-              </button>
-            </div>
-          </form>
-        </motion.div>
+              {/* Actions */}
+              <motion.div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+                <button onClick={() => setIsEditing(false)} disabled={loading} className="h-12 px-8 rounded-2xl text-sm font-bold transition-all hover:opacity-80" type="button" style={{ background: 'var(--cp-surface)', color: 'var(--cp-text-2)', border: '1px solid var(--cp-border)' }}>Cancel</button>
+                <button disabled={loading} className="h-12 px-10 rounded-2xl text-sm font-bold text-white transition-all hover:opacity-90 active:scale-[0.98] flex items-center justify-center gap-2" type="submit" style={{ background: 'linear-gradient(135deg, var(--cp-primary), hsl(290,90%,60%))', boxShadow: '0 8px 24px -6px hsl(from var(--cp-primary) h s l / 0.4)' }}>
+                  {loading ? <><Loader2 size={16} className="animate-spin" /> Saving...</> : <><Check size={16} /> Save Changes</>}
+                </button>
+              </motion.div>
+            </form>
+          </motion.div>
+        </div>
       </main>
     );
   }

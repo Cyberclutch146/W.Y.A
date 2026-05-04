@@ -4,24 +4,34 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { createEvent } from '@/services/eventService';
-import { uploadImage } from '@/services/storageService';
 import { toast } from 'sonner';
-import LocationPickerWrapper from '@/components/LocationPickerWrapper';
-import DateTimePicker from '@/components/DateTimePicker';
 import PromotionModal from '@/components/PromotionModal';
-import { Sparkles, ImageIcon, CloudUpload, Loader2, Plus, X, Megaphone, Rocket, MapPin } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { ConfettiBurst } from '@/components/ConfettiBurst';
+import { Rocket, ArrowLeft, ArrowRight, Loader2, Megaphone, PartyPopper, Eye } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+
+import WizardProgress from './_components/WizardProgress';
+import StepSpark from './_components/StepSpark';
+import StepSchedule from './_components/StepSchedule';
+import StepMedia from './_components/StepMedia';
+import StepReview from './_components/StepReview';
+
+const TOTAL_STEPS = 4;
 
 export default function CreateEventPage() {
   const router = useRouter();
   const { user, profile } = useAuth();
 
+  // Step management
+  const [step, setStep] = useState(1);
+  const [direction, setDirection] = useState(1); // 1 = forward, -1 = back
+
+  // Form state (lifted — stays here)
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('Urgent Needs');
-  const [distance, setDistance] = useState('Local');
+  const [distance] = useState('Local');
   const [image, setImage] = useState('');
-  const [uploadingImage, setUploadingImage] = useState(false);
   const [eventDate, setEventDate] = useState('');
   const [urgency, setUrgency] = useState<'high' | 'normal'>('normal');
 
@@ -38,16 +48,53 @@ export default function CreateEventPage() {
   const [lng, setLng] = useState<number | undefined>(undefined);
 
   const [loading, setLoading] = useState(false);
-  const [generatingAi, setGeneratingAi] = useState(false);
-  const [generatingImage, setGeneratingImage] = useState(false);
   const [promotionModalOpen, setPromotionModalOpen] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Success state
+  const [publishSuccess, setPublishSuccess] = useState(false);
+  const [newEventId, setNewEventId] = useState('');
+  const [showConfetti, setShowConfetti] = useState(false);
+
+  // AI draft description (from StepSpark)
+  const [draftDescription, setDraftDescription] = useState('');
+
+  // Validation
+  const canProceed = (s: number) => {
+    if (s === 1) return title.trim().length >= 5;
+    if (s === 2) return !!eventDate;
+    if (s === 3) return true;
+    return true;
+  };
+
+  const goToStep = (target: number) => {
+    setDirection(target > step ? 1 : -1);
+    setStep(target);
+  };
+
+  const handleNext = () => {
+    if (!canProceed(step)) {
+      if (step === 1) toast.error('Event title must be at least 5 characters.');
+      if (step === 2) toast.error('Please select a date & time.');
+      return;
+    }
+    // Auto-fill description from AI draft when entering Step 3
+    if (step === 1 && draftDescription && !description) {
+      setDescription(draftDescription);
+    }
+    setDirection(1);
+    setStep((s) => Math.min(s + 1, TOTAL_STEPS));
+  };
+
+  const handleBack = () => {
+    setDirection(-1);
+    setStep((s) => Math.max(s - 1, 1));
+  };
+
+  const handleSubmit = async () => {
     if (!user || !profile || loading) return;
     setLoading(true);
     try {
-      const newEventId = await createEvent({
+      const id = await createEvent({
         title, description,
         organizer: profile.displayName || 'Anonymous',
         organizerId: user.uid,
@@ -60,8 +107,9 @@ export default function CreateEventPage() {
           ...(needGoods && goodsList.length > 0 ? { goods: goodsList } : {}),
         },
       });
-      toast.success('Event published successfully!');
-      router.push(`/event/${newEventId}`);
+      setNewEventId(id);
+      setPublishSuccess(true);
+      setShowConfetti(true);
     } catch (err) {
       console.error(err);
       toast.error('Failed to create event. Please try again.');
@@ -69,288 +117,193 @@ export default function CreateEventPage() {
     }
   };
 
-  const CATEGORIES = ['Urgent Needs', 'Food Drive', 'Volunteers', 'Community'];
-  const URGENCY_OPTS = [
-    { key: 'normal' as const, label: '🟢 Normal', accent: 'var(--cp-secondary)', bg: 'hsl(from var(--cp-secondary) h s l / 0.1)' },
-    { key: 'high' as const, label: '🔴 High', accent: 'var(--cp-accent)', bg: 'hsl(from var(--cp-accent) h s l / 0.1)' },
-  ];
+  // Step transition variants
+  const variants = {
+    enter: (dir: number) => ({ x: dir > 0 ? 60 : -60, opacity: 0 }),
+    center: { x: 0, opacity: 1 },
+    exit: (dir: number) => ({ x: dir > 0 ? -60 : 60, opacity: 0 }),
+  };
 
+  // ── Success Screen ──
+  if (publishSuccess) {
+    return (
+      <main className="flex-1 flex flex-col items-center justify-center p-6 pb-28 md:pb-10 min-h-[80vh]" style={{ color: 'var(--cp-text-1)' }}>
+        <ConfettiBurst trigger={showConfetti} onComplete={() => setShowConfetti(false)} />
+        <motion.div
+          className="text-center max-w-md mx-auto"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <div className="w-20 h-20 rounded-3xl mx-auto mb-6 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, var(--cp-primary), hsl(290,90%,60%))', boxShadow: '0 12px 32px -8px hsl(from var(--cp-primary) h s l / 0.5)' }}>
+            <PartyPopper size={36} className="text-white" />
+          </div>
+          <h1 className="font-headline font-bold text-3xl md:text-4xl mb-3">Your Event is Live! 🎉</h1>
+          <p className="text-sm leading-relaxed mb-8" style={{ color: 'var(--cp-text-2)' }}>
+            <span className="font-bold" style={{ color: 'var(--cp-primary)' }}>{title}</span> has been published to the campus feed. Students can now discover and join your event!
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <button
+              onClick={() => router.push(`/event/${newEventId}`)}
+              className="btn-primary px-8 py-3.5 text-sm"
+            >
+              <Eye size={16} /> View Event
+            </button>
+            <button
+              onClick={() => {
+                setPublishSuccess(false);
+                setStep(1);
+                setTitle('');
+                setDescription('');
+                setImage('');
+                setEventDate('');
+                setLocationName('');
+                setLat(undefined);
+                setLng(undefined);
+                setNeedFunds(false);
+                setNeedVols(false);
+                setNeedGoods(false);
+                setGoodsList([]);
+                setDraftDescription('');
+                setLoading(false);
+              }}
+              className="btn-secondary px-8 py-3.5 text-sm"
+            >
+              <Rocket size={16} /> Create Another
+            </button>
+          </div>
+        </motion.div>
+      </main>
+    );
+  }
+
+  // ── Wizard ──
   return (
-    <main className="flex-1 p-4 md:p-10 max-w-5xl mx-auto w-full pb-28 md:pb-10" style={{ color: 'var(--cp-text-1)' }}>
+    <main className="flex-1 p-4 md:p-10 max-w-3xl mx-auto w-full pb-32 md:pb-10" style={{ color: 'var(--cp-text-1)' }}>
       {/* Header */}
-      <motion.div className="mb-10" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
+      <motion.div className="mb-6" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-4" style={{ background: 'hsl(from var(--cp-secondary) h s l / 0.12)', color: 'var(--cp-secondary)', border: '1px solid hsl(from var(--cp-secondary) h s l / 0.3)' }}>
           <Rocket size={12} /> Organizer
         </div>
-        <h1 className="font-headline font-bold text-5xl md:text-7xl tracking-tight leading-none mb-3" style={{ color: 'var(--cp-text-1)' }}>
+        <h1 className="font-headline font-bold text-4xl md:text-5xl tracking-tight leading-none mb-2" style={{ color: 'var(--cp-text-1)' }}>
           Create an <span className="energy-gradient-text">Event</span>
         </h1>
-        <p className="max-w-md leading-relaxed" style={{ color: 'var(--cp-text-2)' }}>Start a campus response initiative and rally your community around real change.</p>
+        <p className="text-sm leading-relaxed" style={{ color: 'var(--cp-text-2)' }}>Rally your community around real change.</p>
       </motion.div>
 
-      {/* Form Card */}
+      {/* Progress */}
+      <WizardProgress currentStep={step} totalSteps={TOTAL_STEPS} />
+
+      {/* Step Content */}
       <motion.div
-        className="rounded-2xl p-6 md:p-10"
-        style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-lg)' }}
+        className="rounded-3xl p-6 md:p-10"
+        style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: '0 8px 32px -8px rgba(0,0,0,0.08)' }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       >
-        <form onSubmit={handleSubmit} className="space-y-8 max-w-2xl">
-          {/* Title */}
-          <div>
-            <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--cp-text-2)' }}>Event Title</label>
-            <input
-              type="text" required className="input-base"
-              placeholder="e.g. Campus Cleanup Drive"
-              value={title} onChange={(e) => setTitle(e.target.value)}
-            />
-          </div>
+        <AnimatePresence mode="wait" custom={direction}>
+          <motion.div
+            key={step}
+            custom={direction}
+            variants={variants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {step === 1 && (
+              <StepSpark
+                title={title} setTitle={setTitle}
+                category={category} setCategory={setCategory}
+                urgency={urgency} setUrgency={setUrgency}
+                setDraftDescription={setDraftDescription}
+              />
+            )}
+            {step === 2 && (
+              <StepSchedule
+                eventDate={eventDate} setEventDate={setEventDate}
+                locationName={locationName} setLocationName={setLocationName}
+                setLat={setLat} setLng={setLng}
+              />
+            )}
+            {step === 3 && (
+              <StepMedia
+                title={title} category={category}
+                description={description} setDescription={setDescription}
+                image={image} setImage={setImage}
+                needFunds={needFunds} setNeedFunds={setNeedFunds}
+                fundGoal={fundGoal} setFundGoal={setFundGoal}
+                needVols={needVols} setNeedVols={setNeedVols}
+                volGoal={volGoal} setVolGoal={setVolGoal}
+                needGoods={needGoods} setNeedGoods={setNeedGoods}
+                goodsItem={goodsItem} setGoodsItem={setGoodsItem}
+                goodsList={goodsList} setGoodsList={setGoodsList}
+              />
+            )}
+            {step === 4 && (
+              <StepReview
+                title={title} description={description}
+                category={category} urgency={urgency}
+                eventDate={eventDate} locationName={locationName}
+                image={image}
+                needFunds={needFunds} fundGoal={fundGoal}
+                needVols={needVols} volGoal={volGoal}
+                needGoods={needGoods} goodsList={goodsList}
+                goToStep={goToStep}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </motion.div>
 
-          {/* Description */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-semibold" style={{ color: 'var(--cp-text-2)' }}>Description</label>
-              <button
-                type="button"
-                onClick={async () => {
-                  if (!title) { toast.error('Please enter a title first.'); return; }
-                  setGeneratingAi(true);
-                  try {
-                    const res = await fetch('/api/generate-description', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ title, category }),
-                    });
-                    const data = await res.json();
-                    if (res.ok) { setDescription(data.description); toast.success('Description generated!'); }
-                    else toast.error(data.error || 'Failed to generate');
-                  } catch { toast.error('An error occurred while generating.'); }
-                  finally { setGeneratingAi(false); }
-                }}
-                disabled={generatingAi}
-                className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full transition-all disabled:opacity-50"
-                style={{ background: 'hsl(from var(--cp-primary) h s l / 0.1)', color: 'var(--cp-primary)', border: '1px solid hsl(from var(--cp-primary) h s l / 0.2)' }}
-              >
-                {generatingAi ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />}
-                {generatingAi ? 'Generating...' : 'AI Generate'}
-              </button>
-            </div>
-            <textarea
-              required className="input-base h-32 resize-none"
-              placeholder="Describe the goal of your event..."
-              value={description} onChange={(e) => setDescription(e.target.value)}
-            />
-          </div>
+      {/* Bottom Nav */}
+      <div className="flex items-center justify-between mt-6 gap-3">
+        <button
+          type="button"
+          onClick={handleBack}
+          disabled={step === 1}
+          className="h-12 px-6 rounded-2xl text-sm font-bold transition-all hover:opacity-80 disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-2"
+          style={{ background: 'var(--cp-surface)', color: 'var(--cp-text-2)', border: '1px solid var(--cp-border)' }}
+        >
+          <ArrowLeft size={16} /> Back
+        </button>
 
-          {/* Category + Urgency */}
-          <div className="flex flex-col md:flex-row gap-6">
-            <div className="flex-1">
-              <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--cp-text-2)' }}>Category</label>
-              <select className="input-base" value={category} onChange={(e) => setCategory(e.target.value)}>
-                {CATEGORIES.map(c => <option key={c}>{c}</option>)}
-              </select>
-            </div>
-            <div className="flex-1">
-              <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--cp-text-2)' }}>Urgency Level</label>
-              <div className="flex gap-3">
-                {URGENCY_OPTS.map((u) => (
-                  <button
-                    key={u.key} type="button" onClick={() => setUrgency(u.key)}
-                    className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all"
-                    style={{
-                      background: urgency === u.key ? u.bg : 'var(--cp-surface-dim)',
-                      color: urgency === u.key ? u.accent : 'var(--cp-text-2)',
-                      border: urgency === u.key ? `1.5px solid ${u.accent}` : '1px solid var(--cp-border)',
-                    }}
-                  >
-                    {u.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Date + Image */}
-          <div className="flex flex-col md:flex-row gap-6">
-            <div className="flex-1">
-              <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--cp-text-2)' }}>Event Date & Time</label>
-              <DateTimePicker value={eventDate} onChange={(val) => setEventDate(val)} />
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-semibold" style={{ color: 'var(--cp-text-2)' }}>Event Image</label>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    if (!title) { toast.error('Enter a title first.'); return; }
-                    setGeneratingImage(true);
-                    try {
-                      toast.info('Generating image with AI...');
-                      const prompt = `High-quality cover photo for a campus event: ${title}. ${category}. Beautiful lighting, no text.`;
-                      const response = await fetch('/api/generate-image', {
-                        method: 'POST', headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ prompt }),
-                      });
-                      if (!response.ok) { const d = await response.json().catch(() => ({})); throw new Error(d.error || 'Failed'); }
-                      const blob = await response.blob();
-                      const file = new File([blob], 'ai-event.jpg', { type: 'image/jpeg' });
-                      const url = await uploadImage(file, 'campaigns');
-                      setImage(url);
-                      toast.success('AI image generated!');
-                    } catch (err) { console.error(err); toast.error('Failed to generate image.'); }
-                    finally { setGeneratingImage(false); }
-                  }}
-                  disabled={generatingImage || uploadingImage}
-                  className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full transition-all disabled:opacity-50"
-                  style={{ background: 'hsl(from var(--cp-cyan) h s l / 0.1)', color: 'var(--cp-cyan)', border: '1px solid hsl(from var(--cp-cyan) h s l / 0.25)' }}
-                >
-                  {generatingImage ? <Loader2 size={13} className="animate-spin" /> : <ImageIcon size={13} />}
-                  {generatingImage ? 'Generating...' : 'AI Image'}
-                </button>
-              </div>
-              <div className="flex items-center gap-3">
-                <label
-                  className={`flex-1 flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold cursor-pointer transition-all ${generatingImage ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-80'}`}
-                  style={{ background: 'var(--cp-surface-dim)', border: '1px dashed var(--cp-border)', color: 'var(--cp-text-2)' }}
-                >
-                  <CloudUpload size={16} style={{ color: 'var(--cp-text-3)' }} />
-                  {uploadingImage ? 'Uploading...' : 'Choose File'}
-                  <input
-                    type="file" accept="image/*" className="hidden"
-                    disabled={uploadingImage || generatingImage}
-                    onChange={async (e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      setUploadingImage(true);
-                      try {
-                        const url = await uploadImage(file, 'campaigns');
-                        setImage(url);
-                      } catch { toast.error('Failed to upload image.'); }
-                      finally { setUploadingImage(false); }
-                    }}
-                  />
-                </label>
-                {image && (
-                  <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0" style={{ border: '2px solid var(--cp-border)' }}>
-                    <img src={image} alt="Preview" className="w-full h-full object-cover" />
-                  </div>
-                )}
-              </div>
-              <p className="text-xs mt-2" style={{ color: 'var(--cp-text-3)' }}>Optional. Leave blank to use a default image.</p>
-            </div>
-          </div>
-
-          {/* Location */}
-          <div className="pt-6" style={{ borderTop: '1px solid var(--cp-border)' }}>
-            <div className="flex items-center gap-2 mb-2">
-              <MapPin size={15} style={{ color: 'var(--cp-primary)' }} />
-              <label className="text-sm font-semibold" style={{ color: 'var(--cp-text-2)' }}>Event Location</label>
-            </div>
-            <p className="text-xs mb-4" style={{ color: 'var(--cp-text-3)' }}>Search for an address or click on the map to set the exact location.</p>
-            <LocationPickerWrapper
-              onLocationSelect={(loc) => { setLocationName(loc.name); setLat(loc.lat); setLng(loc.lng); }}
-            />
-          </div>
-
-          {/* Needs */}
-          <div className="rounded-xl p-5" style={{ background: 'var(--cp-surface-dim)', border: '1px solid var(--cp-border)' }}>
-            <div className="text-sm font-semibold mb-4" style={{ color: 'var(--cp-text-2)', paddingBottom: '0.75rem', borderBottom: '1px solid var(--cp-border)' }}>What do you need?</div>
-            <div className="space-y-4">
-              {/* Funds */}
-              <div className="flex items-center gap-4">
-                <input type="checkbox" id="needFunds" checked={needFunds} onChange={(e) => setNeedFunds(e.target.checked)} className="w-4 h-4 rounded cursor-pointer" style={{ accentColor: 'var(--cp-primary)' }} />
-                <label htmlFor="needFunds" className="text-sm font-semibold cursor-pointer flex-1" style={{ color: 'var(--cp-text-1)' }}>💰 Funds</label>
-                {needFunds && (
-                  <input
-                    type="number" value={fundGoal} onChange={(e) => setFundGoal(Number(e.target.value))}
-                    placeholder="Goal ($)" className="input-base w-32"
-                    style={{ padding: '0.5rem 0.75rem', fontSize: '0.8125rem' }}
-                  />
-                )}
-              </div>
-              {/* Volunteers */}
-              <div className="flex items-center gap-4">
-                <input type="checkbox" id="needVols" checked={needVols} onChange={(e) => setNeedVols(e.target.checked)} className="w-4 h-4 rounded cursor-pointer" style={{ accentColor: 'var(--cp-primary)' }} />
-                <label htmlFor="needVols" className="text-sm font-semibold cursor-pointer flex-1" style={{ color: 'var(--cp-text-1)' }}>🙋 Volunteers</label>
-                {needVols && (
-                  <input
-                    type="number" value={volGoal} onChange={(e) => setVolGoal(Number(e.target.value))}
-                    placeholder="Goal (people)" className="input-base w-32"
-                    style={{ padding: '0.5rem 0.75rem', fontSize: '0.8125rem' }}
-                  />
-                )}
-              </div>
-              {/* Goods */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-4">
-                  <input type="checkbox" id="needGoods" checked={needGoods} onChange={(e) => setNeedGoods(e.target.checked)} className="w-4 h-4 rounded cursor-pointer" style={{ accentColor: 'var(--cp-primary)' }} />
-                  <label htmlFor="needGoods" className="text-sm font-semibold cursor-pointer" style={{ color: 'var(--cp-text-1)' }}>📦 Specific Goods</label>
-                </div>
-                {needGoods && (
-                  <div className="pl-8 space-y-3">
-                    <div className="flex gap-2">
-                      <input
-                        type="text" value={goodsItem} onChange={(e) => setGoodsItem(e.target.value)}
-                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); if (goodsItem.trim()) { setGoodsList([...goodsList, goodsItem.trim()]); setGoodsItem(''); } } }}
-                        placeholder="Add item (e.g. Blankets) then Enter"
-                        className="input-base flex-1" style={{ padding: '0.5rem 0.875rem', fontSize: '0.8125rem' }}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => { if (goodsItem.trim()) { setGoodsList([...goodsList, goodsItem.trim()]); setGoodsItem(''); } }}
-                        className="btn-primary px-4"
-                        style={{ padding: '0.5rem 0.875rem', fontSize: '0.8125rem' }}
-                      >
-                        <Plus size={15} />
-                      </button>
-                    </div>
-                    {goodsList.length > 0 && (
-                      <ul className="space-y-1.5">
-                        {goodsList.map((item, index) => (
-                          <li
-                            key={index}
-                            className="flex justify-between items-center px-3 py-2 rounded-lg text-sm font-medium"
-                            style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', color: 'var(--cp-text-1)' }}
-                          >
-                            <span>{item}</span>
-                            <button
-                              type="button"
-                              onClick={() => setGoodsList(goodsList.filter((_, i) => i !== index))}
-                              className="w-6 h-6 rounded-lg flex items-center justify-center transition-all hover:opacity-80"
-                              style={{ background: 'hsl(from var(--cp-accent) h s l / 0.1)', color: 'var(--cp-accent)' }}
-                            >
-                              <X size={13} />
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex flex-col sm:flex-row gap-4 pt-2">
-            <button
-              type="submit"
-              disabled={loading || !user}
-              className="btn-primary flex-1 justify-center text-base py-4 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? <><Loader2 size={17} className="animate-spin" /> Publishing...</> : <><Rocket size={17} /> {user ? 'Publish Event' : 'Sign in to publish'}</>}
-            </button>
+        <div className="flex items-center gap-3">
+          {step === 4 && (
             <button
               type="button"
               onClick={() => setPromotionModalOpen(true)}
-              className="btn-secondary flex-1 justify-center text-base py-4"
+              className="h-12 px-6 rounded-2xl text-sm font-bold transition-all hover:opacity-80 flex items-center gap-2"
+              style={{ background: 'var(--cp-surface)', color: 'var(--cp-primary)', border: '1px solid var(--cp-border)' }}
             >
-              <Megaphone size={17} /> Promote Event
+              <Megaphone size={16} /> Promote
             </button>
-          </div>
-        </form>
-      </motion.div>
+          )}
+
+          {step < TOTAL_STEPS ? (
+            <button
+              type="button"
+              onClick={handleNext}
+              disabled={!canProceed(step)}
+              className="h-12 px-8 rounded-2xl text-sm font-bold text-white transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              style={{ background: 'linear-gradient(135deg, var(--cp-primary), hsl(290,90%,60%))', boxShadow: '0 8px 24px -6px hsl(from var(--cp-primary) h s l / 0.4)' }}
+            >
+              Next <ArrowRight size={16} />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={loading || !user}
+              className="h-12 px-8 rounded-2xl text-sm font-bold text-white transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              style={{ background: 'linear-gradient(135deg, var(--cp-primary), hsl(290,90%,60%))', boxShadow: '0 8px 24px -6px hsl(from var(--cp-primary) h s l / 0.4)' }}
+            >
+              {loading ? <><Loader2 size={16} className="animate-spin" /> Publishing...</> : <><Rocket size={16} /> Publish Event</>}
+            </button>
+          )}
+        </div>
+      </div>
 
       <PromotionModal isOpen={promotionModalOpen} onClose={() => setPromotionModalOpen(false)} />
     </main>
