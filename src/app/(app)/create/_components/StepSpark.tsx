@@ -14,7 +14,16 @@ interface StepSparkProps {
   setDraftDescription: (v: string) => void;
 }
 
-const CATEGORIES = ['Urgent Needs', 'Food Drive', 'Volunteers', 'Community'];
+const CATEGORIES = [
+  { value: '🎓 Academic',       emoji: '🎓', label: 'Academic'      },
+  { value: '🎉 Social',         emoji: '🎉', label: 'Social'        },
+  { value: '🏆 Sports & Fitness', emoji: '🏆', label: 'Sports'      },
+  { value: '💻 Tech',           emoji: '💻', label: 'Tech'          },
+  { value: '🎨 Arts & Culture', emoji: '🎨', label: 'Arts & Culture' },
+  { value: '🤝 Volunteering',   emoji: '🤝', label: 'Volunteering'  },
+  { value: '🍕 Food & Hangouts', emoji: '🍕', label: 'Food & Hangouts' },
+  { value: '💼 Career',         emoji: '💼', label: 'Career'        },
+];
 const URGENCY_OPTS = [
   { key: 'normal' as const, label: '🟢 Normal', accent: 'var(--cp-secondary)', bg: 'hsl(from var(--cp-secondary) h s l / 0.1)' },
   { key: 'high' as const, label: '🔴 High', accent: 'var(--cp-accent)', bg: 'hsl(from var(--cp-accent) h s l / 0.1)' },
@@ -333,20 +342,27 @@ export default function StepSpark({
         <label className="block text-xs font-bold uppercase tracking-wider mb-3 px-0.5" style={{ color: 'var(--cp-text-3)' }}>
           Category
         </label>
-        <div className="flex flex-wrap gap-2.5">
-          {CATEGORIES.map((cat) => (
-            <button key={cat} type="button" onClick={() => setCategory(cat)}
-              className="px-5 py-2.5 rounded-2xl text-sm font-bold transition-all active:scale-95"
-              style={{
-                background: category === cat ? 'linear-gradient(135deg, var(--cp-primary), hsl(290,90%,60%))' : 'var(--cp-surface-dim)',
-                color: category === cat ? 'white' : 'var(--cp-text-2)',
-                border: category === cat ? 'none' : '1px solid var(--cp-border)',
-                boxShadow: category === cat ? '0 6px 20px -6px hsl(from var(--cp-primary) h s l / 0.45)' : 'none',
-              }}
-            >
-              {cat}
-            </button>
-          ))}
+        <div className="grid grid-cols-4 gap-2">
+          {CATEGORIES.map((cat) => {
+            const isSelected = category === cat.value;
+            return (
+              <button
+                key={cat.value}
+                type="button"
+                onClick={() => setCategory(cat.value)}
+                className="flex flex-col items-center gap-1.5 py-3 px-2 rounded-2xl transition-all active:scale-95 hover:scale-[1.02]"
+                style={{
+                  background: isSelected ? 'linear-gradient(135deg, var(--cp-primary), hsl(290,90%,60%))' : 'var(--cp-surface-dim)',
+                  color: isSelected ? 'white' : 'var(--cp-text-2)',
+                  border: isSelected ? 'none' : '1px solid var(--cp-border)',
+                  boxShadow: isSelected ? '0 6px 20px -6px hsl(from var(--cp-primary) h s l / 0.45)' : 'none',
+                }}
+              >
+                <span className="text-2xl leading-none">{cat.emoji}</span>
+                <span className="text-[11px] font-bold text-center leading-tight">{cat.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 

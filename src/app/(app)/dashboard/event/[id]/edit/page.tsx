@@ -19,7 +19,7 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('Urgent Needs');
+  const [category, setCategory] = useState('🎉 Social');
   const [distance, setDistance] = useState('Local');
   const [image, setImage] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -55,7 +55,7 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
 
         setTitle(eventData.title || '');
         setDescription(eventData.description || '');
-        setCategory(eventData.category || 'Urgent Needs');
+        setCategory(eventData.category || '🎉 Social');
         setDistance(eventData.distance || 'Local');
         setImage(eventData.imageUrl || eventData.image || '');
         setEventDate(eventData.eventDate || '');
@@ -196,10 +196,14 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
               >
-                <option>Urgent Needs</option>
-                <option>Food Drive</option>
-                <option>Volunteers</option>
-                <option>Community</option>
+                <option>🎓 Academic</option>
+                <option>🎉 Social</option>
+                <option>🏆 Sports & Fitness</option>
+                <option>💻 Tech</option>
+                <option>🎨 Arts & Culture</option>
+                <option>🤝 Volunteering</option>
+                <option>🍕 Food & Hangouts</option>
+                <option>💼 Career</option>
               </select>
             </div>
             <div className="flex-1">

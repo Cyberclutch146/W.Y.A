@@ -29,7 +29,7 @@ export default function CreateEventPage() {
   // Form state (lifted — stays here)
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('Urgent Needs');
+  const [category, setCategory] = useState('🎓 Academic');
   const [distance] = useState('Local');
   const [image, setImage] = useState('');
   const [eventDate, setEventDate] = useState('');

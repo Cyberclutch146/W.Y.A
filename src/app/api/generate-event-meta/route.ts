@@ -23,7 +23,7 @@ Event title: "${title}"
 
 Respond ONLY with valid JSON (no markdown, no code blocks):
 {
-  "suggestedCategory": "one of: Urgent Needs, Food Drive, Volunteers, Community",
+  "suggestedCategory": "one of: 🎓 Academic, 🎉 Social, 🏆 Sports & Fitness, 💻 Tech, 🎨 Arts & Culture, 🤝 Volunteering, 🍕 Food & Hangouts, 💼 Career",
   "suggestedUrgency": "normal or high",
   "suggestedTags": ["array", "of", "3-4", "relevant tags"],
   "draftDescription": "A short, engaging 2-3 sentence description for this campus event. Motivate students to participate."
