@@ -7,7 +7,6 @@ import { getEvents } from '@/services/eventService'
 import { useAuth } from '@/context/AuthContext'
 import { CommunityEvent } from '@/types'
 
-import MapWrapper from '@/components/MapWrapper'
 import { EventCard } from '@/components/EventCard'
 import { getRecommendedEvents, getMatchPercentage } from '@/services/recommendationService'
 import { getUserProfile, updateUserProfile } from '@/services/userService'
@@ -390,28 +389,299 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Map Section */}
-      <div className="mt-14 w-full relative z-10">
-        <div
-          className="py-12"
-          style={{ background: 'linear-gradient(135deg, hsl(from var(--cp-primary) h s l / 0.06), hsl(from var(--cp-secondary) h s l / 0.04))', borderTop: '1px solid var(--cp-border)', borderBottom: '1px solid var(--cp-border)' }}
-        >
-          <div className="max-w-7xl mx-auto w-full px-6 md:px-10">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="font-headline font-bold text-2xl" style={{ color: 'var(--cp-text-1)' }}>Explore on Map</h2>
-              <button onClick={() => router.push('/feed')} className="btn-ghost text-sm" style={{ color: 'var(--cp-text-2)' }}>
-                View All <ArrowRight size={14} />
-              </button>
-            </div>
-            <div
-              className="h-[400px] w-full overflow-hidden"
-              style={{ borderRadius: 'var(--r-xl)', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-lg)' }}
-            >
-              <MapWrapper events={events} />
+      {/* ═══ PULSE COMMAND CENTER ═══ */}
+      {(() => {
+        const totalEvents = events.length
+        const activeNow = events.filter(e => e.status === 'active').length
+        const totalVolunteers = events.reduce((sum, e) => sum + (e.needs?.volunteers?.current ?? 0), 0)
+        const uniqueCategories = [...new Set(events.map(e => e.category).filter(Boolean))]
+        const categoryCounts = events.reduce((acc, e) => {
+          if (e.category) acc[e.category] = (acc[e.category] || 0) + 1
+          return acc
+        }, {} as Record<string, number>)
+        const trending = Object.entries(categoryCounts).sort(([,a], [,b]) => b - a).slice(0, 6)
+        const recentEvents = [...events].sort((a, b) => {
+          const tA = a.createdAt ? (typeof a.createdAt.toDate === 'function' ? a.createdAt.toDate() : new Date(a.createdAt)) : new Date(0)
+          const tB = b.createdAt ? (typeof b.createdAt.toDate === 'function' ? b.createdAt.toDate() : new Date(b.createdAt)) : new Date(0)
+          return tB.getTime() - tA.getTime()
+        }).slice(0, 8)
+        // Compute a "pulse" percentage (0-100) based on activity ratio
+        const pulseLevel = totalEvents > 0 ? Math.min(100, Math.round((activeNow / totalEvents) * 100 + totalVolunteers * 2)) : 0
+
+        const statCards = [
+          { label: 'Total Events', value: totalEvents, icon: <Calendar size={20} />, color: 'var(--cp-primary)', glow: 'hsl(258 90% 63% / 0.35)' },
+          { label: 'Live Now', value: activeNow, icon: <Zap size={20} />, color: 'var(--cp-secondary)', glow: 'hsl(160 70% 50% / 0.35)' },
+          { label: 'Volunteers', value: totalVolunteers, icon: <Users size={20} />, color: 'var(--cp-cyan, #06b6d4)', glow: 'hsl(185 100% 55% / 0.35)' },
+          { label: 'Categories', value: uniqueCategories.length, icon: <Plus size={20} />, color: 'var(--cp-violet, #8b5cf6)', glow: 'hsl(270 100% 70% / 0.35)' },
+        ]
+
+        return (
+          <div className="mt-14 w-full relative z-10">
+            <div className="relative overflow-hidden" style={{ borderTop: '1px solid var(--cp-border)', borderBottom: '1px solid var(--cp-border)' }}>
+              {/* Deep gradient background */}
+              <div className="absolute inset-0" style={{
+                background: `
+                  radial-gradient(ellipse 80% 60% at 50% 40%, hsl(258 90% 63% / 0.08) 0%, transparent 70%),
+                  radial-gradient(ellipse 60% 50% at 20% 80%, hsl(160 70% 50% / 0.06) 0%, transparent 60%),
+                  radial-gradient(ellipse 50% 40% at 80% 20%, hsl(185 100% 55% / 0.05) 0%, transparent 60%),
+                  linear-gradient(180deg, hsl(from var(--cp-bg) h s l / 0.95) 0%, var(--cp-bg) 100%)
+                `
+              }} />
+
+              {/* Subtle grid pattern */}
+              <div className="absolute inset-0 opacity-[0.03]" style={{
+                backgroundImage: `
+                  linear-gradient(var(--cp-text-1) 1px, transparent 1px),
+                  linear-gradient(90deg, var(--cp-text-1) 1px, transparent 1px)
+                `,
+                backgroundSize: '60px 60px'
+              }} />
+
+              <div className="relative max-w-7xl mx-auto w-full px-6 md:px-10 py-16 md:py-20">
+
+                {/* ── Top Row: Title + CTA ── */}
+                <motion.div
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                  className="flex items-end justify-between mb-12 md:mb-16"
+                >
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="relative flex h-2.5 w-2.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: 'var(--cp-secondary)' }} />
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5" style={{ background: 'var(--cp-secondary)' }} />
+                      </span>
+                      <p className="text-[11px] font-black uppercase tracking-[0.25em]" style={{ color: 'var(--cp-secondary)' }}>Live Pulse</p>
+                    </div>
+                    <h2 className="font-headline font-black text-3xl md:text-4xl tracking-tight" style={{ color: 'var(--cp-text-1)' }}>
+                      Campus Command
+                    </h2>
+                    <p className="text-sm mt-1 max-w-md" style={{ color: 'var(--cp-text-3)' }}>
+                      Real-time overview of everything happening across campus right now.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => router.push('/feed')}
+                    className="hidden md:inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all hover:scale-105 active:scale-95"
+                    style={{ background: 'var(--cp-primary)', color: 'var(--cp-primary-on)', boxShadow: '0 0 24px -4px hsl(258 90% 63% / 0.5)' }}
+                  >
+                    Explore All <ArrowRight size={14} />
+                  </button>
+                </motion.div>
+
+                {/* ── Main Grid: Pulse Orb + Stat Cards ── */}
+                <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-8 md:gap-10 items-start">
+
+                  {/* Left: Pulse Orb */}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.2, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                    className="relative mx-auto lg:mx-0 flex items-center justify-center"
+                    style={{ width: 280, height: 280 }}
+                  >
+                    {/* Orbit rings */}
+                    {[140, 110, 80].map((size, i) => (
+                      <motion.div
+                        key={i}
+                        className="absolute rounded-full"
+                        style={{
+                          width: size * 2, height: size * 2,
+                          border: `1px solid hsl(258 90% 63% / ${0.08 + i * 0.04})`,
+                        }}
+                        animate={{ rotate: i % 2 === 0 ? 360 : -360 }}
+                        transition={{ duration: 20 + i * 8, repeat: Infinity, ease: 'linear' }}
+                      >
+                        {/* Orbiting dot */}
+                        <motion.span
+                          className="absolute rounded-full"
+                          style={{
+                            width: 6 + i * 2, height: 6 + i * 2,
+                            background: i === 0 ? 'var(--cp-primary)' : i === 1 ? 'var(--cp-secondary)' : 'var(--cp-cyan, #06b6d4)',
+                            boxShadow: `0 0 12px ${i === 0 ? 'hsl(258 90% 63% / 0.6)' : i === 1 ? 'hsl(160 70% 50% / 0.6)' : 'hsl(185 100% 55% / 0.6)'}`,
+                            top: -3 - i, left: '50%', transform: 'translateX(-50%)',
+                          }}
+                        />
+                      </motion.div>
+                    ))}
+
+                    {/* Inner glow */}
+                    <div className="absolute rounded-full" style={{
+                      width: 120, height: 120,
+                      background: 'radial-gradient(circle, hsl(258 90% 63% / 0.15) 0%, transparent 70%)',
+                      filter: 'blur(20px)',
+                    }} />
+
+                    {/* Center stat */}
+                    <div className="relative flex flex-col items-center justify-center text-center z-10">
+                      <motion.p
+                        className="font-headline font-black text-6xl tracking-tighter"
+                        style={{ color: 'var(--cp-text-1)' }}
+                        initial={{ opacity: 0, scale: 0.5 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.5, duration: 0.6, type: 'spring', stiffness: 200 }}
+                      >
+                        {pulseLevel}
+                      </motion.p>
+                      <p className="text-[10px] font-black uppercase tracking-[0.2em] mt-0.5" style={{ color: 'var(--cp-text-3)' }}>Pulse Score</p>
+                      <div className="mt-3 w-16 h-1 rounded-full overflow-hidden" style={{ background: 'var(--cp-border)' }}>
+                        <motion.div
+                          className="h-full rounded-full"
+                          style={{ background: 'linear-gradient(90deg, var(--cp-primary), var(--cp-secondary))' }}
+                          initial={{ width: 0 }}
+                          animate={{ width: `${Math.min(pulseLevel, 100)}%` }}
+                          transition={{ delay: 0.8, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                        />
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* Right: Stat Cards Grid */}
+                  <div className="grid grid-cols-2 gap-3 md:gap-4">
+                    {statCards.map((stat, i) => (
+                      <motion.div
+                        key={stat.label}
+                        initial={{ opacity: 0, y: 24, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        transition={{ delay: 0.3 + i * 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                        className="group relative rounded-2xl p-5 md:p-6 overflow-hidden cursor-default transition-transform duration-300 hover:scale-[1.03]"
+                        style={{
+                          background: 'var(--cp-surface)',
+                          border: '1px solid var(--cp-border)',
+                          boxShadow: `var(--shadow-sm), 0 0 0 0 ${stat.glow}`,
+                        }}
+                        whileHover={{ boxShadow: `var(--shadow-md), 0 0 30px -8px ${stat.glow}` }}
+                      >
+                        {/* Card gradient accent */}
+                        <div className="absolute top-0 right-0 w-24 h-24 opacity-10 pointer-events-none" style={{
+                          background: `radial-gradient(circle at top right, ${stat.color}, transparent 70%)`
+                        }} />
+
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
+                            style={{ background: `color-mix(in srgb, ${stat.color} 12%, transparent)`, color: stat.color }}
+                          >
+                            {stat.icon}
+                          </div>
+                          <p className="text-[10px] font-black uppercase tracking-[0.18em]" style={{ color: 'var(--cp-text-3)' }}>{stat.label}</p>
+                        </div>
+
+                        <p className="text-4xl md:text-5xl font-black font-headline tracking-tight" style={{ color: 'var(--cp-text-1)' }}>
+                          {stat.value}
+                        </p>
+
+                        {/* Micro accent bar */}
+                        <div className="mt-4 h-0.5 w-full rounded-full overflow-hidden" style={{ background: 'var(--cp-border)' }}>
+                          <motion.div
+                            className="h-full rounded-full"
+                            style={{ background: stat.color }}
+                            initial={{ width: 0 }}
+                            animate={{ width: `${Math.min((stat.value / Math.max(totalEvents, 1)) * 100 + 15, 100)}%` }}
+                            transition={{ delay: 0.6 + i * 0.1, duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                          />
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* ── Activity Ticker ── */}
+                {recentEvents.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.8, duration: 0.5 }}
+                    className="mt-10 md:mt-14 relative overflow-hidden rounded-2xl"
+                    style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)' }}
+                  >
+                    <div className="px-5 py-3 flex items-center gap-3 border-b" style={{ borderColor: 'var(--cp-border)' }}>
+                      <div className="flex items-center gap-2">
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: 'var(--cp-accent)' }} />
+                          <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: 'var(--cp-accent)' }} />
+                        </span>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: 'var(--cp-text-3)' }}>Recent Activity</p>
+                      </div>
+                    </div>
+                    <div className="relative overflow-hidden" style={{ height: 48 }}>
+                      <motion.div
+                        className="flex items-center gap-6 px-5 absolute whitespace-nowrap"
+                        animate={{ x: ['0%', '-50%'] }}
+                        transition={{ duration: recentEvents.length * 5, repeat: Infinity, ease: 'linear' }}
+                        style={{ height: 48 }}
+                      >
+                        {[...recentEvents, ...recentEvents].map((evt, i) => (
+                          <button
+                            key={`${evt.id}-${i}`}
+                            onClick={() => router.push(`/event/${evt.id}`)}
+                            className="inline-flex items-center gap-2 text-xs font-medium transition-colors hover:opacity-80 shrink-0"
+                            style={{ color: 'var(--cp-text-2)' }}
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{
+                              background: evt.status === 'active' ? 'var(--cp-secondary)' : 'var(--cp-text-3)'
+                            }} />
+                            <span className="font-semibold" style={{ color: 'var(--cp-text-1)' }}>{evt.title}</span>
+                            <span className="opacity-40">·</span>
+                            <span className="opacity-50">{evt.category || 'Event'}</span>
+                            <span className="opacity-40">·</span>
+                            <span className="opacity-40">{formatRelativeTime(evt.createdAt)}</span>
+                          </button>
+                        ))}
+                      </motion.div>
+                      {/* Edge fades */}
+                      <div className="absolute left-0 top-0 bottom-0 w-12 z-10 pointer-events-none" style={{ background: `linear-gradient(90deg, var(--cp-surface), transparent)` }} />
+                      <div className="absolute right-0 top-0 bottom-0 w-12 z-10 pointer-events-none" style={{ background: `linear-gradient(270deg, var(--cp-surface), transparent)` }} />
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* ── Trending Tags ── */}
+                {trending.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1, duration: 0.4 }}
+                    className="mt-8 flex flex-wrap items-center gap-2.5"
+                  >
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] mr-1" style={{ color: 'var(--cp-text-3)' }}>Trending</span>
+                    {trending.map(([cat, count], i) => (
+                      <motion.button
+                        key={cat}
+                        onClick={() => router.push(`/feed?q=${cat}`)}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 1.1 + i * 0.06 }}
+                        className="px-4 py-2 rounded-full text-xs font-bold transition-all hover:scale-105 active:scale-95 group"
+                        style={{
+                          background: 'color-mix(in srgb, var(--cp-primary) 8%, var(--cp-surface))',
+                          border: '1px solid color-mix(in srgb, var(--cp-primary) 20%, var(--cp-border))',
+                          color: 'var(--cp-text-1)',
+                        }}
+                      >
+                        {cat}
+                        <span className="ml-1.5 opacity-30 group-hover:opacity-60 transition-opacity">{count}</span>
+                      </motion.button>
+                    ))}
+                  </motion.div>
+                )}
+
+                {/* Mobile CTA */}
+                <motion.button
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1.2 }}
+                  onClick={() => router.push('/feed')}
+                  className="md:hidden mt-8 w-full flex items-center justify-center gap-2 px-5 py-3 rounded-2xl text-sm font-bold"
+                  style={{ background: 'var(--cp-primary)', color: 'var(--cp-primary-on)', boxShadow: '0 0 24px -4px hsl(258 90% 63% / 0.4)' }}
+                >
+                  Explore All Events <ArrowRight size={14} />
+                </motion.button>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        )
+      })()}
 
       {/* Recommended */}
       {recommendedEvents.length > 0 && (

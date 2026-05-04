@@ -195,14 +195,18 @@ export default function PillNavbar() {
     router.push(href)
   }
 
-  const pillColor = '#1a1625'
-  const baseColor = 'hsl(268, 30%, 96%)'
+  // Theme-aware colors pulled from the design system
+  const isDark = mounted && resolvedTheme === 'dark'
+  const pillColor = isDark ? 'hsl(240, 20%, 18%)' : 'hsl(258, 30%, 22%)'
+  const baseColor = isDark ? 'hsl(240, 20%, 10%)' : 'hsl(258, 20%, 95%)'
+  const pillText  = isDark ? 'hsl(0, 0%, 88%)'    : 'hsl(0, 0%, 100%)'
+  const hoverText = isDark ? 'hsl(0, 0%, 92%)'    : 'hsl(258, 30%, 22%)'
 
   const cssVars = {
     ['--base']: baseColor,
     ['--pill-bg']: pillColor,
-    ['--hover-text']: pillColor,
-    ['--pill-text']: baseColor,
+    ['--hover-text']: hoverText,
+    ['--pill-text']: pillText,
     ['--nav-h']: '42px',
     ['--pill-pad-x']: '16px',
     ['--pill-gap']: '3px',
