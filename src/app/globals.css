@@ -360,28 +360,30 @@ body {
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    border-radius: var(--r-full);
-    background: linear-gradient(135deg, var(--cp-primary), hsl(290, 90%, 60%));
-    color: white;
-    font-weight: 600;
+    padding: 0.75rem 1.75rem;
+    background: var(--cp-text-1);
+    color: var(--cp-bg);
+    border: 2px solid var(--cp-text-1);
+    font-weight: 700;
     font-size: 0.875rem;
-    box-shadow: 0 4px 20px -4px hsl(from var(--cp-primary) h s l / 0.5);
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    will-change: transform;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 4px 4px 0px var(--cp-primary);
+    transition: all 0.15s ease-out;
     cursor: pointer;
   }
   .btn-primary:hover {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 8px 30px -6px hsl(from var(--cp-primary) h s l / 0.6);
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px var(--cp-primary);
   }
   .btn-primary:active {
-    transform: scale(0.97);
-    box-shadow: none;
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px var(--cp-primary);
   }
   .btn-primary:disabled {
     opacity: 0.6;
     pointer-events: none;
+    box-shadow: none;
   }
 
   .btn-secondary {
@@ -389,22 +391,27 @@ body {
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    border-radius: var(--r-full);
-    background: var(--cp-surface);
-    color: var(--cp-primary);
-    border: 1.5px solid var(--cp-border);
-    font-weight: 600;
+    padding: 0.75rem 1.75rem;
+    background: var(--cp-bg);
+    color: var(--cp-text-1);
+    border: 2px solid var(--cp-text-1);
+    font-weight: 700;
     font-size: 0.875rem;
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 4px 4px 0px var(--cp-border);
+    transition: all 0.15s ease-out;
     cursor: pointer;
   }
   .btn-secondary:hover {
-    border-color: var(--cp-primary);
-    background: var(--cp-primary-light);
-    transform: translateY(-1px);
+    background: var(--cp-surface-dim);
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px var(--cp-border);
   }
-  .btn-secondary:active { transform: scale(0.97); }
+  .btn-secondary:active {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px var(--cp-border);
+  }
 
   .btn-ghost {
     display: inline-flex;
@@ -412,16 +419,18 @@ body {
     justify-content: center;
     gap: 0.5rem;
     padding: 0.625rem 1.25rem;
-    border-radius: var(--r-md);
-    color: var(--cp-text-2);
-    font-weight: 500;
+    color: var(--cp-text-1);
+    font-weight: 600;
     font-size: 0.875rem;
-    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all 0.15s ease;
     cursor: pointer;
+    border: 2px solid transparent;
   }
   .btn-ghost:hover {
     background: var(--cp-surface-dim);
-    color: var(--cp-text-1);
+    border: 2px solid var(--cp-border);
   }
 
   /* ── Tags & Pills ── */

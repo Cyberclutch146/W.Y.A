@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowRight, Zap, Users, Calendar, Sparkles, MapPin, Trophy, ChevronRight, Compass, ShieldCheck, Clock, Flame, TrendingUp, Star } from 'lucide-react';
 import { getEvents } from "@/services/eventService";
 import { getGlobalLeaderboard, getLeaderboardStats, LeaderboardEntry } from "@/services/userService";
@@ -102,36 +103,33 @@ export default function LandingPage() {
 
       {/* HERO SECTION */}
       <section ref={heroRef} className="relative min-h-[100svh] flex items-center pt-10 pb-20 overflow-hidden">
-        {/* Orb Animated Background */}
+        {/* Chaotic Collage Background */}
         <motion.div style={{ y: yBg }} className="absolute inset-0 z-0 opacity-50 dark:opacity-70">
-          <Orb hoverIntensity={0.3} rotateOnHover forceHoverState={false} backgroundColor={resolvedTheme === 'light' ? '#d4d4e0' : '#0f0f14'} />
+          <Image 
+            src="/chaotic_collage_bg.png" 
+            alt="Chaotic Campus Collage" 
+            fill 
+            className="object-cover object-center"
+            priority
+          />
         </motion.div>
         
-        {/* Deep dark gradient overlay for text readability */}
-        <div className="absolute inset-0 z-0 bg-gradient-to-b from-background/30 via-background/50 to-background pointer-events-none" />
+        {/* Deep gradient overlay for text readability */}
+        <div className="absolute inset-0 z-0 bg-gradient-to-b from-background/70 via-background/80 to-background pointer-events-none" />
 
         <div className="max-w-7xl mx-auto w-full px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <motion.div style={{ opacity }} className="flex flex-col items-start py-8">
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-panel border border-primary/20 bg-primary/5 text-primary mb-4"
-            >
-              <Sparkles size={14} />
-              <span className="text-xs font-semibold uppercase tracking-wider">Where You At — Campus Events Reimagined</span>
-            </motion.div>
-
             <motion.h1
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
               className="text-[7rem] sm:text-[9rem] md:text-[11rem] font-black leading-none mb-8"
               style={{ 
                 fontFamily: 'var(--font-logo)',
-                letterSpacing: '-0.05em',
                 background: 'linear-gradient(135deg, var(--cp-text-1) 30%, var(--cp-text-3) 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
               }}
             >
-              W.Y.A
+            Where You At
             </motion.h1>
 
             <motion.p 
@@ -199,8 +197,21 @@ export default function LandingPage() {
       </section>
 
       {/* BENTO GRID FEATURES */}
-      <section className="relative z-10 py-32 px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="text-center mb-20 max-w-2xl mx-auto">
+      <section className="relative z-10 py-32 px-6 lg:px-8 overflow-hidden">
+        {/* Chaotic Collage Background */}
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <Image 
+            src="/features_collage_bg.png" 
+            alt="Features background collage" 
+            fill 
+            className="object-cover opacity-30 dark:opacity-40"
+            quality={90}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-background/80 to-background"></div>
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto">
+          <div className="text-center mb-20 max-w-2xl mx-auto">
           <h2 className="font-headline text-4xl md:text-5xl font-bold mb-6">Designed for the <br/> <span className="premium-gradient-text">Modern Student</span></h2>
           <p className="text-lg" style={{ color: 'var(--cp-text-2)' }}>Everything you need to navigate campus life, neatly organized in a seamless and beautiful interface.</p>
         </div>
@@ -230,6 +241,7 @@ export default function LandingPage() {
               </div>
             </motion.div>
           ))}
+        </div>
         </div>
       </section>
 
@@ -265,9 +277,21 @@ export default function LandingPage() {
       </section>
 
       {/* CTA SECTION */}
-      <section className="relative z-20 py-32 px-6 lg:px-8">
-        <div className="max-w-5xl mx-auto rounded-[3rem] p-12 md:p-20 text-center relative overflow-hidden glass-panel border border-primary/20 shadow-2xl">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-tertiary/10" />
+      <section className="relative z-20 py-32 px-6 lg:px-8 overflow-hidden">
+        {/* Chaotic Collage Background */}
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <Image 
+            src="/cta_collage_bg.png" 
+            alt="CTA background collage" 
+            fill 
+            className="object-cover opacity-40 dark:opacity-50"
+            quality={90}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-background/80 to-background"></div>
+        </div>
+
+        <div className="relative z-10 max-w-5xl mx-auto rounded-[3rem] p-12 md:p-20 text-center overflow-hidden glass-panel border border-primary/20 shadow-2xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background/80 to-tertiary/20" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl h-[400px] bg-primary/20 blur-[120px] rounded-full pointer-events-none" />
           
           <div className="relative z-10">

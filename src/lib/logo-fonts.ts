@@ -28,7 +28,7 @@ import {
   Plus_Jakarta_Sans,
   Urbanist,
   Tenor_Sans,
-  Big_Shoulders_Display,
+  Bungee_Shade,
   Archivo_Black,
   Michroma,
   Krona_One,
@@ -39,7 +39,6 @@ import {
   Megrim,
   Faster_One,
   Staatliches,
-  /*
   Chakra_Petch,
   Oxanium,
   Orbitron,
@@ -63,7 +62,6 @@ import {
   Monoton,
   Pirata_One,
   Italiana
-  */
 } from 'next/font/google';
 
 // ---------------------------------------------------------------------------
@@ -102,7 +100,7 @@ export const sora = Sora({ subsets: ['latin'], variable: '--font-logo' });
 export const plusJakarta = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-logo' });
 export const urbanist = Urbanist({ subsets: ['latin'], variable: '--font-logo' });
 export const tenorSans = Tenor_Sans({ weight: '400', subsets: ['latin'], variable: '--font-logo' });
-export const bigShoulders = Big_Shoulders_Display({ subsets: ['latin'], variable: '--font-logo' });
+export const bungeeShade = Bungee_Shade({ weight: '400', subsets: ['latin'], variable: '--font-logo' });
 export const archivoBlack = Archivo_Black({ weight: '400', subsets: ['latin'], variable: '--font-logo' });
 export const michroma = Michroma({ weight: '400', subsets: ['latin'], variable: '--font-logo' });
 export const kronaOne = Krona_One({ weight: '400', subsets: ['latin'], variable: '--font-logo' });
@@ -115,7 +113,6 @@ export const fasterOne = Faster_One({ weight: '400', subsets: ['latin'], variabl
 export const staatliches = Staatliches({ weight: '400', subsets: ['latin'], variable: '--font-logo' });
 
 // --- 20 MORE OPTIONS (Total 60) ---
-/*
 export const chakraPetch = Chakra_Petch({ weight: ['400', '700'], subsets: ['latin'], variable: '--font-logo' });
 export const oxanium = Oxanium({ subsets: ['latin'], variable: '--font-logo' });
 export const orbitron = Orbitron({ subsets: ['latin'], variable: '--font-logo' });
@@ -139,7 +136,6 @@ export const kumarOne = Kumar_One({ weight: '400', subsets: ['latin'], variable:
 export const monoton = Monoton({ weight: '400', subsets: ['latin'], variable: '--font-logo' });
 export const pirataOne = Pirata_One({ weight: '400', subsets: ['latin'], variable: '--font-logo' });
 export const italiana = Italiana({ weight: '400', subsets: ['latin'], variable: '--font-logo' });
-*/
 
 // ===========================================================================
 // SWAP YOUR LOGO FONT HERE
