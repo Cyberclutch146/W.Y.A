@@ -1,4 +1,4 @@
-// ─── Mock Data for CampusPulse ───────────────────────────
+// ─── Mock Data for W.Y.A (Where You At) ───────────────────────────
 // Used for UI previews, Storybook, and fallback rendering.
 // In production, all data is fetched from Firestore.
 
@@ -127,7 +127,7 @@ export const mockEvents: Event[] = [
   {
     id: 'e5',
     title: 'Mental Wellness Week',
-    organizer: 'CampusPulse Student Welfare',
+    organizer: 'W.Y.A Student Welfare',
     location: 'Student Activity Centre',
     distance: 'On Campus',
     description: 'A week-long initiative including mindfulness sessions, peer support groups, creative therapy workshops, and a closing open-mic night. All sessions are free and confidential.',

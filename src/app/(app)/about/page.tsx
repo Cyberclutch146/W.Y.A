@@ -188,7 +188,7 @@ export default function AboutPage() {
             </h1>
 
             <p className="mt-4 max-w-3xl text-lg leading-relaxed" style={{ color: 'var(--cp-text-2)' }}>
-              CampusPulse helps students organize events, surface urgent needs, and respond with more clarity when time matters most.
+              W.Y.A helps students organize events, surface urgent needs, and respond with more clarity when time matters most.
             </p>
 
             <div className="mt-6 flex flex-wrap gap-2">

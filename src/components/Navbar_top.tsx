@@ -175,7 +175,7 @@ export default function NavbarTop() {
             <Zap size={20} className="animate-pulse" fill="currentColor" />
           </div>
           <span className="font-headline text-lg font-bold tracking-tight text-foreground transition-colors group-hover:text-primary">
-            CampusPulse
+            W.Y.A
           </span>
         </button>
 

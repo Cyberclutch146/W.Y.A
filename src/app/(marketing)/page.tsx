@@ -7,12 +7,15 @@ import { ArrowRight, Zap, Users, Calendar, Sparkles, MapPin, Trophy, ChevronRigh
 import { getEvents } from "@/services/eventService";
 import { getGlobalLeaderboard, getLeaderboardStats, LeaderboardEntry } from "@/services/userService";
 import { CommunityEvent } from "@/types";
-import { ThemeToggle } from '@/components/ThemeToggle';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { CountUp } from '@/components/CountUp';
-import LiquidEther from '@/components/LiquidEther';
 import ScrollVelocity from '@/components/ScrollVelocity';
+import Orb from '@/components/Orb';
+import StaggeredMenu from '@/components/StaggeredMenu';
+
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { useTheme } from 'next-themes';
 
 // Merged HeroVisual directly into page
 const STATS = [
@@ -42,6 +45,7 @@ const TESTIMONIALS = [
 export default function LandingPage() {
   const { user, loading, loginAnonymously, loginWithGoogle } = useAuth();
   const router = useRouter();
+  const { resolvedTheme } = useTheme();
   const [authLoading, setAuthLoading] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -74,76 +78,67 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground font-body relative overflow-x-hidden selection:bg-primary/30 selection:text-primary">
-      {/* NAVBAR */}
-      <header className="fixed top-0 left-0 right-0 z-50 px-6 py-4 transition-all duration-300 glass-panel border-b border-white/10">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link href="/" className="group flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-tertiary flex items-center justify-center text-white font-bold shadow-lg shadow-primary/30 group-hover:scale-105 transition-transform">
-              <Zap size={18} fill="currentColor" />
-            </div>
-            <span className="font-headline font-bold text-xl tracking-tight">CampusPulse</span>
-          </Link>
-          <div className="flex items-center gap-4">
-            <ThemeToggle />
-            {!user && !loading && (
-              <Link href="/login" className="hidden md:block px-4 py-2 font-label font-medium text-sm text-on-surface/80 hover:text-on-surface transition-colors">
-                Log in
-              </Link>
-            )}
-            <button onClick={handleJoinUs} disabled={authLoading || loading} className="btn-primary px-6 py-2.5 text-sm">
-              {authLoading ? 'Loading...' : user ? 'Open App' : 'Get Started'}
-              <ArrowRight size={16} />
-            </button>
-          </div>
-        </div>
-      </header>
+      {/* STAGGERED MENU OVERLAY */}
+      <StaggeredMenu
+        isFixed
+        position="right"
+        colors={['#1a1a2e', '#6366f1', '#a855f7']}
+        accentColor="#a855f7"
+        panelBg="#0f0f1a"
+        menuButtonColor={resolvedTheme === 'light' ? '#0f0f14' : '#f8f8fb'}
+        openMenuButtonColor="#fff"
+        rightElement={<ThemeToggle />}
+        items={[
+          { label: 'Home', ariaLabel: 'Go to Home', link: '/home', onClick: () => router.push('/home') },
+          { label: 'Events', ariaLabel: 'Browse Events', link: '/home', onClick: () => router.push('/home') },
+          { label: 'About', ariaLabel: 'About W.Y.A', link: '/about', onClick: () => router.push('/about') },
+          { label: 'Login', ariaLabel: 'Log in', link: '/login', onClick: () => router.push('/login') },
+        ]}
+        socialItems={[
+          { label: 'GitHub', link: '#' },
+          { label: 'Twitter', link: '#' },
+        ]}
+      />
 
       {/* HERO SECTION */}
-      <section ref={heroRef} className="relative min-h-[100svh] flex items-center pt-20 overflow-hidden">
-        {/* Animated Background */}
-        <motion.div style={{ y: yBg }} className="absolute inset-0 z-0 opacity-40 dark:opacity-60 mix-blend-screen">
-          <LiquidEther
-            colors={['#6366f1', '#a855f7', '#ec4899']}
-            mouseForce={15}
-            cursorSize={120}
-            isViscous
-            viscous={40}
-            iterationsViscous={32}
-            iterationsPoisson={32}
-            resolution={0.5}
-            isBounce={false}
-            autoDemo
-            autoSpeed={0.3}
-            autoIntensity={1.5}
-          />
+      <section ref={heroRef} className="relative min-h-[100svh] flex items-center pt-10 pb-20 overflow-hidden">
+        {/* Orb Animated Background */}
+        <motion.div style={{ y: yBg }} className="absolute inset-0 z-0 opacity-50 dark:opacity-70">
+          <Orb hoverIntensity={0.3} rotateOnHover forceHoverState={false} backgroundColor={resolvedTheme === 'light' ? '#d4d4e0' : '#0f0f14'} />
         </motion.div>
         
         {/* Deep dark gradient overlay for text readability */}
-        <div className="absolute inset-0 z-0 bg-gradient-to-b from-background/40 via-background/60 to-background pointer-events-none" />
+        <div className="absolute inset-0 z-0 bg-gradient-to-b from-background/30 via-background/50 to-background pointer-events-none" />
 
         <div className="max-w-7xl mx-auto w-full px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <motion.div style={{ opacity }} className="flex flex-col items-start py-12">
+          <motion.div style={{ opacity }} className="flex flex-col items-start py-8">
             <motion.div 
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-panel border border-primary/20 bg-primary/5 text-primary mb-8"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-panel border border-primary/20 bg-primary/5 text-primary mb-4"
             >
               <Sparkles size={14} />
-              <span className="text-xs font-semibold uppercase tracking-wider">The Ultimate Campus Network</span>
+              <span className="text-xs font-semibold uppercase tracking-wider">Where You At — Campus Events Reimagined</span>
             </motion.div>
 
-            <motion.h1 
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="font-headline text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6"
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+              className="text-[7rem] sm:text-[9rem] md:text-[11rem] font-black leading-none mb-8"
+              style={{ 
+                fontFamily: 'var(--font-logo)',
+                letterSpacing: '-0.05em',
+                background: 'linear-gradient(135deg, var(--cp-text-1) 30%, var(--cp-text-3) 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
             >
-              Elevate Your <br />
-              <span className="premium-gradient-text">Campus Experience.</span>
+              W.Y.A
             </motion.h1>
 
             <motion.p 
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
               className="text-lg sm:text-xl text-on-surface-variant max-w-lg mb-10 leading-relaxed"
             >
-              Discover underground events, RSVP with one tap, earn rewards for showing up, and own your social life in a beautifully curated ecosystem.
+              Find your people, find the vibe. Discover events, RSVP with one tap, earn rewards for showing up, and own your campus social life.
             </motion.p>
 
             <motion.div 
@@ -289,7 +284,7 @@ export default function LandingPage() {
                 disabled={authLoading || loading} 
                 className="btn-primary px-10 py-5 text-lg w-full sm:w-auto"
               >
-                {authLoading ? 'Connecting...' : 'Join The Pulse'} <Zap size={20} />
+                {authLoading ? 'Connecting...' : 'Find Your Vibe'} <Zap size={20} />
               </button>
             </div>
           </div>
@@ -301,9 +296,9 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
             <Zap size={20} style={{ color: 'var(--cp-primary)' }} />
-            <span className="font-headline font-bold text-lg">CampusPulse</span>
+            <span className="font-headline font-bold text-lg">W.Y.A</span>
           </div>
-          <p className="text-sm" style={{ color: 'var(--cp-text-3)' }}>© 2026 CampusPulse. All rights reserved.</p>
+          <p className="text-sm" style={{ color: 'var(--cp-text-3)' }}>© 2026 W.Y.A — Where You At. All rights reserved.</p>
           <div className="flex gap-8">
             {[['About', '/about'], ['Privacy', '/terms'], ['Login', '/login']].map(([label, href]) => (
               <Link key={href} href={href} className="text-sm font-medium transition-colors" style={{ color: 'var(--cp-text-2)' }}

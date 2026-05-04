@@ -7,6 +7,7 @@ import { updateUserProfile } from '@/services/userService';
 import { uploadImage } from '@/services/storageService';
 import { toast } from 'sonner';
 import { getUserAvatar } from '@/lib/avatar';
+import { Department, AcademicYear } from '@/types';
 import { Camera, Loader2, MapPin, Clock, ArrowLeft, CheckCircle, Wrench, BarChart3, Heart, Sparkles, Compass, ChevronDown, Check, GraduationCap, BookOpen, User, AlignLeft, Award, X, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -360,9 +361,9 @@ export default function ProfilePage() {
         bio: bio.trim(),
         location: location.trim(),
         skills: skills.map(s => s.trim()).filter(Boolean),
-        department,
-        year,
-        availability,
+        department: department as Department | '',
+        year: year as AcademicYear | '',
+        availability: availability,
         profileComplete: true,
       });
       setIsEditing(false);

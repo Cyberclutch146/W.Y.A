@@ -53,8 +53,8 @@ export default function AIChatWidget() {
     setIsOpen(!isOpen);
     if (!isOpen && messages.length === 0) {
       const greeting = user && profile
-        ? `Hi ${profile.displayName?.split(' ')[0] || 'there'}! 👋 I'm the CampusPulse AI. I can help you find events, sign you up to volunteer, and navigate the platform. What would you like to do?`
-        : "Hi there! 👋 I'm the CampusPulse AI assistant. How can I help you today?";
+        ? `Hi ${profile.displayName?.split(' ')[0] || 'there'}! 👋 I'm the W.Y.A AI. I can help you find events, sign you up to volunteer, and navigate the platform. What would you like to do?`
+        : "Hi there! 👋 I'm the W.Y.A AI assistant. How can I help you today?";
       setMessages([{ role: 'assistant', content: greeting }]);
     }
   };
@@ -167,7 +167,7 @@ export default function AIChatWidget() {
                   <Bot size={18} className="text-white" />
                 </div>
                 <div>
-                  <h3 className="font-headline font-bold text-sm" style={{ color: 'var(--cp-text-1)' }}>CampusPulse AI</h3>
+                  <h3 className="font-headline font-bold text-sm" style={{ color: 'var(--cp-text-1)' }}>W.Y.A AI</h3>
                   <div className="flex items-center gap-1 text-xs font-medium" style={{ color: 'var(--cp-text-3)' }}>
                     <Sparkles size={10} style={{ color: 'var(--cp-secondary)' }} />
                     <span>Search • Sign up • Navigate</span>

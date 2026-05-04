@@ -16,7 +16,7 @@ export function ChatPanel({ onClose }: Props) {
     {
       id: crypto.randomUUID(),
       role: "assistant",
-      content: "Hi — I'm CampusPulse AI. I can help with volunteering, donations, event discovery, and platform questions.",
+      content: "Hi — I'm W.Y.A AI. I can help with volunteering, donations, event discovery, and platform questions.",
     },
   ]);
 
@@ -62,7 +62,7 @@ export function ChatPanel({ onClose }: Props) {
             <Bot size={16} />
           </div>
           <div>
-            <h3 className="font-headline font-bold text-sm">CampusPulse AI</h3>
+            <h3 className="font-headline font-bold text-sm">W.Y.A AI</h3>
             <p className="text-[10px] opacity-80">Chat for quick help</p>
           </div>
         </div>

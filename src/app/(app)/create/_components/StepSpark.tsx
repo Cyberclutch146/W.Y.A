@@ -326,7 +326,7 @@ export default function StepSpark({
             className="rounded-2xl p-5 flex items-center gap-4"
             style={{ background: 'var(--cp-surface-dim)', border: '1px dashed var(--cp-border)' }}
           >
-            <MousePointerClick size={20} style={{ color: 'var(--cp-text-3)', shrink: 0 }} />
+            <MousePointerClick size={20} style={{ color: 'var(--cp-text-3)', flexShrink: 0 }} />
             <div>
               <p className="text-sm font-bold" style={{ color: 'var(--cp-text-2)' }}>Get AI suggestions</p>
               <p className="text-[11px]" style={{ color: 'var(--cp-text-3)' }}>

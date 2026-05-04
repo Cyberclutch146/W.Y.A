@@ -62,7 +62,7 @@ export default function OrganizerEventPage({ params }: { params: Promise<{ id: s
     setSendingSms(true);
     try {
       const res = await fetch('/api/sms', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to: smsNumber, message: `Hi! You are invited to join "${event.title}" on CampusPulse. Location: ${event.location}.`, url: window.location.href }) });
+        body: JSON.stringify({ to: smsNumber, message: `Hi! You are invited to join "${event.title}" on W.Y.A. Location: ${event.location}.`, url: window.location.href }) });
       let data: any = {};
       try { data = await res.json(); } catch { data = {}; }
       if (!res.ok) throw new Error(data.error || 'Failed to send SMS.');

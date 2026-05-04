@@ -47,8 +47,8 @@ export function SideNav() {
           <Zap size={22} className="text-white fill-current animate-pulse-slow" />
         </div>
         <div>
-          <h1 className="font-headline text-lg font-bold tracking-tight leading-none" style={{ color: 'var(--cp-text-1)' }}>CampusPulse</h1>
-          <p className="text-[10px] font-bold uppercase tracking-widest mt-1 opacity-70" style={{ color: 'var(--cp-primary)' }}>Energy Hub</p>
+          <h1 className="font-headline text-lg font-bold tracking-tight leading-none" style={{ color: 'var(--cp-text-1)' }}>W.Y.A</h1>
+          <p className="text-[10px] font-bold uppercase tracking-widest mt-1 opacity-70" style={{ color: 'var(--cp-primary)' }}>Where You At</p>
         </div>
       </Link>
 

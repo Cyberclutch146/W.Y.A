@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { Space_Grotesk, Inter, Geist } from 'next/font/google';
+import { Space_Grotesk, Inter, Geist, Outfit } from 'next/font/google';
+import { activeLogoFont } from '@/lib/logo-fonts';
 import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
 import { ThemeProvider } from '@/context/ThemeProvider';
@@ -21,9 +22,16 @@ const inter = Inter({
   display: 'swap',
 });
 
+const outfit = Outfit({
+  variable: '--font-outfit',
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800', '900'],
+  display: 'swap',
+});
+
 export const metadata: Metadata = {
-  title: 'CampusPulse - Campus Event Intelligence',
-  description: 'Discover, RSVP, and thrive — your campus life, supercharged.',
+  title: 'W.Y.A — Where You At',
+  description: 'Find your people, find the vibe. Campus events, reimagined.',
 };
 
 export default function RootLayout({
@@ -32,7 +40,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("scroll-smooth", spaceGrotesk.variable, inter.variable, "font-sans", geist.variable)} suppressHydrationWarning>
+    <html lang="en" className={cn("scroll-smooth", spaceGrotesk.variable, inter.variable, outfit.variable, activeLogoFont.variable, "font-sans", geist.variable)} suppressHydrationWarning>
       <head>
       </head>
       <body className="antialiased min-h-screen flex flex-col font-body bg-background text-on-background">

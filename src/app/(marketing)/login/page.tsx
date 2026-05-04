@@ -195,7 +195,7 @@ export default function LoginPage() {
             >Back.</span>
           </h1>
           <p className="text-sm mb-8 max-w-[380px] leading-relaxed" style={{ color: 'var(--cp-text-3)' }}>
-            Continue your campus journey with CampusPulse.
+            Continue your campus journey with W.Y.A.
           </p>
 
           <form onSubmit={handleLogin} className="flex flex-col gap-5">

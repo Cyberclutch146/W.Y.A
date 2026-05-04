@@ -143,7 +143,7 @@ export default function RegisterPage() {
             <span
               className="px-2 py-0.5 inline-block rounded-lg"
               style={{ background: 'linear-gradient(135deg, var(--cp-primary), var(--cp-violet))', color: 'white' }}
-            >CampusPulse.</span>
+            >W.Y.A.</span>
           </h1>
           <p className="text-sm mb-6 max-w-[380px] leading-relaxed" style={{ color: 'var(--cp-text-3)' }}>
             Create your account and start owning your campus social life.
@@ -190,7 +190,7 @@ export default function RegisterPage() {
               type="submit" 
               disabled={loading}
             >
-              {loading ? <><Loader2 size={16} className="animate-spin" /> Creating Account...</> : 'Join CampusPulse →'}
+              {loading ? <><Loader2 size={16} className="animate-spin" /> Creating Account...</> : 'Join W.Y.A →'}
             </button>
 
             <div className="flex items-center gap-3 my-1" style={{ color: 'var(--cp-text-3)' }}>
