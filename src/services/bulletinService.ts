@@ -132,3 +132,20 @@ export const deleteBulletin = async (
 
   return await response.json();
 };
+
+export const togglePin = async (
+  bulletinId: string,
+  pinned: boolean,
+  requesterEmail: string
+): Promise<void> => {
+  const response = await fetch('/api/bulletin/pin', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ bulletinId, pinned, requesterEmail }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to update pinned status');
+  }
+};

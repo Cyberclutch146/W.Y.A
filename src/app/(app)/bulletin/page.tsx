@@ -7,8 +7,13 @@ import {
   ChevronRight, ChevronDown, AlertTriangle, X, Loader2,
   BookOpen, ShieldAlert, PlusCircle, Clock, MapPin, Phone,
 } from 'lucide-react'
+import { cn } from '../../../lib/utils'
 import { BulletinAlert, BulletinAlertType } from '@/types/bulletin'
-import { subscribeToBulletins, deleteBulletin } from '@/services/bulletinService'
+import { 
+  subscribeToBulletins, 
+  deleteBulletin,
+  togglePin,
+} from '@/services/bulletinService'
 import { useAuth } from '@/context/AuthContext'
 import { ADMIN_EMAILS } from '@/services/eventService'
 import CreateNoticeModal from './_components/CreateNoticeModal'
@@ -46,15 +51,33 @@ type FilterTab = typeof FILTER_TABS[number]['id']
 // ─── Relative time helper ────────────────────────────────
 
 function relativeTime(isoString: string): string {
-  const diff = Date.now() - new Date(isoString).getTime()
-  const mins  = Math.floor(diff / 60_000)
-  const hours = Math.floor(diff / 3_600_000)
-  const days  = Math.floor(diff / 86_400_000)
-  if (mins < 1)   return 'just now'
-  if (mins < 60)  return `${mins}m ago`
-  if (hours < 24) return `${hours}h ago`
-  if (days < 7)   return `${days}d ago`
-  return new Date(isoString).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+  const date = new Date(isoString);
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+  
+  const mins  = Math.floor(diff / 60_000);
+  const hours = Math.floor(diff / 3_600_000);
+  const days  = Math.floor(diff / 86_400_000);
+
+  if (diff < 0) return 'just now'; // Safety for clock skew
+  if (mins < 1)   return 'just now';
+  if (mins < 60)  return `${mins}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  if (days < 7)   return `${days}d ago`;
+  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+function getExpiryLabel(expiryIso: string | null | undefined): { label: string, urgent: boolean } | null {
+  if (!expiryIso) return null;
+  const diff = new Date(expiryIso).getTime() - Date.now();
+  if (diff <= 0) return null;
+
+  const mins = Math.floor(diff / 60_000);
+  const hours = Math.floor(diff / 3_600_000);
+
+  if (mins < 60) return { label: `Expires in ${mins}m`, urgent: mins < 15 };
+  if (hours < 24) return { label: `Expires in ${hours}h`, urgent: false };
+  return { label: `Expires ${new Date(expiryIso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`, urgent: false };
 }
 
 // ─── Skeleton card ───────────────────────────────────────
@@ -93,14 +116,28 @@ interface NoticeCardProps {
   notice: BulletinAlert
   canDelete: boolean
   onDelete: (id: string) => void
+  isAdmin: boolean
+  user: any
 }
 
-function NoticeCard({ notice, canDelete, onDelete }: NoticeCardProps) {
+function NoticeCard({ notice, canDelete, onDelete, isAdmin, user }: NoticeCardProps) {
   const [expanded, setExpanded] = useState(false)
   const [deleting, setDeleting]  = useState(false)
   const config = TYPE_CONFIG[notice.type] || TYPE_CONFIG.ADMIN
   const Icon   = config.icon
   const isUrgent = notice.type === 'EMERGENCY' || notice.severity === 'Severe' || notice.severity === 'Extreme'
+  const isNew = (Date.now() - new Date(notice.timestamp).getTime()) < 1800000; // 30 mins
+  const expiry = getExpiryLabel(notice.expiresAt);
+
+  const handlePin = async (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (!user?.email) return
+    try {
+      await togglePin(notice.id, !notice.pinned, user.email)
+    } catch (error: any) {
+      alert(error.message || 'Failed to update notice')
+    }
+  }
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -126,7 +163,7 @@ function NoticeCard({ notice, canDelete, onDelete }: NoticeCardProps) {
       {/* Pinned badge */}
       {notice.pinned && (
         <div className="absolute -top-2 -right-2 z-10">
-          <div className="flex items-center gap-1 bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-full shadow-md">
+          <div className="flex items-center gap-1 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-md">
             <Pin size={10} /> PINNED
           </div>
         </div>
@@ -148,10 +185,25 @@ function NoticeCard({ notice, canDelete, onDelete }: NoticeCardProps) {
             <AlertTriangle size={12} className="text-red-500" />
           ) : null}
         </div>
-        <span className="text-xs text-muted-foreground font-medium bg-background/50 px-2 py-0.5 rounded-md flex items-center gap-1">
-          <Clock size={10} />
-          {relativeTime(notice.timestamp)}
-        </span>
+        <div className="flex items-center gap-2">
+          {isNew && (
+            <span className="text-[10px] font-bold bg-green-500 text-white px-1.5 py-0.5 rounded animate-pulse">
+              NEW
+            </span>
+          )}
+          <span className="text-xs text-muted-foreground font-medium bg-background/50 px-2 py-0.5 rounded-md flex items-center gap-1">
+            <Clock size={10} />
+            {relativeTime(notice.timestamp)}
+          </span>
+          {expiry && (
+            <span className={cn(
+              "text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1",
+              expiry.urgent ? "bg-red-500/10 text-red-500 animate-pulse" : "bg-muted text-muted-foreground"
+            )}>
+              {expiry.label}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Title */}
@@ -160,16 +212,24 @@ function NoticeCard({ notice, canDelete, onDelete }: NoticeCardProps) {
       </h3>
 
       {/* Description */}
-      <AnimatePresence initial={false}>
+      <div className="relative overflow-hidden mb-4">
         <motion.p
-          key={expanded ? 'expanded' : 'collapsed'}
-          initial={{ opacity: 0.8 }}
-          animate={{ opacity: 1 }}
-          className={`text-sm text-muted-foreground font-body ${expanded ? '' : 'line-clamp-3'} mb-4`}
+          layout
+          initial={false}
+          animate={{ height: expanded ? 'auto' : '4.5rem' }} // approx 3 lines
+          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+          className={cn(
+            "text-sm text-muted-foreground font-body leading-relaxed",
+            !expanded && "line-clamp-3"
+          )}
         >
           {notice.description}
         </motion.p>
-      </AnimatePresence>
+        
+        {!expanded && notice.description.length > 150 && (
+          <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-background/40 to-transparent pointer-events-none" />
+        )}
+      </div>
 
       {/* Contact info (expanded) */}
       {expanded && notice.contactInfo && (
@@ -207,6 +267,15 @@ function NoticeCard({ notice, canDelete, onDelete }: NoticeCardProps) {
         </div>
 
         <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+          {isAdmin && (
+            <button
+              onClick={handlePin}
+              className={`p-1 rounded-full transition-colors ${notice.pinned ? 'text-amber-500 bg-amber-500/10' : 'text-muted-foreground hover:bg-muted'}`}
+              title="Pin notice"
+            >
+              <Pin size={14} />
+            </button>
+          )}
           {canDelete && (
             <button
               onClick={handleDelete}
@@ -249,15 +318,23 @@ export default function BulletinPage() {
     setLoading(true)
     setError(null)
 
-    const unsubscribe = subscribeToBulletins((data) => {
-      // Filter expired notices client-side
-      const now = new Date().toISOString()
-      const live = data.filter((n) => !n.expiresAt || n.expiresAt > now)
-      setNotices(live)
-      setLoading(false)
-    })
+    const pruneExpired = () => {
+      const now = new Date().toISOString();
+      setNotices(prev => prev.filter(n => !n.expiresAt || n.expiresAt > now));
+    };
 
-    return () => unsubscribe()
+    const unsubscribe = subscribeToBulletins((updatedNotices) => {
+      const now = new Date().toISOString();
+      // Only show non-expired notices
+      setNotices(updatedNotices.filter(n => !n.expiresAt || n.expiresAt > now));
+      setLoading(false);
+    });
+
+    const timer = setInterval(pruneExpired, 60000); // Check every minute
+    return () => {
+      unsubscribe();
+      clearInterval(timer);
+    };
   }, [])
 
   // ── Delete handler ──────────────────────────────────────
@@ -268,7 +345,7 @@ export default function BulletinPage() {
   }, [user])
 
   // ── Filtering ───────────────────────────────────────────
-  const filtered = notices.filter((n) => {
+  const filtered = notices.sort((a, b) => Number(!!b.pinned) - Number(!!a.pinned)).filter((n) => {
     if (filter !== 'ALL' && n.type !== filter) return false
     if (search.trim()) {
       const q = search.toLowerCase()
@@ -441,6 +518,8 @@ export default function BulletinPage() {
                             notice={notice}
                             canDelete={canDelete(notice)}
                             onDelete={handleDelete}
+                            isAdmin={isAdmin}
+                            user={user}
                           />
                         ))
                       ) : (
