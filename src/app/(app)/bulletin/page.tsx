@@ -110,7 +110,7 @@ export default function BulletinPage() {
             transition={{ delay: 0.2 }}
             className="text-lg text-muted-foreground max-w-2xl mx-auto font-body"
           >
-            Stay in the loop with what\'s happening around campus. Announcements, lost & found, marketplace, and more.
+            Stay in the loop with what&apos;s happening around campus. Announcements, lost & found, marketplace, and more.
           </motion.p>
         </div>
 
@@ -138,7 +138,7 @@ export default function BulletinPage() {
           </div>
 
           {/* Clipboard Board */}
-          <div className="relative bg-[#f8f5f0] dark:bg-[#1a1814] rounded-3xl p-4 sm:p-8 pt-16 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] dark:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)] border border-[#e5dcd0] dark:border-[#2a2620]">
+          <div className="relative bg-[#f8f5f0] dark:bg-[#1a1814] rounded-3xl p-3 sm:p-8 pt-16 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] dark:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)] border border-[#e5dcd0] dark:border-[#2a2620]">
             
             {/* Paper */}
             <div className="relative bg-white dark:bg-[#111] min-h-[600px] rounded-xl shadow-sm border border-border/50 overflow-hidden">
@@ -146,16 +146,16 @@ export default function BulletinPage() {
               {/* Paper Lines */}
               <div className="absolute inset-0 pointer-events-none opacity-20 dark:opacity-10" style={{ backgroundImage: 'repeating-linear-gradient(transparent, transparent 31px, var(--border) 31px, var(--border) 32px)' }}></div>
               
-              <div className="relative z-10 p-6 sm:p-10">
+              <div className="relative z-10 p-4 sm:p-10">
                 
                 {/* Controls */}
                 <div className="flex flex-col sm:flex-row gap-4 justify-between items-center mb-10 pb-6 border-b border-border/50 border-dashed">
-                  <div className="flex bg-muted/50 p-1 rounded-xl w-full sm:w-auto">
+                  <div className="flex overflow-x-auto no-scrollbar bg-muted/50 p-1 rounded-xl w-full sm:w-auto max-w-full">
                     {(['ALL', 'ANNOUNCEMENT', 'MARKETPLACE', 'LOST_AND_FOUND'] as const).map((f) => (
                       <button
                         key={f}
                         onClick={() => setFilter(f)}
-                        className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${filter === f ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                        className={`flex-none px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all whitespace-nowrap ${filter === f ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
                       >
                         {f.replace(/_/g, ' ')}
                       </button>

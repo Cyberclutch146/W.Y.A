@@ -252,13 +252,13 @@ export default function PillNavbar() {
   } as React.CSSProperties
 
   return (
-    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[60] w-[calc(100%-2rem)] md:w-auto">
-      <nav
-        className="w-full md:w-max flex items-center justify-between md:justify-center gap-2 px-2 md:px-0 mx-auto"
-        aria-label="Primary"
-        style={cssVars}
-      >
-        {/* Logo */}
+    <div className="fixed top-4 left-0 right-0 z-[60] px-6 md:px-10 pointer-events-none">
+      <div className="relative flex items-center justify-center w-full mx-auto max-w-[1600px]" style={cssVars}>
+        <nav
+          className="flex items-center justify-center gap-2 pointer-events-auto"
+          aria-label="Primary"
+        >
+          {/* Logo */}
         <button
           ref={logoRef}
           onClick={() => navigate('/')}
@@ -310,8 +310,10 @@ export default function PillNavbar() {
           </ul>
         </div>
 
+        </nav>
+
         {/* Right actions cluster */}
-        <div className="hidden md:flex items-center gap-1 ml-1 rounded-full px-1" style={{ height: 'var(--nav-h)', background: 'var(--base)' }}>
+        <div className="hidden md:flex absolute right-0 top-0 items-center gap-1 rounded-full px-1 pointer-events-auto" style={{ height: 'var(--nav-h)', background: 'var(--base)' }}>
           {/* Notifications */}
           <div className="relative" ref={notificationRef}>
             <button
@@ -331,22 +333,21 @@ export default function PillNavbar() {
             <AnimatePresence>
               {notificationMenuOpen && (
                 <motion.div
-                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  initial={{ opacity: 0, y: 12, scale: 0.9 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  transition={{ duration: 0.15, ease: 'easeOut' }}
-                  className="card-elevated absolute right-0 mt-2 w-80 sm:w-96 overflow-hidden z-50 origin-top-right border border-border/50 bg-background shadow-xl"
-                  style={{ color: 'var(--foreground)' }}
+                  transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                  className="absolute right-0 mt-3 w-80 sm:w-96 rounded-[20px] border border-white/10 dark:border-white/5 bg-white/70 dark:bg-black/60 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)] overflow-hidden z-[100] origin-top-right p-2 ring-1 ring-black/5 dark:ring-white/10"
                 >
-                  <div className="p-4 border-b border-border/50 flex items-center justify-between bg-muted/20">
+                  <div className="p-3 mb-2 rounded-[16px] bg-gradient-to-br from-primary/10 to-transparent flex items-center justify-between border border-primary/10">
                     <div>
-                      <h3 className="font-semibold text-foreground text-sm">Notifications</h3>
-                      <p className="text-[11px] text-muted-foreground">You have {unreadCount} unread</p>
+                      <h3 className="font-bold text-foreground text-sm leading-tight">Notifications</h3>
+                      <p className="text-[12px] font-medium text-muted-foreground opacity-80">You have {unreadCount} unread</p>
                     </div>
                     {unreadCount > 0 && (
                       <button
                         onClick={(e) => { e.stopPropagation(); handleMarkAllRead(); }}
-                        className="p-1.5 rounded-full text-primary hover:bg-primary/10 transition-colors"
+                        className="p-1.5 rounded-full text-primary hover:bg-primary/20 transition-colors"
                         title="Mark all as read"
                       >
                         <CheckCheck size={16} />
@@ -354,14 +355,14 @@ export default function PillNavbar() {
                     )}
                   </div>
 
-                  <div className="max-h-[350px] overflow-y-auto no-scrollbar p-2 space-y-1 bg-background text-sm">
+                  <div className="max-h-[350px] overflow-y-auto no-scrollbar px-1 space-y-1">
                     {allNotifications.length === 0 ? (
                       <div className="py-8 text-center px-4">
-                        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted/50 mb-3">
+                        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-black/5 dark:bg-white/5 mb-3">
                           <Bell size={20} className="text-muted-foreground" />
                         </div>
-                        <p className="font-medium text-foreground">All caught up!</p>
-                        <p className="mt-1 text-xs text-muted-foreground">Check back later for new updates.</p>
+                        <p className="font-semibold text-foreground text-sm">All caught up!</p>
+                        <p className="mt-1 text-xs text-muted-foreground opacity-80">Check back later for new updates.</p>
                       </div>
                     ) : (
                       allNotifications.map((notification) => {
@@ -370,8 +371,8 @@ export default function PillNavbar() {
                           <button
                             key={notification.id}
                             onClick={() => handleNotificationClick(notification)}
-                            className={`w-full p-3 text-left transition-all duration-200 rounded-xl border border-transparent hover:border-border/50 ${
-                              notification.read ? 'opacity-60 hover:opacity-100' : 'bg-muted/30 hover:bg-muted/50'
+                            className={`w-full p-3 text-left transition-all duration-200 rounded-xl hover:translate-x-1 ${
+                              notification.read ? 'opacity-70 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/10' : 'bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15'
                             }`}
                           >
                             <div className="flex items-start gap-3">
@@ -380,15 +381,15 @@ export default function PillNavbar() {
                               </div>
                               <div className="min-w-0 flex-1">
                                 <div className="flex items-center justify-between gap-2">
-                                  <p className="font-medium text-foreground truncate">{notification.title}</p>
+                                  <p className="font-semibold text-[13px] text-foreground truncate">{notification.title}</p>
                                   {notification.createdAt && (
-                                    <span className="shrink-0 text-[10px] text-muted-foreground">{timeAgo(notification.createdAt)}</span>
+                                    <span className="shrink-0 text-[10px] font-medium text-muted-foreground">{timeAgo(notification.createdAt)}</span>
                                   )}
                                 </div>
-                                <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{notification.body}</p>
+                                <p className="mt-0.5 text-xs text-foreground/70 line-clamp-2 leading-relaxed">{notification.body}</p>
                               </div>
                               {!notification.read && (
-                                <div className="h-2 w-2 rounded-full bg-primary mt-2 shrink-0" />
+                                <div className="h-2 w-2 rounded-full bg-primary mt-2 shrink-0 shadow-[0_0_8px_var(--cp-primary)]" />
                               )}
                             </div>
                           </button>
@@ -397,10 +398,12 @@ export default function PillNavbar() {
                     )}
                   </div>
 
-                  <div className="p-2 border-t border-border/50 bg-muted/10">
+                  <div className="my-2 h-px bg-border/40 mx-2" />
+                  
+                  <div className="px-1 pb-1">
                     <button
                       onClick={() => { setNotificationMenuOpen(false); router.push('/bulletin') }}
-                      className="w-full py-2.5 text-xs font-medium text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                      className="w-full py-2.5 text-xs font-semibold text-primary hover:bg-black/5 dark:hover:bg-white/10 rounded-xl transition-all"
                     >
                       View All Bulletins
                     </button>
@@ -432,31 +435,38 @@ export default function PillNavbar() {
             <AnimatePresence>
               {profileOpen && (
                 <motion.div
-                  initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                  initial={{ opacity: 0, y: 12, scale: 0.9 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                  transition={{ duration: 0.15 }}
-                  className="absolute right-0 mt-2 w-56 rounded-2xl border border-border/50 bg-background shadow-xl overflow-hidden z-50 origin-top-right p-1.5"
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                  className="absolute right-0 mt-3 w-64 rounded-[20px] border border-white/10 dark:border-white/5 bg-white/70 dark:bg-black/60 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)] overflow-hidden z-[100] origin-top-right p-2 ring-1 ring-black/5 dark:ring-white/10"
                 >
-                  <div className="p-3 mb-1 rounded-xl bg-muted/30 flex items-center gap-3">
-                    <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full border border-border/50">
+                  <div className="p-3 mb-2 rounded-[16px] bg-gradient-to-br from-primary/10 to-transparent flex items-center gap-3 border border-primary/10">
+                    <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-background shadow-md">
                       <img src={getUserAvatar(profile?.avatarUrl, profile?.displayName)} alt="" className="h-full w-full object-cover" />
                     </div>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-foreground">{profile?.displayName || 'User'}</p>
-                      <p className="truncate text-xs text-muted-foreground">{profile?.email || ''}</p>
+                      <p className="truncate text-[15px] font-bold text-foreground leading-tight">{profile?.displayName || 'User'}</p>
+                      <p className="truncate text-[12px] font-medium text-muted-foreground opacity-80">{profile?.email || ''}</p>
                     </div>
                   </div>
-                  <button onClick={() => navigate('/profile')} className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-muted/50 transition-colors text-foreground">Profile</button>
-                  <button onClick={() => navigate('/leaderboard')} className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-muted/50 transition-colors text-foreground">Leaderboard</button>
-                  <button onClick={() => navigate('/about')} className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-muted/50 transition-colors text-foreground">About</button>
-                  <div className="my-1 h-px bg-border/50" />
-                  <button
-                    onClick={async () => { setProfileOpen(false); await logout(); router.push('/') }}
-                    className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-destructive/10 transition-colors text-destructive flex items-center gap-2"
-                  >
-                    <LogOut size={14} /> Log Out
-                  </button>
+                  
+                  <div className="px-1 space-y-0.5">
+                    <button onClick={() => navigate('/profile')} className="w-full text-left px-3 py-2.5 text-sm font-medium rounded-xl hover:bg-black/5 dark:hover:bg-white/10 hover:translate-x-1 transition-all text-foreground/90 hover:text-foreground">Profile</button>
+                    <button onClick={() => navigate('/leaderboard')} className="w-full text-left px-3 py-2.5 text-sm font-medium rounded-xl hover:bg-black/5 dark:hover:bg-white/10 hover:translate-x-1 transition-all text-foreground/90 hover:text-foreground">Leaderboard</button>
+                    <button onClick={() => navigate('/about')} className="w-full text-left px-3 py-2.5 text-sm font-medium rounded-xl hover:bg-black/5 dark:hover:bg-white/10 hover:translate-x-1 transition-all text-foreground/90 hover:text-foreground">About</button>
+                  </div>
+                  
+                  <div className="my-2 h-px bg-border/40 mx-2" />
+                  
+                  <div className="px-1 pb-1">
+                    <button
+                      onClick={async () => { setProfileOpen(false); await logout(); router.push('/') }}
+                      className="w-full text-left px-3 py-2.5 text-sm font-semibold rounded-xl hover:bg-destructive/10 transition-all text-destructive hover:text-destructive flex items-center gap-2 group"
+                    >
+                      <LogOut size={16} className="group-hover:-translate-x-1 transition-transform" /> Log Out
+                    </button>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -469,27 +479,27 @@ export default function PillNavbar() {
           onClick={toggleMobileMenu}
           aria-label="Toggle menu"
           aria-expanded={isMobileMenuOpen}
-          className="md:hidden rounded-full border-0 flex flex-col items-center justify-center gap-1 cursor-pointer p-0 shrink-0"
+          className="md:hidden rounded-full border-0 flex flex-col items-center justify-center gap-1 cursor-pointer p-0 shrink-0 pointer-events-auto"
           style={{ width: 'var(--nav-h)', height: 'var(--nav-h)', background: 'var(--base)' }}
         >
           <span className="hamburger-line w-4 h-0.5 rounded origin-center" style={{ background: 'var(--pill-bg)' }} />
           <span className="hamburger-line w-4 h-0.5 rounded origin-center" style={{ background: 'var(--pill-bg)' }} />
         </button>
-      </nav>
+      </div>
 
       {/* Mobile dropdown */}
       <div
         ref={mobileMenuRef}
-        className="md:hidden absolute top-[3.5em] left-0 right-0 rounded-[22px] shadow-xl z-[998] origin-top"
-        style={{ ...cssVars, background: 'var(--base)' }}
+        className="md:hidden absolute top-[4em] left-0 right-0 rounded-[24px] border border-white/10 dark:border-white/5 bg-white/70 dark:bg-black/60 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)] overflow-hidden z-[998] origin-top ring-1 ring-black/5 dark:ring-white/10 p-2"
+        style={cssVars}
       >
-        <ul className="list-none m-0 p-[3px] flex flex-col gap-[3px]">
+        <ul className="list-none m-0 p-[2px] flex flex-col gap-1">
           {[...items, { label: 'Profile', href: '/profile' }, { label: 'Leaderboard', href: '/leaderboard' }].map(item => (
             <li key={item.href}>
               <button
                 onClick={() => navigate(item.href)}
-                className="w-full text-left block py-3 px-4 text-sm font-medium rounded-[50px] transition-all duration-200"
-                style={{ background: 'var(--pill-bg)', color: 'var(--pill-text)' }}
+                className="w-full text-left block py-3.5 px-5 text-[15px] font-semibold rounded-2xl transition-all duration-200 hover:translate-x-1 hover:bg-black/5 dark:hover:bg-white/10"
+                style={{ color: 'var(--pill-text)' }}
               >
                 {item.label}
               </button>

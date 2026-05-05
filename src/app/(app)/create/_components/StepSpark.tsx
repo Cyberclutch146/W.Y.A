@@ -57,9 +57,11 @@ export default function StepSpark({
   const [appliedUrgency, setAppliedUrgency]   = useState(false);
   const [rateLimited, setRateLimited]     = useState(false);
   const [lastFetchedTitle, setLastFetchedTitle] = useState('');
+  const [titleTouched, setTitleTouched]   = useState(false);
 
   const titleChanged = title.trim() !== lastFetchedTitle.trim() && aiSuggestion !== null;
   const isReadyToSuggest = title.trim().length >= 5;
+  const titleError = titleTouched && title.trim().length > 0 && title.trim().length < 5;
   const canFetch = isReadyToSuggest && !aiLoading && !rateLimited;
 
   const fetchSuggestions = async () => {
@@ -111,29 +113,36 @@ export default function StepSpark({
         <input
           type="text"
           value={title}
-          onChange={e => setTitle(e.target.value)}
+          onChange={e => { setTitle(e.target.value); setTitleTouched(true); }}
+          onBlur={() => setTitleTouched(true)}
           placeholder="e.g. Midnight Hackathon, Campus Cleanup Drive..."
           className="input-base w-full text-2xl md:text-3xl font-headline font-bold py-4 px-0"
           style={{
             background: 'transparent',
             border: 'none',
-            borderBottom: '2px solid var(--cp-border)',
+            borderBottom: titleError
+              ? '2px solid var(--cp-accent)'
+              : isReadyToSuggest
+              ? '2px solid var(--cp-primary)'
+              : '2px solid var(--cp-border)',
             borderRadius: 0,
             letterSpacing: '-0.02em',
             outline: 'none',
+            transition: 'border-color 0.2s',
           }}
           autoFocus
         />
 
-        {/* Status + trigger */}
-        <div className="flex items-center justify-between mt-4">
-          <p className="text-xs" style={{ color: 'var(--cp-text-3)' }}>
-            {!isReadyToSuggest && 'Type at least 5 characters to enable AI suggestions'}
-            {isReadyToSuggest && !rateLimited && !aiSuggestion && !aiLoading && 'Ready — click Suggest to get AI recommendations'}
-            {isReadyToSuggest && !rateLimited && aiSuggestion && !titleChanged && 'AI suggestions applied'}
-            {isReadyToSuggest && !rateLimited && aiSuggestion && titleChanged && 'Title changed — refresh suggestions'}
-            {rateLimited && `AI call limit reached (${SESSION_LIMIT} per session)`}
-            {aiLoading && 'Analyzing your title...'}
+        {/* Status row */}
+        <div className="flex items-center justify-between mt-3">
+          <p className="text-xs" style={{ color: titleError ? 'var(--cp-accent)' : 'var(--cp-text-3)' }}>
+            {titleError && 'Title must be at least 5 characters'}
+            {!titleError && !isReadyToSuggest && (title.length === 0 ? 'Give your event a name' : 'Keep going...')}
+            {!titleError && isReadyToSuggest && !rateLimited && !aiSuggestion && !aiLoading && 'Ready — click Suggest for AI recommendations'}
+            {!titleError && isReadyToSuggest && !rateLimited && aiSuggestion && !titleChanged && 'AI suggestions ready'}
+            {!titleError && isReadyToSuggest && !rateLimited && aiSuggestion && titleChanged && 'Title changed — refresh suggestions'}
+            {!titleError && rateLimited && `AI call limit reached (${SESSION_LIMIT} per session)`}
+            {!titleError && aiLoading && 'Analyzing your title...'}
           </p>
           <div className="flex items-center gap-3">
             {isReadyToSuggest && !rateLimited && (
@@ -278,7 +287,7 @@ export default function StepSpark({
         <label className="block text-[10px] font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--cp-text-3)' }}>
           Category
         </label>
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {CATEGORIES.map(({ value, label, Icon }) => {
             const isSelected = category === value;
             return (
@@ -286,7 +295,7 @@ export default function StepSpark({
                 key={value}
                 type="button"
                 onClick={() => setCategory(value)}
-                className="flex flex-col items-center gap-2 py-4 px-2 transition-all"
+                className={`flex flex-col items-center justify-center gap-3 py-5 px-2 transition-all ${isSelected ? '' : 'hover:scale-[1.02] active:scale-95'}`}
                 style={{
                   borderRadius: '4px',
                   background: isSelected ? 'var(--cp-primary)' : 'var(--cp-surface-dim)',
@@ -294,7 +303,7 @@ export default function StepSpark({
                   border: isSelected ? '1px solid var(--cp-primary)' : '1px solid var(--cp-border)',
                 }}
               >
-                <Icon size={18} />
+                <Icon size={20} />
                 <span className="text-[11px] font-semibold text-center leading-tight">{label}</span>
               </button>
             );
@@ -307,7 +316,7 @@ export default function StepSpark({
         <label className="block text-[10px] font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--cp-text-3)' }}>
           Urgency Level
         </label>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {(['normal', 'high'] as const).map(u => {
             const isSelected = urgency === u;
             return (
@@ -315,7 +324,7 @@ export default function StepSpark({
                 key={u}
                 type="button"
                 onClick={() => setUrgency(u)}
-                className="py-3.5 text-sm font-semibold transition-all"
+                className={`py-4 px-4 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${isSelected ? '' : 'hover:scale-[1.02] active:scale-95'}`}
                 style={{
                   borderRadius: '4px',
                   background: isSelected
@@ -331,6 +340,7 @@ export default function StepSpark({
                     : '1px solid var(--cp-border)',
                 }}
               >
+                {u === 'high' && <Zap size={16} />}
                 {u === 'normal' ? 'Normal' : 'High Priority'}
               </button>
             );

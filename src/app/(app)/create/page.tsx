@@ -244,11 +244,74 @@ export default function CreateEventPage() {
       {/* ── Main content ── */}
       <div className="flex-1 flex flex-col min-w-0">
 
-        {/* Scrollable content */}
-        <div className="flex-1 px-8 md:px-14 pt-6 pb-16 w-full">
+        {/* ── Mobile top nav (hidden on md+) ── */}
+        <div
+          className="md:hidden sticky top-0 z-20"
+          style={{ background: 'var(--cp-surface)', borderBottom: '1px solid var(--cp-border)' }}
+        >
+          {/* Row 1: label + counter */}
+          <div className="flex items-center justify-between px-5 pt-4 pb-3">
+            <div>
+              <p
+                className="text-[9px] font-bold uppercase tracking-widest mb-0.5"
+                style={{ color: 'var(--cp-primary)' }}
+              >
+                Step {step} of {TOTAL_STEPS}
+              </p>
+              <p className="text-base font-headline font-bold leading-none" style={{ letterSpacing: '-0.02em' }}>
+                {cur.label}
+              </p>
+            </div>
 
-          {/* Step header — full bleed */}
-          <div className="mb-10 max-w-2xl">
+            {/* Back button — only show after step 1 */}
+            {step > 1 && (
+              <button
+                type="button"
+                onClick={() => goToStep(step - 1)}
+                className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 transition-all active:scale-95"
+                style={{
+                  color: 'var(--cp-text-2)',
+                  border: '1px solid var(--cp-border)',
+                  borderRadius: '4px',
+                  background: 'var(--cp-surface-dim)',
+                }}
+              >
+                ← Back
+              </button>
+            )}
+          </div>
+
+          {/* Row 2: segmented progress track */}
+          <div className="flex gap-1.5 px-5 pb-4">
+            {STEPS.map((_, idx) => {
+              const n = idx + 1;
+              const isDone   = n < step;
+              const isActive = n === step;
+              return (
+                <motion.div
+                  key={n}
+                  className="flex-1 cursor-pointer"
+                  onClick={() => isDone && goToStep(n)}
+                  style={{ height: 4, borderRadius: 0 }}
+                  animate={{
+                    background: isDone || isActive
+                      ? 'var(--cp-primary)'
+                      : 'var(--cp-border)',
+                    opacity: isActive ? 1 : isDone ? 0.7 : 0.35,
+                  }}
+                  transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                />
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Scrollable content */}
+        <div className="flex-1 px-5 md:px-14 pt-6 pb-16 w-full">
+
+
+          {/* Step header — desktop only (mobile uses sticky top bar) */}
+          <div className="hidden md:block mb-10">
             <p className="text-[10px] font-bold uppercase tracking-widest mb-3"
               style={{ color: 'var(--cp-primary)' }}>
               Step {step} of {TOTAL_STEPS}
@@ -260,8 +323,8 @@ export default function CreateEventPage() {
             <p className="text-base" style={{ color: 'var(--cp-text-2)' }}>{cur.subtitle}</p>
           </div>
 
-          {/* Step body — constrained for readability */}
-          <div className="max-w-2xl">
+          {/* Step body */}
+          <div className="w-full">
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div
               key={step}

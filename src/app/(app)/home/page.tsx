@@ -14,12 +14,14 @@ import { motion } from 'framer-motion'
 import { LiveBadge } from '@/components/LiveBadge'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 
+import { Music, Trophy, Code2, PartyPopper, Palette } from 'lucide-react'
+
 const QUICK_FILTERS = [
-  { label: '🎸 Music', q: 'Music', color: 'var(--cp-pink)' },
-  { label: '⚽ Sports', q: 'Sports', color: 'var(--cp-lime)' },
-  { label: '💻 Tech', q: 'Tech', color: 'var(--cp-cyan)' },
-  { label: '🎉 Party', q: 'Party', color: 'var(--cp-violet)' },
-  { label: '🎨 Arts', q: 'Arts', color: 'var(--cp-orange)' },
+  { label: 'Music', q: 'Music', color: 'var(--cp-pink)', Icon: Music },
+  { label: 'Sports', q: 'Sports', color: 'var(--cp-lime)', Icon: Trophy },
+  { label: 'Tech', q: 'Tech', color: 'var(--cp-cyan)', Icon: Code2 },
+  { label: 'Party', q: 'Party', color: 'var(--cp-violet)', Icon: PartyPopper },
+  { label: 'Arts', q: 'Arts', color: 'var(--cp-orange)', Icon: Palette },
 ]
 
 const formatRelativeTime = (ts: any) => {
@@ -241,7 +243,7 @@ export default function HomePage() {
           transition={{ delay: 0.1, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
           className="px-6 md:px-8 flex flex-wrap gap-3 mb-12"
         >
-          {QUICK_FILTERS.map(({ label, q, color }) => (
+          {QUICK_FILTERS.map(({ label, q, color, Icon }) => (
             <button
               key={q}
               onClick={() => router.push(`/feed?q=${q}`)}
@@ -259,6 +261,7 @@ export default function HomePage() {
                 (e.currentTarget as HTMLElement).style.background = `linear-gradient(135deg, ${color}15, ${color}08)`;
               }}
             >
+              {Icon && <Icon size={16} strokeWidth={2.5} />}
               {label}
             </button>
           ))}
