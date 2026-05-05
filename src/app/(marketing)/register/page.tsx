@@ -8,6 +8,8 @@ import { createUserProfile } from '@/services/userService';
 import { motion, AnimatePresence } from 'framer-motion';
 import LiquidEther from '@/components/LiquidEther';
 import { UserPlus, Loader2, Sparkles, Star, Trophy, ArrowLeft, RotateCcw, ChevronRight, Mail, Lock, User as UserIcon } from 'lucide-react';
+import StickerPeel from '@/components/StickerPeel';
+
 
 type Step = 'form' | 'otp';
 
@@ -170,7 +172,7 @@ export default function RegisterPage() {
               <motion.div key="form" initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 12 }} transition={{ duration: 0.2 }}>
                 <h1 className="font-headline font-bold text-3xl md:text-4xl tracking-tight leading-tight mb-2" style={{ color: 'var(--cp-text-1)' }}>
                   Join{' '}
-                  <span className="px-2 py-0.5 inline-block rounded-lg" style={{ background: 'linear-gradient(135deg, var(--cp-primary), var(--cp-violet))', color: 'white' }}>W.Y.A.</span>
+                  <span className="px-2 py-0.5 inline-block rounded-lg" style={{ background: 'linear-gradient(135deg, var(--cp-primary), var(--cp-accent))', color: 'white' }}>WYA</span>
                 </h1>
                 <p className="text-sm mb-6 max-w-[380px] leading-relaxed" style={{ color: 'var(--cp-text-3)' }}>
                   Create your account. We'll verify your email with a one-time code.
@@ -528,9 +530,52 @@ export default function RegisterPage() {
                 {step === 'otp' ? 'Check your inbox →' : 'Type to fill your card...'}
               </p>
             </div>
+
+            {/* Bottom Right Brand Text */}
+            <div className="absolute bottom-16 right-16 flex flex-col items-end pointer-events-none select-none">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, rotate: 0 }}
+                animate={{ opacity: 1, scale: 1, rotate: -3 }}
+                transition={{ 
+                  delay: 0.5, 
+                  duration: 0.8,
+                  type: 'spring',
+                  stiffness: 80
+                }}
+                className="relative"
+              >
+                {/* Main Text with integrated styling */}
+                <h2 
+                  className="text-[56px] font-black leading-none tracking-tighter"
+                  style={{ 
+                    fontFamily: 'var(--font-outfit)',
+                    background: 'linear-gradient(135deg, #ffffff 0%, #a5f3fc 50%, #22d3ee 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    filter: 'drop-shadow(0 4px 12px rgba(34, 211, 238, 0.3))',
+                    letterSpacing: '-0.05em'
+                  }}
+                >
+                  Join the club
+                </h2>
+                
+                <div className="flex items-center gap-3 mt-1 w-full justify-end">
+                  <div className="h-[1px] flex-1 bg-gradient-to-l from-cyan-400/50 to-transparent" />
+                  <motion.p 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 0.6 }}
+                    transition={{ delay: 1, duration: 0.5 }}
+                    className="text-[11px] font-black uppercase tracking-[0.4em] whitespace-nowrap text-white"
+                  >
+                    
+                  </motion.p>
+                </div>
+              </motion.div>
+            </div>
           </div>
         </div>
       </motion.div>
+
 
       {/* Error toast */}
       <AnimatePresence>
