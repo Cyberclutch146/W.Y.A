@@ -87,11 +87,11 @@ export default function BulletinPage() {
       <div className="max-w-5xl mx-auto relative z-10">
         
         {/* Header Section */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-8 sm:mb-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary border border-primary/20 mb-6"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary border border-primary/20 mb-4 sm:mb-6"
           >
             <Pin size={16} />
             <span className="text-sm font-bold tracking-wide uppercase">Community Hub</span>
@@ -100,7 +100,7 @@ export default function BulletinPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-4xl md:text-6xl font-headline font-bold text-foreground mb-4"
+            className="text-3xl sm:text-4xl md:text-6xl font-headline font-bold text-foreground mb-4"
           >
             Campus Noticeboard
           </motion.h1>
@@ -108,7 +108,7 @@ export default function BulletinPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-lg text-muted-foreground max-w-2xl mx-auto font-body"
+            className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto font-body px-4"
           >
             Stay in the loop with what&apos;s happening around campus. Announcements, lost & found, marketplace, and more.
           </motion.p>
@@ -119,45 +119,45 @@ export default function BulletinPage() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, type: "spring", stiffness: 100, damping: 20 }}
-          className="relative pt-12"
+          className="relative pt-8 sm:pt-12"
         >
           {/* Top Metal Clip */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center">
             {/* Hanger hole */}
-            <div className="w-16 h-8 -mb-4 bg-gradient-to-b from-zinc-300 to-zinc-400 dark:from-zinc-700 dark:to-zinc-800 rounded-t-xl border-t border-l border-r border-zinc-500/50 flex items-start justify-center pt-2 shadow-lg">
-               <div className="w-6 h-3 rounded-full bg-background shadow-inner border border-zinc-500/50"></div>
+            <div className="w-12 h-6 sm:w-16 sm:h-8 -mb-3 sm:-mb-4 bg-gradient-to-b from-zinc-300 to-zinc-400 dark:from-zinc-700 dark:to-zinc-800 rounded-t-xl border-t border-l border-r border-zinc-500/50 flex items-start justify-center pt-1 sm:pt-2 shadow-lg">
+               <div className="w-4 h-2 sm:w-6 sm:h-3 rounded-full bg-background shadow-inner border border-zinc-500/50"></div>
             </div>
             {/* Main clip mechanism */}
-            <div className="w-48 sm:w-64 h-12 bg-gradient-to-b from-zinc-200 to-zinc-400 dark:from-zinc-600 dark:to-zinc-800 rounded-lg shadow-xl border border-zinc-400/50 dark:border-zinc-500/50 flex flex-col items-center justify-center relative">
+            <div className="w-40 sm:w-64 h-10 sm:h-12 bg-gradient-to-b from-zinc-200 to-zinc-400 dark:from-zinc-600 dark:to-zinc-800 rounded-lg shadow-xl border border-zinc-400/50 dark:border-zinc-500/50 flex flex-col items-center justify-center relative">
                <div className="w-full px-4 flex justify-between items-center opacity-50">
-                  <div className="w-2 h-2 rounded-full bg-zinc-600 dark:bg-zinc-900 shadow-inner"></div>
-                  <div className="w-2 h-2 rounded-full bg-zinc-600 dark:bg-zinc-900 shadow-inner"></div>
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-zinc-600 dark:bg-zinc-900 shadow-inner"></div>
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-zinc-600 dark:bg-zinc-900 shadow-inner"></div>
                </div>
-               <div className="absolute bottom-1 w-32 sm:w-48 h-3 bg-gradient-to-b from-zinc-300 to-zinc-500 dark:from-zinc-500 dark:to-zinc-700 rounded-md border-b-2 border-zinc-500 dark:border-zinc-900 shadow-sm"></div>
+               <div className="absolute bottom-1 w-24 sm:w-48 h-2 sm:h-3 bg-gradient-to-b from-zinc-300 to-zinc-500 dark:from-zinc-500 dark:to-zinc-700 rounded-md border-b-2 border-zinc-500 dark:border-zinc-900 shadow-sm"></div>
             </div>
           </div>
 
           {/* Clipboard Board */}
-          <div className="relative bg-[#f8f5f0] dark:bg-[#1a1814] rounded-3xl p-3 sm:p-8 pt-16 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] dark:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)] border border-[#e5dcd0] dark:border-[#2a2620]">
+          <div className="relative bg-[#f8f5f0] dark:bg-[#1a1814] rounded-2xl sm:rounded-3xl p-3 sm:p-8 pt-12 sm:pt-16 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] dark:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)] border border-[#e5dcd0] dark:border-[#2a2620]">
             
             {/* Paper */}
-            <div className="relative bg-white dark:bg-[#111] min-h-[600px] rounded-xl shadow-sm border border-border/50 overflow-hidden">
+            <div className="relative bg-white dark:bg-[#111] min-h-[500px] sm:min-h-[600px] rounded-xl shadow-sm border border-border/50 overflow-hidden">
               
               {/* Paper Lines */}
               <div className="absolute inset-0 pointer-events-none opacity-20 dark:opacity-10" style={{ backgroundImage: 'repeating-linear-gradient(transparent, transparent 31px, var(--border) 31px, var(--border) 32px)' }}></div>
               
-              <div className="relative z-10 p-4 sm:p-10">
+              <div className="relative z-10 p-4 sm:p-8">
                 
                 {/* Controls */}
-                <div className="flex flex-col sm:flex-row gap-4 justify-between items-center mb-10 pb-6 border-b border-border/50 border-dashed">
+                <div className="flex flex-col sm:flex-row gap-4 justify-between items-center mb-6 sm:mb-10 pb-4 sm:pb-6 border-b border-border/50 border-dashed">
                   <div className="flex overflow-x-auto no-scrollbar bg-muted/50 p-1 rounded-xl w-full sm:w-auto max-w-full">
                     {(['ALL', 'ANNOUNCEMENT', 'MARKETPLACE', 'LOST_AND_FOUND'] as const).map((f) => (
                       <button
                         key={f}
                         onClick={() => setFilter(f)}
-                        className={`flex-none px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all whitespace-nowrap ${filter === f ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                        className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all whitespace-nowrap ${filter === f ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
                       >
-                        {f.replace(/_/g, ' ')}
+                        {f === 'ALL' ? 'All' : f.replace(/_/g, ' ').split(' ').map(w => w.charAt(0) + w.slice(1).toLowerCase()).join(' ')}
                       </button>
                     ))}
                   </div>
@@ -189,14 +189,14 @@ export default function BulletinPage() {
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: -10 }}
                             transition={{ delay: i * 0.05 }}
-                            className={`group relative p-6 rounded-2xl border ${config.border} ${config.bg} backdrop-blur-sm transition-all hover:shadow-lg hover:-translate-y-1`}
+                            className={`group relative p-5 sm:p-6 rounded-2xl border ${config.border} ${config.bg} backdrop-blur-sm transition-all hover:shadow-lg hover:-translate-y-1`}
                           >
                             {/* Pin graphic */}
-                            <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-red-500/20 flex items-center justify-center shadow-sm">
-                              <div className="w-3 h-3 rounded-full bg-red-500 shadow-[inset_0_-2px_4px_rgba(0,0,0,0.3)]"></div>
+                            <div className="absolute -top-2.5 sm:-top-3 left-1/2 -translate-x-1/2 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-red-500/20 flex items-center justify-center shadow-sm">
+                              <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-red-500 shadow-[inset_0_-2px_4px_rgba(0,0,0,0.3)]"></div>
                             </div>
                             
-                            <div className="flex justify-between items-start mb-4 mt-2">
+                            <div className="flex justify-between items-start mb-3 sm:mb-4 mt-1 sm:mt-2">
                               <div className="flex items-center gap-2">
                                 <Icon size={16} className={config.color} />
                                 <span className={`text-xs font-bold uppercase tracking-wider ${config.color}`}>
@@ -208,10 +208,10 @@ export default function BulletinPage() {
                               </span>
                             </div>
 
-                            <h3 className="text-lg font-bold text-foreground mb-2 leading-tight group-hover:text-primary transition-colors">
+                            <h3 className="text-base sm:text-lg font-bold text-foreground mb-2 leading-tight group-hover:text-primary transition-colors">
                               {notice.title}
                             </h3>
-                            <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
+                            <p className="text-sm text-muted-foreground mb-4 line-clamp-3 font-body">
                               {notice.description}
                             </p>
 

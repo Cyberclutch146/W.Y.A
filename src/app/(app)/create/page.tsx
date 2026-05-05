@@ -11,6 +11,7 @@ import {
   Rocket, ArrowLeft, ArrowRight, Loader2,
   Zap, MapPin, FileImage, ClipboardCheck,
   Check, Eye, PartyPopper,
+  ZapIcon,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -22,10 +23,10 @@ import StepReview from './_components/StepReview';
 const TOTAL_STEPS = 4;
 
 const STEPS = [
-  { icon: Zap,            label: 'The Spark',   subtitle: 'Name, category, and urgency.' },
-  { icon: MapPin,         label: 'When & Where', subtitle: 'Date, time, and venue.' },
-  { icon: FileImage,      label: 'Content',      subtitle: 'Description, image, and needs.' },
-  { icon: ClipboardCheck, label: 'Review',       subtitle: 'Final check before publishing.' },
+  { icon: ZapIcon,            label: 'The Spark',  },
+  { icon: MapPin,         label: 'When & Where', },
+  { icon: FileImage,      label: 'Content', },
+  { icon: ClipboardCheck, label: 'Review',  },
 ];
 
 const variants = {
@@ -162,84 +163,62 @@ export default function CreateEventPage() {
 
   // ── Wizard ────────────────────────────────────────────────────
   return (
-    <div className="flex" style={{ minHeight: 'calc(100dvh - 64px)', color: 'var(--cp-text-1)' }}>
+    <div className="flex flex-col" style={{ minHeight: 'calc(100dvh - 64px)', color: 'var(--cp-text-1)', background: 'var(--cp-background)' }}>
 
-      {/* ── Sidebar ── */}
-      <aside
-        className="hidden md:flex flex-col w-64 shrink-0 sticky"
-        style={{
-          top: 64,
-          height: 'calc(100dvh - 64px)',
-          background: 'var(--cp-surface)',
-          borderRight: '1px solid var(--cp-border)',
-        }}
+      {/* ── Top Navigation (Desktop) ── */}
+      <div className="hidden md:flex justify-center px-8 py-5 sticky md:top-[4.5rem] z-30"
+        style={{ background: 'var(--cp-background)' }}
       >
-        {/* Brand */}
-        <div className="px-7 py-6" style={{ borderBottom: '1px solid var(--cp-border)' }}>
-          <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--cp-primary)' }}>Organizer</p>
-          <p className="font-headline font-bold text-lg">Create Event</p>
-        </div>
-
-        {/* Step list */}
-        <nav className="flex-1 px-4 py-6 overflow-y-auto">
+        <div className="w-full max-w-6xl flex items-center justify-center">
+        {/* Steps */}
+        <div className="flex items-center">
           {STEPS.map((s, idx) => {
             const n = idx + 1;
             const isActive = n === step;
             const isDone   = n < step;
             const Icon = s.icon;
             return (
-              <button
-                key={n}
-                type="button"
-                onClick={() => isDone && goToStep(n)}
-                disabled={!isDone}
-                className="w-full flex items-center gap-3 px-3 py-3.5 text-left transition-all relative"
-                style={{
-                  background: isActive ? 'var(--cp-surface-dim)' : 'transparent',
-                  borderLeft: isActive ? '2px solid var(--cp-primary)' : '2px solid transparent',
-                  cursor: isDone ? 'pointer' : 'default',
-                }}
-              >
-                <div
-                  className="w-6 h-6 flex items-center justify-center shrink-0 text-[11px] font-bold"
-                  style={{
-                    borderRadius: '4px',
-                    background: isDone || isActive ? 'var(--cp-primary)' : 'transparent',
-                    color: isDone || isActive ? 'white' : 'var(--cp-text-3)',
-                    border: isDone || isActive ? 'none' : '1.5px solid var(--cp-border)',
-                  }}
+              <div key={n} className="flex items-center">
+                <button
+                  type="button"
+                  onClick={() => isDone && goToStep(n)}
+                  disabled={!isDone}
+                  className="flex items-center gap-2 transition-all text-left group"
+                  style={{ cursor: isDone ? 'pointer' : 'default' }}
                 >
-                  {isDone ? <Check size={11} strokeWidth={3} /> : <Icon size={11} />}
-                </div>
-                <div>
-                  <p className="text-xs font-semibold leading-tight"
-                    style={{ color: isActive ? 'var(--cp-text-1)' : isDone ? 'var(--cp-text-2)' : 'var(--cp-text-3)' }}>
-                    {s.label}
-                  </p>
-                  {isActive && (
-                    <p className="text-[10px] mt-0.5" style={{ color: 'var(--cp-text-3)' }}>{s.subtitle}</p>
-                  )}
-                </div>
-              </button>
+                  <div
+                    className="w-10 h-10 flex items-center justify-center shrink-0 text-sm font-bold transition-all shadow-sm group-hover:scale-105"
+                    style={{
+                      borderRadius: '10px',
+                      background: isDone || isActive ? 'var(--cp-primary)' : 'var(--cp-surface-dim)',
+                      color: isDone || isActive ? 'white' : 'var(--cp-text-3)',
+                      border: isDone || isActive ? '1px solid var(--cp-primary)' : '1px solid var(--cp-border)',
+                    }}
+                  >
+                    {isDone ? <Check size={16} strokeWidth={3} /> : <Icon size={16} />}
+                  </div>
+                  <div className="hidden lg:block w-28">
+                    <p className="text-sm font-semibold leading-tight mb-0.5 transition-colors group-hover:text-foreground"
+                      style={{ color: isActive ? 'var(--cp-text-1)' : isDone ? 'var(--cp-text-2)' : 'var(--cp-text-3)' }}>
+                      {s.label}
+                    </p>
+                    <p className="text-[10px] leading-tight line-clamp-1" style={{ color: 'var(--cp-text-3)' }}>
+                      {s.subtitle}
+                    </p>
+                  </div>
+                </button>
+                {/* Connector line */}
+                {n < TOTAL_STEPS && (
+                  <div className="w-4 lg:w-8 h-[2px] mx-2 lg:mx-3 rounded-full transition-all" 
+                    style={{ background: isDone ? 'var(--cp-primary)' : 'var(--cp-border)', opacity: isDone ? 1 : 0.3 }} 
+                  />
+                )}
+              </div>
             );
           })}
-        </nav>
-
-        {/* Live preview */}
-        {title && (
-          <div className="px-7 py-5" style={{ borderTop: '1px solid var(--cp-border)' }}>
-            <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--cp-text-3)' }}>Preview</p>
-            <p className="text-sm font-bold leading-snug truncate">{title}</p>
-            {cleanCategory && <p className="text-[11px] mt-1" style={{ color: 'var(--cp-text-3)' }}>{cleanCategory}</p>}
-            {eventDate && (
-              <p className="text-[11px] mt-0.5" style={{ color: 'var(--cp-text-3)' }}>
-                {new Date(eventDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-              </p>
-            )}
-            {locationName && <p className="text-[11px] mt-0.5 truncate" style={{ color: 'var(--cp-text-3)' }}>{locationName}</p>}
-          </div>
-        )}
-      </aside>
+        </div>
+        </div>
+      </div>
 
       {/* ── Main content ── */}
       <div className="flex-1 flex flex-col min-w-0">
@@ -247,7 +226,7 @@ export default function CreateEventPage() {
         {/* ── Mobile top nav (hidden on md+) ── */}
         <div
           className="md:hidden sticky top-0 z-20"
-          style={{ background: 'var(--cp-surface)', borderBottom: '1px solid var(--cp-border)' }}
+          style={{ background: 'var(--cp-background)' }}
         >
           {/* Row 1: label + counter */}
           <div className="flex items-center justify-between px-5 pt-4 pb-3">
@@ -307,8 +286,8 @@ export default function CreateEventPage() {
         </div>
 
         {/* Scrollable content */}
-        <div className="flex-1 px-5 md:px-14 pt-6 pb-16 w-full">
-
+        <div className="flex-1 flex flex-col items-center w-full">
+          <div className="w-full max-w-4xl px-5 md:px-8 pt-6 pb-16">
 
           {/* Step header — desktop only (mobile uses sticky top bar) */}
           <div className="hidden md:block mb-10">
@@ -379,13 +358,15 @@ export default function CreateEventPage() {
             </motion.div>
           </AnimatePresence>
           </div>
+          </div>
         </div>
 
         {/* ── Sticky bottom bar ── */}
         <div
-          className="sticky bottom-0 px-8 md:px-14 py-4 flex items-center justify-between gap-4"
-          style={{ background: 'var(--cp-surface)', borderTop: '1px solid var(--cp-border)' }}
+          className="sticky bottom-0 flex justify-center w-full"
+          style={{ background: 'var(--cp-background)' }}
         >
+          <div className="w-full max-w-4xl px-5 md:px-8 py-4 flex items-center justify-between gap-4">
           <button
             type="button"
             onClick={handleBack}
@@ -445,6 +426,7 @@ export default function CreateEventPage() {
                 }
               </button>
             )}
+          </div>
           </div>
         </div>
       </div>
