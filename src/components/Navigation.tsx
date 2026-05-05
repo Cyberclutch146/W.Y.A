@@ -21,7 +21,7 @@ export function SideNav() {
     { name: 'Home',        href: '/home',              icon: Home },
     { name: 'Feed',        href: '/feed',              icon: LayoutDashboard },
     { name: 'Dashboard',   href: '/dashboard',         icon: GraduationCap },
-    { name: 'Bulletin',    href: '/dashboard/bulletin', icon: Megaphone },
+    { name: 'Bulletin',    href: '/bulletin', icon: Megaphone },
     { name: 'Leaderboard', href: '/leaderboard',       icon: Trophy },
     { name: 'Profile',     href: '/profile',           icon: User },
   ];

@@ -634,90 +634,134 @@ export default function ProfilePage() {
               </div>
   
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="stat-card p-8 group overflow-hidden relative">
-                  <div className="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-primary-light/30 transition-transform group-hover:scale-125" />
+                <motion.div 
+                  whileHover={{ y: -5, scale: 1.02 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                  className="relative p-6 md:p-8 rounded-xl overflow-hidden group cursor-pointer transition-all duration-300"
+                  style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: '0 4px 20px -4px rgba(0,0,0,0.1)' }}
+                >
+                  <div className="absolute inset-0 border-2 border-transparent group-hover:border-[var(--cp-primary)] rounded-xl transition-colors duration-300 pointer-events-none" />
                   <div className="relative z-10">
-                    <div className="flex items-center justify-between mb-5">
-                      <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-primary-light text-primary border border-primary/10">
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="w-12 h-12 rounded-lg flex items-center justify-center shadow-lg transition-transform duration-300 group-hover:scale-110" style={{ background: 'linear-gradient(135deg, var(--cp-primary), var(--cp-violet))', color: '#fff' }}>
                         <Clock size={24} />
                       </div>
-                      <span className="text-[10px] font-bold text-primary bg-primary-light px-2.5 py-1 rounded-full uppercase tracking-wider border border-primary/10">+12% month</span>
+                      <span className="text-[10px] font-bold px-3 py-1.5 rounded-md uppercase tracking-wider flex items-center" style={{ background: 'hsl(from var(--cp-primary) h s l / 0.15)', color: 'var(--cp-primary)', border: '1px solid hsl(from var(--cp-primary) h s l / 0.2)' }}>
+                        <Sparkles size={10} className="mr-1" /> +12% month
+                      </span>
                     </div>
-                    <p className="text-sm font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--cp-text-3)' }}>Volunteered Time</p>
-                    <h3 className="font-headline font-bold text-4xl energy-gradient-text">{profile.volunteerHours || 0} Hours</h3>
+                    <p className="text-xs font-bold uppercase tracking-[0.2em] mb-2" style={{ color: 'var(--cp-text-2)' }}>Volunteered Time</p>
+                    <h3 className="font-headline font-black text-4xl tracking-tight text-white">
+                      {profile.volunteerHours || 0} <span className="text-xl font-medium" style={{ color: 'var(--cp-text-3)' }}>Hours</span>
+                    </h3>
                   </div>
-                </div>
+                </motion.div>
   
-                <div className="stat-card p-8 group overflow-hidden relative">
-                  <div className="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-secondary-light/30 transition-transform group-hover:scale-125" />
+                <motion.div 
+                  whileHover={{ y: -5, scale: 1.02 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                  className="relative p-6 md:p-8 rounded-xl overflow-hidden group cursor-pointer transition-all duration-300"
+                  style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: '0 4px 20px -4px rgba(0,0,0,0.1)' }}
+                >
+                  <div className="absolute inset-0 border-2 border-transparent group-hover:border-[var(--cp-secondary)] rounded-xl transition-colors duration-300 pointer-events-none" />
                   <div className="relative z-10">
-                    <div className="flex items-center justify-between mb-5">
-                      <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-secondary-light text-secondary border border-secondary/10">
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="w-12 h-12 rounded-lg flex items-center justify-center shadow-lg transition-transform duration-300 group-hover:scale-110" style={{ background: 'linear-gradient(135deg, var(--cp-secondary), var(--cp-accent))', color: '#fff' }}>
                         <Heart size={24} />
                       </div>
-                      <span className="text-[10px] font-bold text-secondary bg-secondary-light px-2.5 py-1 rounded-full uppercase tracking-wider border border-secondary/10">Top 5% Donor</span>
+                      <span className="text-[10px] font-bold px-3 py-1.5 rounded-md uppercase tracking-wider flex items-center" style={{ background: 'hsl(from var(--cp-secondary) h s l / 0.15)', color: 'var(--cp-secondary)', border: '1px solid hsl(from var(--cp-secondary) h s l / 0.2)' }}>
+                        <Award size={10} className="mr-1" /> Top 5% Donor
+                      </span>
                     </div>
-                    <p className="text-sm font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--cp-text-3)' }}>Community Support</p>
-                    <h3 className="font-headline font-bold text-4xl energy-gradient-text">${(profile.totalDonated || 0).toLocaleString()}</h3>
+                    <p className="text-xs font-bold uppercase tracking-[0.2em] mb-2" style={{ color: 'var(--cp-text-2)' }}>Community Support</p>
+                    <h3 className="font-headline font-black text-4xl tracking-tight flex items-baseline gap-1 text-white">
+                      <span className="text-2xl font-medium" style={{ color: 'var(--cp-text-3)' }}>$</span>{(profile.totalDonated || 0).toLocaleString()}
+                    </h3>
                   </div>
-                </div>
+                </motion.div>
               </div>
             </div>
   
             {/* Expertise & Gear */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Expertise & Gear */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Skills Card */}
-              <div className="card-base p-6 md:p-8">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-accent-light text-accent shadow-sm" style={{ border: '1px solid hsl(from var(--cp-accent) h s l / 0.1)' }}>
-                    <Sparkles size={20} />
+              <motion.div 
+                whileHover={{ y: -5, scale: 1.02 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                className="relative p-6 md:p-8 rounded-xl overflow-hidden group cursor-pointer transition-all duration-300"
+                style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: '0 4px 20px -4px rgba(0,0,0,0.1)' }}
+              >
+                <div className="absolute inset-0 border-2 border-transparent group-hover:border-[var(--cp-accent)] rounded-xl transition-colors duration-300 pointer-events-none" />
+                <div className="flex items-center gap-4 mb-6 relative z-10">
+                  <div className="w-12 h-12 rounded-lg flex items-center justify-center shadow-sm" style={{ background: 'hsl(from var(--cp-accent) h s l / 0.1)', color: 'var(--cp-accent)', border: '1px solid hsl(from var(--cp-accent) h s l / 0.2)' }}>
+                    <Sparkles size={24} />
                   </div>
-                  <h3 className="font-headline font-bold text-xl">Expertise</h3>
+                  <div>
+                    <h3 className="font-headline font-bold text-2xl" style={{ color: 'var(--cp-text-1)' }}>Expertise</h3>
+                    <p className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--cp-text-2)' }}>Skills & Tools</p>
+                  </div>
                 </div>
-                {profile.skills && profile.skills.length > 0 ? (
-                  <div className="flex flex-wrap gap-2.5">
-                    {profile.skills.map((skill, idx) => (
-                      <span key={idx} className="px-4 py-2 rounded-full text-xs font-bold transition-all hover:scale-105 hover:shadow-sm" 
-                        style={{ 
-                          background: SKILL_COLORS[idx % SKILL_COLORS.length], 
-                          color: SKILL_TEXT_COLORS[idx % SKILL_TEXT_COLORS.length],
-                          border: `1px solid hsl(from ${SKILL_TEXT_COLORS[idx % SKILL_TEXT_COLORS.length]} h s l / 0.1)` 
-                        }}>
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-6 px-4 rounded-2xl bg-surface-dim border border-dashed border-border">
-                    <p className="text-sm font-medium" style={{ color: 'var(--cp-text-3)' }}>No skills listed yet.</p>
-                  </div>
-                )}
-              </div>
-  
+                <div className="relative z-10">
+                  {profile.skills && profile.skills.length > 0 ? (
+                    <div className="flex flex-wrap gap-2.5">
+                      {profile.skills.map((skill, idx) => (
+                        <span key={idx} className="px-3 py-1.5 rounded-md text-xs font-bold transition-all hover:scale-105 hover:shadow-md cursor-default" 
+                          style={{ 
+                            background: SKILL_COLORS[idx % SKILL_COLORS.length], 
+                            color: SKILL_TEXT_COLORS[idx % SKILL_TEXT_COLORS.length],
+                            border: `1px solid hsl(from ${SKILL_TEXT_COLORS[idx % SKILL_TEXT_COLORS.length]} h s l / 0.2)`
+                          }}>
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-6 px-4 rounded-lg border-2 border-dashed transition-colors hover:border-accent" style={{ borderColor: 'var(--cp-border)', background: 'var(--cp-surface-dim)' }}>
+                      <p className="text-sm font-medium" style={{ color: 'var(--cp-text-3)' }}>No skills listed yet.</p>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
   
               {/* Department Card */}
-              <div className="card-base p-6 md:p-8">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-cyan-light text-cyan shadow-sm" style={{ border: '1px solid hsl(from var(--cp-cyan) h s l / 0.1)' }}>
-                    <BarChart3 size={20} />
+              <motion.div 
+                whileHover={{ y: -5, scale: 1.02 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                className="relative p-6 md:p-8 rounded-xl overflow-hidden group cursor-pointer transition-all duration-300"
+                style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: '0 4px 20px -4px rgba(0,0,0,0.1)' }}
+              >
+                <div className="absolute inset-0 border-2 border-transparent group-hover:border-[var(--cp-cyan)] rounded-xl transition-colors duration-300 pointer-events-none" />
+                <div className="flex items-center gap-4 mb-6 relative z-10">
+                  <div className="w-12 h-12 rounded-lg flex items-center justify-center shadow-sm" style={{ background: 'hsl(from var(--cp-cyan) h s l / 0.1)', color: 'var(--cp-cyan)', border: '1px solid hsl(from var(--cp-cyan) h s l / 0.2)' }}>
+                    <BarChart3 size={24} />
                   </div>
-                  <h3 className="font-headline font-bold text-xl">Academic Pulse</h3>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 rounded-2xl bg-surface-dim border border-border group transition-all hover:bg-surface">
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--cp-text-3)' }}>Department</p>
-                      <p className="font-bold text-sm">{profile.department || 'Not specified'}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between p-4 rounded-2xl bg-surface-dim border border-border group transition-all hover:bg-surface">
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--cp-text-3)' }}>Year</p>
-                      <p className="font-bold text-sm">{profile.year || 'Not specified'}</p>
-                    </div>
+                  <div>
+                    <h3 className="font-headline font-bold text-2xl" style={{ color: 'var(--cp-text-1)' }}>Academic Pulse</h3>
+                    <p className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--cp-text-2)' }}>Current Status</p>
                   </div>
                 </div>
-              </div>
+                <div className="space-y-3 relative z-10">
+                  <div className="flex items-center p-3 rounded-lg transition-all hover:scale-[1.02]" style={{ background: 'var(--cp-surface-dim)', border: '1px solid var(--cp-border)' }}>
+                    <div className="w-10 h-10 rounded-md mr-4 flex items-center justify-center" style={{ background: 'hsl(from var(--cp-cyan) h s l / 0.1)', color: 'var(--cp-cyan)' }}>
+                      <Compass size={18} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest mb-0.5" style={{ color: 'var(--cp-text-2)' }}>Department</p>
+                      <p className="font-bold text-sm text-white">{profile.department || 'Not specified'}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center p-3 rounded-lg transition-all hover:scale-[1.02]" style={{ background: 'var(--cp-surface-dim)', border: '1px solid var(--cp-border)' }}>
+                    <div className="w-10 h-10 rounded-md mr-4 flex items-center justify-center" style={{ background: 'hsl(from var(--cp-primary) h s l / 0.1)', color: 'var(--cp-primary)' }}>
+                      <Award size={18} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest mb-0.5" style={{ color: 'var(--cp-text-2)' }}>Year</p>
+                      <p className="font-bold text-sm text-white">{profile.year || 'Not specified'}</p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
             </div>
   
             {/* Logistics Card */}

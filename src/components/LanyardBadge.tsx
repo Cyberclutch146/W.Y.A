@@ -149,18 +149,17 @@ export default function LanyardBadge({
               {/* Photo circle */}
               <div className="relative inline-block mb-2">
                 <motion.div
-                  animate={{ boxShadow: ['0 0 0px rgba(0,210,255,0.3)', '0 0 20px rgba(0,210,255,0.5)', '0 0 0px rgba(0,210,255,0.3)'] }}
+                  animate={{ boxShadow: ['0 0 0px rgba(0,210,255,0.3)', '0 0 15px rgba(0,210,255,0.4)', '0 0 0px rgba(0,210,255,0.3)'] }}
                   transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-                  className={`${photoSize} rounded-full flex items-center justify-center mx-auto overflow-hidden`}
-                  style={{
-                    background: 'linear-gradient(135deg, var(--cp-primary), var(--cp-violet))',
-                    border: '3.5px solid #00d2ff',
-                  }}>
-                  {avatarUrl ? (
-                    <Image src={avatarUrl} alt={fullName || 'User'} fill className="object-cover" />
-                  ) : (
-                    <UserIcon size={isCompact ? 22 : 28} className="text-white" />
-                  )}
+                  className={`${photoSize} rounded-full p-1 mx-auto bg-gradient-to-tr from-[var(--cp-primary)] to-[var(--cp-accent)]`}
+                >
+                  <div className="w-full h-full rounded-full overflow-hidden bg-white relative border-[2.5px] border-white flex items-center justify-center">
+                    {avatarUrl ? (
+                      <Image src={avatarUrl} alt={fullName || 'User'} fill className="object-cover" />
+                    ) : (
+                      <UserIcon size={isCompact ? 22 : 28} className="text-slate-300" />
+                    )}
+                  </div>
                 </motion.div>
               </div>
 
