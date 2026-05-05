@@ -1,6 +1,6 @@
 'use client';
 
-import { Calendar, Clock } from 'lucide-react';
+import { Calendar, MapPin } from 'lucide-react';
 import DateTimePicker from '@/components/DateTimePicker';
 import LocationPickerWrapper from '@/components/LocationPickerWrapper';
 
@@ -13,40 +13,43 @@ interface StepScheduleProps {
   setLng: (v: number | undefined) => void;
 }
 
+const sectionStyle = {
+  borderBottom: '1px solid var(--cp-border)',
+  paddingBottom: '2rem',
+  marginBottom: '2rem',
+};
+
 export default function StepSchedule({
   eventDate, setEventDate,
   locationName, setLocationName, setLat, setLng,
 }: StepScheduleProps) {
-  // Quick pick helpers
   const quickPicks = [
-    { label: '📅 Today 6 PM', getValue: () => { const d = new Date(); d.setHours(18, 0, 0, 0); return d.toISOString().slice(0, 16); } },
-    { label: '🌅 Tomorrow 10 AM', getValue: () => { const d = new Date(); d.setDate(d.getDate() + 1); d.setHours(10, 0, 0, 0); return d.toISOString().slice(0, 16); } },
-    { label: '🎉 This Weekend', getValue: () => { const d = new Date(); const day = d.getDay(); const diff = day === 0 ? 0 : 6 - day; d.setDate(d.getDate() + diff); d.setHours(14, 0, 0, 0); return d.toISOString().slice(0, 16); } },
+    { label: 'Today 6 PM',      getValue: () => { const d = new Date(); d.setHours(18, 0, 0, 0); return d.toISOString().slice(0, 16); } },
+    { label: 'Tomorrow 10 AM',  getValue: () => { const d = new Date(); d.setDate(d.getDate() + 1); d.setHours(10, 0, 0, 0); return d.toISOString().slice(0, 16); } },
+    { label: 'This Weekend',    getValue: () => { const d = new Date(); const diff = d.getDay() === 0 ? 0 : 6 - d.getDay(); d.setDate(d.getDate() + diff); d.setHours(14, 0, 0, 0); return d.toISOString().slice(0, 16); } },
   ];
 
   return (
-    <div className="space-y-8">
-      {/* Date Section */}
-      <div>
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'var(--cp-primary-light)', color: 'var(--cp-primary)' }}>
-            <Calendar size={18} />
-          </div>
-          <div>
-            <h3 className="font-headline font-bold text-sm">Date & Time</h3>
-            <p className="text-[11px]" style={{ color: 'var(--cp-text-3)' }}>When is your event happening?</p>
-          </div>
+    <div>
+      {/* ── Date & Time ── */}
+      <div style={sectionStyle}>
+        <div className="flex items-center gap-2 mb-5">
+          <Calendar size={15} style={{ color: 'var(--cp-primary)' }} />
+          <label className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--cp-text-3)' }}>
+            Date & Time
+          </label>
         </div>
 
-        {/* Quick Picks */}
-        <div className="flex flex-wrap gap-2 mb-4">
-          {quickPicks.map((qp) => (
+        {/* Quick picks */}
+        <div className="flex flex-wrap gap-2 mb-5">
+          {quickPicks.map(qp => (
             <button
               key={qp.label}
               type="button"
               onClick={() => setEventDate(qp.getValue())}
-              className="px-4 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 hover:scale-[1.02]"
+              className="px-4 py-2 text-xs font-semibold transition-all hover:opacity-80"
               style={{
+                borderRadius: '4px',
                 background: 'var(--cp-surface-dim)',
                 color: 'var(--cp-text-2)',
                 border: '1px solid var(--cp-border)',
@@ -57,34 +60,39 @@ export default function StepSchedule({
           ))}
         </div>
 
-        <div className="rounded-2xl p-5" style={{ background: 'var(--cp-surface-dim)', border: '1px solid var(--cp-border)' }}>
-          <DateTimePicker value={eventDate} onChange={(val) => setEventDate(val)} />
+        <div style={{ border: '1px solid var(--cp-border)', borderRadius: 0, padding: '1.25rem', background: 'var(--cp-surface-dim)' }}>
+          <DateTimePicker value={eventDate} onChange={val => setEventDate(val)} />
         </div>
+
+        {eventDate && (
+          <p className="text-xs mt-3 font-semibold" style={{ color: 'var(--cp-secondary)' }}>
+            {new Date(eventDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+          </p>
+        )}
       </div>
 
-      {/* Location Section */}
+      {/* ── Location ── */}
       <div>
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'hsl(from var(--cp-accent) h s l / 0.12)', color: 'var(--cp-accent)' }}>
-            <Clock size={18} />
-          </div>
-          <div>
-            <h3 className="font-headline font-bold text-sm">Location</h3>
-            <p className="text-[11px]" style={{ color: 'var(--cp-text-3)' }}>Search an address or click on the map</p>
-          </div>
+        <div className="flex items-center gap-2 mb-5">
+          <MapPin size={15} style={{ color: 'var(--cp-accent)' }} />
+          <label className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--cp-text-3)' }}>
+            Location
+          </label>
         </div>
-        <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid var(--cp-border)' }}>
+
+        <div style={{ border: '1px solid var(--cp-border)', borderRadius: 0, overflow: 'hidden' }}>
           <LocationPickerWrapper
-            onLocationSelect={(loc) => {
+            onLocationSelect={loc => {
               setLocationName(loc.name);
               setLat(loc.lat);
               setLng(loc.lng);
             }}
           />
         </div>
+
         {locationName && (
-          <p className="text-xs mt-2 px-1 font-medium" style={{ color: 'var(--cp-secondary)' }}>
-            📍 {locationName}
+          <p className="text-xs mt-3 font-semibold" style={{ color: 'var(--cp-secondary)' }}>
+            {locationName}
           </p>
         )}
       </div>

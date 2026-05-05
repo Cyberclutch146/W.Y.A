@@ -1,7 +1,11 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { Sparkles, Loader2, Zap, Tag, Check, MousePointerClick } from 'lucide-react';
+import { useState } from 'react';
+import {
+  Sparkles, Loader2, Check, MousePointerClick,
+  GraduationCap, Users, Trophy, Code2, Palette,
+  Heart, Coffee, Briefcase, Tag, Zap,
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface StepSparkProps {
@@ -15,18 +19,14 @@ interface StepSparkProps {
 }
 
 const CATEGORIES = [
-  { value: '🎓 Academic',       emoji: '🎓', label: 'Academic'      },
-  { value: '🎉 Social',         emoji: '🎉', label: 'Social'        },
-  { value: '🏆 Sports & Fitness', emoji: '🏆', label: 'Sports'      },
-  { value: '💻 Tech',           emoji: '💻', label: 'Tech'          },
-  { value: '🎨 Arts & Culture', emoji: '🎨', label: 'Arts & Culture' },
-  { value: '🤝 Volunteering',   emoji: '🤝', label: 'Volunteering'  },
-  { value: '🍕 Food & Hangouts', emoji: '🍕', label: 'Food & Hangouts' },
-  { value: '💼 Career',         emoji: '💼', label: 'Career'        },
-];
-const URGENCY_OPTS = [
-  { key: 'normal' as const, label: '🟢 Normal', accent: 'var(--cp-secondary)', bg: 'hsl(from var(--cp-secondary) h s l / 0.1)' },
-  { key: 'high' as const, label: '🔴 High', accent: 'var(--cp-accent)', bg: 'hsl(from var(--cp-accent) h s l / 0.1)' },
+  { value: '🎓 Academic',       label: 'Academic',       Icon: GraduationCap },
+  { value: '🎉 Social',         label: 'Social',         Icon: Users         },
+  { value: '🏆 Sports & Fitness', label: 'Sports',       Icon: Trophy        },
+  { value: '💻 Tech',           label: 'Tech',           Icon: Code2         },
+  { value: '🎨 Arts & Culture', label: 'Arts & Culture', Icon: Palette       },
+  { value: '🤝 Volunteering',   label: 'Volunteering',   Icon: Heart         },
+  { value: '🍕 Food & Hangouts', label: 'Food & Hangouts', Icon: Coffee      },
+  { value: '💼 Career',         label: 'Career',         Icon: Briefcase     },
 ];
 
 interface AiSuggestion {
@@ -36,33 +36,35 @@ interface AiSuggestion {
   draftDescription: string;
 }
 
-// ─── Module-level cache (persists for the entire browser session, survives re-renders) ───
 const suggestionCache = new Map<string, AiSuggestion>();
-
-// ─── Session rate limit: max 5 AI calls per page visit ───
 let sessionCallCount = 0;
 const SESSION_LIMIT = 5;
+
+// ── Shared section style ──────────────────────────────────────
+const sectionStyle = {
+  borderBottom: '1px solid var(--cp-border)',
+  paddingBottom: '2rem',
+  marginBottom: '2rem',
+};
 
 export default function StepSpark({
   title, setTitle, category, setCategory,
   urgency, setUrgency, setDraftDescription,
 }: StepSparkProps) {
-  const [aiLoading, setAiLoading] = useState(false);
-  const [aiSuggestion, setAiSuggestion] = useState<AiSuggestion | null>(null);
+  const [aiLoading, setAiLoading]         = useState(false);
+  const [aiSuggestion, setAiSuggestion]   = useState<AiSuggestion | null>(null);
   const [appliedCategory, setAppliedCategory] = useState(false);
-  const [appliedUrgency, setAppliedUrgency] = useState(false);
-  const [rateLimited, setRateLimited] = useState(false);
+  const [appliedUrgency, setAppliedUrgency]   = useState(false);
+  const [rateLimited, setRateLimited]     = useState(false);
   const [lastFetchedTitle, setLastFetchedTitle] = useState('');
 
-  // The title used for the last fetch — to show "stale" state if title changed
   const titleChanged = title.trim() !== lastFetchedTitle.trim() && aiSuggestion !== null;
+  const isReadyToSuggest = title.trim().length >= 5;
+  const canFetch = isReadyToSuggest && !aiLoading && !rateLimited;
 
   const fetchSuggestions = async () => {
     const trimmed = title.trim();
-
     if (trimmed.length < 5) return;
-
-    // ── GUARD 1: Already fetched this exact title (case-insensitive) ──
     const cacheKey = trimmed.toLowerCase();
     if (suggestionCache.has(cacheKey)) {
       const cached = suggestionCache.get(cacheKey)!;
@@ -73,17 +75,10 @@ export default function StepSpark({
       setAppliedUrgency(false);
       return;
     }
-
-    // ── GUARD 2: Session rate limit ──
-    if (sessionCallCount >= SESSION_LIMIT) {
-      setRateLimited(true);
-      return;
-    }
-
+    if (sessionCallCount >= SESSION_LIMIT) { setRateLimited(true); return; }
     setAiLoading(true);
     setAppliedCategory(false);
     setAppliedUrgency(false);
-
     try {
       sessionCallCount++;
       const res = await fetch('/api/generate-event-meta', {
@@ -93,221 +88,168 @@ export default function StepSpark({
       });
       if (res.ok) {
         const data = await res.json();
-        // ── GUARD 3: Write to cache before setting state ──
         suggestionCache.set(cacheKey, data);
         setAiSuggestion(data);
         setLastFetchedTitle(trimmed);
-        if (data.draftDescription) {
-          setDraftDescription(data.draftDescription);
-        }
+        if (data.draftDescription) setDraftDescription(data.draftDescription);
       }
     } catch (err) {
-      console.error('AI suggest error:', err);
-      sessionCallCount--; // Don't count failed calls
+      console.error(err);
+      sessionCallCount--;
     } finally {
       setAiLoading(false);
     }
   };
 
-  const canFetch = title.trim().length >= 5 && !aiLoading && !rateLimited;
-  const isReadyToSuggest = title.trim().length >= 5;
-
   return (
-    <div className="space-y-8">
-      {/* Title Input */}
-      <div>
-        <label className="block text-xs font-bold uppercase tracking-wider mb-3 px-0.5" style={{ color: 'var(--cp-text-3)' }}>
-          What's your event called?
+    <div>
+      {/* ── Title ── */}
+      <div style={sectionStyle}>
+        <label className="block text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--cp-text-3)' }}>
+          Event Title
         </label>
         <input
           type="text"
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="e.g. Campus Cleanup Drive, Midnight Hackathon..."
-          className="input-base w-full text-xl md:text-2xl font-headline font-bold py-5 px-5 rounded-2xl"
-          style={{ background: 'var(--cp-surface-dim)', letterSpacing: '-0.02em' }}
+          onChange={e => setTitle(e.target.value)}
+          placeholder="e.g. Midnight Hackathon, Campus Cleanup Drive..."
+          className="input-base w-full text-2xl md:text-3xl font-headline font-bold py-4 px-0"
+          style={{
+            background: 'transparent',
+            border: 'none',
+            borderBottom: '2px solid var(--cp-border)',
+            borderRadius: 0,
+            letterSpacing: '-0.02em',
+            outline: 'none',
+          }}
           autoFocus
         />
 
-        {/* Status line + manual trigger button */}
-        <div className="flex items-center justify-between mt-2 px-1 min-h-[24px]">
+        {/* Status + trigger */}
+        <div className="flex items-center justify-between mt-4">
           <p className="text-xs" style={{ color: 'var(--cp-text-3)' }}>
-            {!isReadyToSuggest && 'Type at least 5 characters for AI suggestions ✨'}
-            {isReadyToSuggest && !rateLimited && aiSuggestion && !titleChanged && '✅ AI suggestions loaded'}
-            {isReadyToSuggest && !rateLimited && aiSuggestion && titleChanged && '⚡ Title changed — click to refresh suggestions'}
-            {isReadyToSuggest && !rateLimited && !aiSuggestion && !aiLoading && 'Ready — click to get AI suggestions'}
-            {rateLimited && `⚠️ AI limit reached for this session (${SESSION_LIMIT} calls max)`}
-            {aiLoading && 'AI is thinking...'}
+            {!isReadyToSuggest && 'Type at least 5 characters to enable AI suggestions'}
+            {isReadyToSuggest && !rateLimited && !aiSuggestion && !aiLoading && 'Ready — click Suggest to get AI recommendations'}
+            {isReadyToSuggest && !rateLimited && aiSuggestion && !titleChanged && 'AI suggestions applied'}
+            {isReadyToSuggest && !rateLimited && aiSuggestion && titleChanged && 'Title changed — refresh suggestions'}
+            {rateLimited && `AI call limit reached (${SESSION_LIMIT} per session)`}
+            {aiLoading && 'Analyzing your title...'}
           </p>
-          {isReadyToSuggest && !rateLimited && (
-            <button
-              type="button"
-              onClick={fetchSuggestions}
-              disabled={aiLoading || (!titleChanged && !!aiSuggestion)}
-              className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full transition-all disabled:opacity-40 hover:scale-105 active:scale-95"
-              style={{
-                background: 'hsl(from var(--cp-primary) h s l / 0.1)',
-                color: 'var(--cp-primary)',
-                border: '1px solid hsl(from var(--cp-primary) h s l / 0.2)',
-              }}
-            >
-              {aiLoading
-                ? <><Loader2 size={12} className="animate-spin" /> Thinking...</>
-                : titleChanged
-                ? <><Sparkles size={12} /> Refresh ✨</>
-                : aiSuggestion
-                ? <><Check size={12} /> Done</>
-                : <><Sparkles size={12} /> Suggest ✨</>
-              }
-            </button>
-          )}
-        </div>
-
-        {/* Quota badge */}
-        {isReadyToSuggest && (
-          <div className="flex justify-end mt-1 px-1">
-            <span className="text-[10px] font-medium tabular-nums" style={{ color: 'var(--cp-text-3)' }}>
-              {sessionCallCount}/{SESSION_LIMIT} AI calls used this session
+          <div className="flex items-center gap-3">
+            {isReadyToSuggest && !rateLimited && (
+              <button
+                type="button"
+                onClick={fetchSuggestions}
+                disabled={aiLoading || (!titleChanged && !!aiSuggestion)}
+                className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 transition-all disabled:opacity-40"
+                style={{
+                  borderRadius: '4px',
+                  background: 'hsl(from var(--cp-primary) h s l / 0.08)',
+                  color: 'var(--cp-primary)',
+                  border: '1px solid hsl(from var(--cp-primary) h s l / 0.2)',
+                }}
+              >
+                {aiLoading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                {aiLoading ? 'Thinking...' : titleChanged ? 'Refresh' : aiSuggestion ? 'Done' : 'Suggest'}
+              </button>
+            )}
+            <span className="text-[10px] tabular-nums" style={{ color: 'var(--cp-text-3)' }}>
+              {sessionCallCount}/{SESSION_LIMIT}
             </span>
           </div>
-        )}
+        </div>
       </div>
 
-      {/* AI Suggestion Panel */}
+      {/* ── AI Panel ── */}
       <AnimatePresence mode="wait">
         {aiLoading && (
-          <motion.div
-            key="loading"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="rounded-2xl p-5 space-y-3"
-            style={{ background: 'var(--cp-surface-dim)', border: '1px solid var(--cp-border)' }}
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'var(--cp-primary-light)', color: 'var(--cp-primary)' }}>
-                <Loader2 size={16} className="animate-spin" />
-              </div>
-              <div>
-                <p className="text-sm font-bold" style={{ color: 'var(--cp-text-1)' }}>AI is thinking...</p>
-                <p className="text-[11px]" style={{ color: 'var(--cp-text-3)' }}>Analyzing your event title for smart suggestions</p>
-              </div>
-            </div>
-            <div className="space-y-2">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="h-10 rounded-xl animate-pulse" style={{ background: 'var(--cp-border)', opacity: 0.5, animationDelay: `${i * 0.15}s` }} />
-              ))}
+          <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="mb-8 p-5 flex items-center gap-4"
+            style={{ border: '1px solid var(--cp-border)', borderRadius: 0, background: 'var(--cp-surface-dim)' }}>
+            <Loader2 size={16} className="animate-spin shrink-0" style={{ color: 'var(--cp-primary)' }} />
+            <div>
+              <p className="text-sm font-semibold">Analyzing your event title</p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--cp-text-3)' }}>Generating category, urgency, and description suggestions</p>
             </div>
           </motion.div>
         )}
 
-        {/* Rate limited notice */}
         {rateLimited && !aiLoading && (
-          <motion.div
-            key="rate-limited"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="rounded-2xl p-4 flex items-center gap-3"
-            style={{ background: 'hsl(from var(--cp-gold) h s l / 0.08)', border: '1px solid hsl(from var(--cp-gold) h s l / 0.2)' }}
-          >
-            <span className="text-xl">⚡</span>
-            <div>
-              <p className="text-sm font-bold" style={{ color: 'var(--cp-text-1)' }}>AI suggestion limit reached</p>
-              <p className="text-[11px]" style={{ color: 'var(--cp-text-3)' }}>
-                You've used {SESSION_LIMIT} AI calls this session. Manually pick a category and urgency below — you're still good to go!
-              </p>
-            </div>
+          <motion.div key="ratelimit" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            className="mb-8 p-5"
+            style={{ border: '1px solid hsl(from var(--cp-gold) h s l / 0.3)', borderRadius: 0, background: 'hsl(from var(--cp-gold) h s l / 0.06)' }}>
+            <p className="text-sm font-semibold">AI limit reached</p>
+            <p className="text-xs mt-1" style={{ color: 'var(--cp-text-3)' }}>
+              You have used {SESSION_LIMIT} AI calls this session. Select a category and urgency manually below.
+            </p>
           </motion.div>
         )}
 
         {!aiLoading && aiSuggestion && (
-          <motion.div
-            key="suggestions"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="rounded-2xl p-5 space-y-4"
+          <motion.div key="suggestions" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+            className="mb-8 p-5 space-y-3"
             style={{
-              background: titleChanged
-                ? 'hsl(from var(--cp-gold) h s l / 0.04)'
-                : 'hsl(from var(--cp-primary) h s l / 0.04)',
-              border: `1px solid ${titleChanged
-                ? 'hsl(from var(--cp-gold) h s l / 0.2)'
-                : 'hsl(from var(--cp-primary) h s l / 0.15)'}`,
-            }}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Sparkles size={16} style={{ color: titleChanged ? 'var(--cp-gold)' : 'var(--cp-primary)' }} />
-                <span className="text-xs font-bold uppercase tracking-wider" style={{ color: titleChanged ? 'var(--cp-gold)' : 'var(--cp-primary)' }}>
-                  {titleChanged ? 'Stale — title changed' : 'AI Suggestions'}
-                </span>
-              </div>
-              {/* Cache hit indicator */}
+              border: `1px solid ${titleChanged ? 'hsl(from var(--cp-gold) h s l / 0.3)' : 'hsl(from var(--cp-primary) h s l / 0.2)'}`,
+              borderRadius: 0,
+              background: titleChanged ? 'hsl(from var(--cp-gold) h s l / 0.04)' : 'hsl(from var(--cp-primary) h s l / 0.04)',
+            }}>
+            <div className="flex items-center gap-2 mb-1">
+              <Sparkles size={13} style={{ color: titleChanged ? 'var(--cp-gold)' : 'var(--cp-primary)' }} />
+              <span className="text-[10px] font-bold uppercase tracking-widest"
+                style={{ color: titleChanged ? 'var(--cp-gold)' : 'var(--cp-primary)' }}>
+                {titleChanged ? 'Stale — title changed' : 'AI Suggestions'}
+              </span>
               {suggestionCache.has(title.trim().toLowerCase()) && !titleChanged && (
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'var(--cp-secondary-light)', color: 'var(--cp-secondary)' }}>
-                  ⚡ Cached
+                <span className="ml-auto text-[10px] font-bold px-2 py-0.5"
+                  style={{ borderRadius: '3px', background: 'var(--cp-secondary-light)', color: 'var(--cp-secondary)' }}>
+                  Cached
                 </span>
               )}
             </div>
 
-            {/* Category suggestion */}
             {aiSuggestion.suggestedCategory && (
-              <button
-                type="button"
+              <button type="button" disabled={appliedCategory}
                 onClick={() => { setCategory(aiSuggestion.suggestedCategory); setAppliedCategory(true); }}
-                disabled={appliedCategory}
-                className="w-full flex items-center gap-3 p-3.5 rounded-xl transition-all text-left hover:scale-[1.01]"
+                className="w-full flex items-center gap-3 p-3 text-left transition-all"
                 style={{
-                  background: appliedCategory ? 'hsl(from var(--cp-secondary) h s l / 0.1)' : 'var(--cp-surface)',
-                  border: appliedCategory ? '1.5px solid var(--cp-secondary)' : '1px solid var(--cp-border)',
-                }}
-              >
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: appliedCategory ? 'var(--cp-secondary)' : 'var(--cp-primary-light)', color: appliedCategory ? 'white' : 'var(--cp-primary)' }}>
-                  {appliedCategory ? <Check size={16} /> : <Tag size={16} />}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold truncate" style={{ color: appliedCategory ? 'var(--cp-secondary)' : 'var(--cp-text-1)' }}>
-                    {appliedCategory ? 'Applied!' : `We think this is a "${aiSuggestion.suggestedCategory}" event`}
-                  </p>
-                  <p className="text-[11px]" style={{ color: 'var(--cp-text-3)' }}>
-                    {appliedCategory ? `Category set to ${aiSuggestion.suggestedCategory}` : 'Click to auto-set category'}
-                  </p>
-                </div>
+                  borderRadius: 0,
+                  background: appliedCategory ? 'hsl(from var(--cp-secondary) h s l / 0.08)' : 'var(--cp-surface)',
+                  border: appliedCategory ? '1px solid var(--cp-secondary)' : '1px solid var(--cp-border)',
+                }}>
+                <Tag size={14} style={{ color: appliedCategory ? 'var(--cp-secondary)' : 'var(--cp-text-3)' }} />
+                <span className="text-sm font-semibold flex-1"
+                  style={{ color: appliedCategory ? 'var(--cp-secondary)' : 'var(--cp-text-1)' }}>
+                  {appliedCategory ? `Applied: ${aiSuggestion.suggestedCategory.replace(/^\S+\s/, '')}` : `Category: ${aiSuggestion.suggestedCategory.replace(/^\S+\s/, '')}`}
+                </span>
+                {!appliedCategory && <span className="text-[11px]" style={{ color: 'var(--cp-text-3)' }}>Apply</span>}
+                {appliedCategory && <Check size={14} style={{ color: 'var(--cp-secondary)' }} />}
               </button>
             )}
 
-            {/* Urgency suggestion */}
             {aiSuggestion.suggestedUrgency && (
-              <button
-                type="button"
+              <button type="button" disabled={appliedUrgency}
                 onClick={() => { setUrgency(aiSuggestion.suggestedUrgency as 'high' | 'normal'); setAppliedUrgency(true); }}
-                disabled={appliedUrgency}
-                className="w-full flex items-center gap-3 p-3.5 rounded-xl transition-all text-left hover:scale-[1.01]"
+                className="w-full flex items-center gap-3 p-3 text-left transition-all"
                 style={{
-                  background: appliedUrgency ? 'hsl(from var(--cp-secondary) h s l / 0.1)' : 'var(--cp-surface)',
-                  border: appliedUrgency ? '1.5px solid var(--cp-secondary)' : '1px solid var(--cp-border)',
-                }}
-              >
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: appliedUrgency ? 'var(--cp-secondary)' : 'hsl(from var(--cp-accent) h s l / 0.12)', color: appliedUrgency ? 'white' : 'var(--cp-accent)' }}>
-                  {appliedUrgency ? <Check size={16} /> : <Zap size={16} />}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold truncate" style={{ color: appliedUrgency ? 'var(--cp-secondary)' : 'var(--cp-text-1)' }}>
-                    {appliedUrgency ? 'Applied!' : `Urgency: ${aiSuggestion.suggestedUrgency === 'high' ? '🔴 High Priority' : '🟢 Normal'}`}
-                  </p>
-                  <p className="text-[11px]" style={{ color: 'var(--cp-text-3)' }}>
-                    {appliedUrgency ? `Urgency set to ${aiSuggestion.suggestedUrgency}` : 'Click to apply'}
-                  </p>
-                </div>
+                  borderRadius: 0,
+                  background: appliedUrgency ? 'hsl(from var(--cp-secondary) h s l / 0.08)' : 'var(--cp-surface)',
+                  border: appliedUrgency ? '1px solid var(--cp-secondary)' : '1px solid var(--cp-border)',
+                }}>
+                <Zap size={14} style={{ color: appliedUrgency ? 'var(--cp-secondary)' : 'var(--cp-text-3)' }} />
+                <span className="text-sm font-semibold flex-1"
+                  style={{ color: appliedUrgency ? 'var(--cp-secondary)' : 'var(--cp-text-1)' }}>
+                  {appliedUrgency ? `Applied: ${aiSuggestion.suggestedUrgency}` : `Urgency: ${aiSuggestion.suggestedUrgency === 'high' ? 'High Priority' : 'Normal'}`}
+                </span>
+                {!appliedUrgency && <span className="text-[11px]" style={{ color: 'var(--cp-text-3)' }}>Apply</span>}
+                {appliedUrgency && <Check size={14} style={{ color: 'var(--cp-secondary)' }} />}
               </button>
             )}
 
-            {/* Tags */}
             {aiSuggestion.suggestedTags?.length > 0 && (
-              <div className="flex flex-wrap gap-2 pt-1">
-                {aiSuggestion.suggestedTags.map((tag, idx) => (
-                  <span key={idx} className="px-3 py-1.5 rounded-full text-xs font-bold" style={{ background: 'hsl(from var(--cp-primary) h s l / 0.1)', color: 'var(--cp-primary)', border: '1px solid hsl(from var(--cp-primary) h s l / 0.15)' }}>
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {aiSuggestion.suggestedTags.map((tag, i) => (
+                  <span key={i} className="px-2.5 py-1 text-[11px] font-semibold"
+                    style={{ borderRadius: '3px', background: 'hsl(from var(--cp-primary) h s l / 0.08)', color: 'var(--cp-primary)', border: '1px solid hsl(from var(--cp-primary) h s l / 0.15)' }}>
                     {tag}
                   </span>
                 ))}
@@ -316,74 +258,83 @@ export default function StepSpark({
           </motion.div>
         )}
 
-        {/* Empty state — ready but not fetched yet */}
         {!aiLoading && !aiSuggestion && isReadyToSuggest && !rateLimited && (
-          <motion.div
-            key="prompt"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="rounded-2xl p-5 flex items-center gap-4"
-            style={{ background: 'var(--cp-surface-dim)', border: '1px dashed var(--cp-border)' }}
-          >
-            <MousePointerClick size={20} style={{ color: 'var(--cp-text-3)', flexShrink: 0 }} />
+          <motion.div key="prompt" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="mb-8 p-5 flex items-center gap-4"
+            style={{ border: '1px dashed var(--cp-border)', borderRadius: 0 }}>
+            <MousePointerClick size={16} style={{ color: 'var(--cp-text-3)', flexShrink: 0 }} />
             <div>
-              <p className="text-sm font-bold" style={{ color: 'var(--cp-text-2)' }}>Get AI suggestions</p>
-              <p className="text-[11px]" style={{ color: 'var(--cp-text-3)' }}>
-                Click "Suggest ✨" above to let AI recommend a category, urgency, tags, and a draft description.
+              <p className="text-sm font-semibold">Get AI suggestions</p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--cp-text-3)' }}>
+                Click Suggest above — AI will recommend a category, urgency, tags, and a draft description.
               </p>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Category Pills */}
-      <div>
-        <label className="block text-xs font-bold uppercase tracking-wider mb-3 px-0.5" style={{ color: 'var(--cp-text-3)' }}>
+      {/* ── Category ── */}
+      <div style={sectionStyle}>
+        <label className="block text-[10px] font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--cp-text-3)' }}>
           Category
         </label>
         <div className="grid grid-cols-4 gap-2">
-          {CATEGORIES.map((cat) => {
-            const isSelected = category === cat.value;
+          {CATEGORIES.map(({ value, label, Icon }) => {
+            const isSelected = category === value;
             return (
               <button
-                key={cat.value}
+                key={value}
                 type="button"
-                onClick={() => setCategory(cat.value)}
-                className="flex flex-col items-center gap-1.5 py-3 px-2 rounded-2xl transition-all active:scale-95 hover:scale-[1.02]"
+                onClick={() => setCategory(value)}
+                className="flex flex-col items-center gap-2 py-4 px-2 transition-all"
                 style={{
-                  background: isSelected ? 'linear-gradient(135deg, var(--cp-primary), hsl(290,90%,60%))' : 'var(--cp-surface-dim)',
+                  borderRadius: '4px',
+                  background: isSelected ? 'var(--cp-primary)' : 'var(--cp-surface-dim)',
                   color: isSelected ? 'white' : 'var(--cp-text-2)',
-                  border: isSelected ? 'none' : '1px solid var(--cp-border)',
-                  boxShadow: isSelected ? '0 6px 20px -6px hsl(from var(--cp-primary) h s l / 0.45)' : 'none',
+                  border: isSelected ? '1px solid var(--cp-primary)' : '1px solid var(--cp-border)',
                 }}
               >
-                <span className="text-2xl leading-none">{cat.emoji}</span>
-                <span className="text-[11px] font-bold text-center leading-tight">{cat.label}</span>
+                <Icon size={18} />
+                <span className="text-[11px] font-semibold text-center leading-tight">{label}</span>
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* Urgency */}
+      {/* ── Urgency ── */}
       <div>
-        <label className="block text-xs font-bold uppercase tracking-wider mb-3 px-0.5" style={{ color: 'var(--cp-text-3)' }}>
+        <label className="block text-[10px] font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--cp-text-3)' }}>
           Urgency Level
         </label>
-        <div className="flex gap-3">
-          {URGENCY_OPTS.map((u) => (
-            <button key={u.key} type="button" onClick={() => setUrgency(u.key)}
-              className="flex-1 py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
-              style={{
-                background: urgency === u.key ? u.bg : 'var(--cp-surface-dim)',
-                color: urgency === u.key ? u.accent : 'var(--cp-text-2)',
-                border: urgency === u.key ? `1.5px solid ${u.accent}` : '1px solid var(--cp-border)',
-              }}
-            >
-              {u.label}
-            </button>
-          ))}
+        <div className="grid grid-cols-2 gap-3">
+          {(['normal', 'high'] as const).map(u => {
+            const isSelected = urgency === u;
+            return (
+              <button
+                key={u}
+                type="button"
+                onClick={() => setUrgency(u)}
+                className="py-3.5 text-sm font-semibold transition-all"
+                style={{
+                  borderRadius: '4px',
+                  background: isSelected
+                    ? u === 'high'
+                      ? 'hsl(from var(--cp-accent) h s l / 0.1)'
+                      : 'hsl(from var(--cp-secondary) h s l / 0.1)'
+                    : 'var(--cp-surface-dim)',
+                  color: isSelected
+                    ? u === 'high' ? 'var(--cp-accent)' : 'var(--cp-secondary)'
+                    : 'var(--cp-text-2)',
+                  border: isSelected
+                    ? `1.5px solid ${u === 'high' ? 'var(--cp-accent)' : 'var(--cp-secondary)'}`
+                    : '1px solid var(--cp-border)',
+                }}
+              >
+                {u === 'normal' ? 'Normal' : 'High Priority'}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

@@ -67,13 +67,20 @@ export const getEventById = async (eventId: string): Promise<CommunityEvent | nu
 export const getEventsByOrganizer = async (userId: string): Promise<CommunityEvent[]> => {
   try {
     const eventsRef = collection(db, EVENTS_COLLECTION);
-    const q = query(eventsRef, where('organizerId', '==', userId), orderBy('createdAt', 'desc'));
+    const q = query(eventsRef, where('organizerId', '==', userId));
     const snapshot = await getDocs(q);
     
-    return snapshot.docs.map(doc => ({
+    const events = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     })) as CommunityEvent[];
+
+    // Sort locally by createdAt descending to avoid needing a composite index
+    return events.sort((a, b) => {
+      const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt ? new Date(a.createdAt).getTime() : 0);
+      const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt ? new Date(b.createdAt).getTime() : 0);
+      return timeB - timeA;
+    });
   } catch (error) {
     console.error('Failed to fetch events by organizer:', error);
     return [];

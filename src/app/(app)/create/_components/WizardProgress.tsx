@@ -6,6 +6,7 @@ import { Check, Sparkles, MapPin, Palette, Rocket } from 'lucide-react';
 interface WizardProgressProps {
   currentStep: number;
   totalSteps: number;
+  onStepClick?: (step: number) => void;
 }
 
 const STEPS = [
@@ -15,84 +16,88 @@ const STEPS = [
   { label: 'Launch', icon: Rocket },
 ];
 
-export default function WizardProgress({ currentStep }: WizardProgressProps) {
+export default function WizardProgress({ currentStep, totalSteps, onStepClick }: WizardProgressProps) {
   return (
-    <div className="w-full mb-8 md:mb-12">
-      {/* Mobile: minimal */}
-      <div className="flex md:hidden items-center justify-center gap-2 mb-2">
-        <span className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--cp-text-3)' }}>
-          Step {currentStep} of {STEPS.length}
-        </span>
-        <span className="text-xs font-bold" style={{ color: 'var(--cp-primary)' }}>
-          — {STEPS[currentStep - 1]?.label}
-        </span>
-      </div>
-      {/* Mobile progress bar */}
-      <div className="flex md:hidden h-1.5 rounded-full overflow-hidden mx-4" style={{ background: 'var(--cp-surface-dim)' }}>
-        <motion.div
-          className="h-full rounded-full"
-          style={{ background: 'linear-gradient(90deg, var(--cp-primary), hsl(290,90%,60%))' }}
-          initial={false}
-          animate={{ width: `${(currentStep / STEPS.length) * 100}%` }}
-          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        />
-      </div>
-
-      {/* Desktop: full progress */}
-      <div className="hidden md:flex items-center justify-center gap-0">
+    <div className="w-full mb-6">
+      {/* Pill tabs row */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
         {STEPS.map((step, idx) => {
           const stepNum = idx + 1;
           const isActive = stepNum === currentStep;
           const isCompleted = stepNum < currentStep;
           const Icon = step.icon;
+          const clickable = isCompleted && onStepClick;
 
           return (
-            <div key={stepNum} className="flex items-center">
-              <div className="flex flex-col items-center gap-2.5 relative">
-                <motion.div
-                  className="w-12 h-12 rounded-2xl flex items-center justify-center text-sm font-bold relative z-10 transition-colors"
-                  style={{
-                    background: isCompleted
-                      ? 'var(--cp-secondary)'
-                      : isActive
-                      ? 'linear-gradient(135deg, var(--cp-primary), hsl(290,90%,60%))'
-                      : 'var(--cp-surface-dim)',
-                    color: isCompleted || isActive ? 'white' : 'var(--cp-text-3)',
-                    border: isActive ? 'none' : isCompleted ? 'none' : '1.5px solid var(--cp-border)',
-                    boxShadow: isActive
-                      ? '0 8px 24px -6px hsl(from var(--cp-primary) h s l / 0.4)'
-                      : isCompleted
-                      ? '0 4px 12px -4px hsl(from var(--cp-secondary) h s l / 0.3)'
-                      : 'none',
-                  }}
-                  animate={{ scale: isActive ? 1.1 : 1 }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+            <motion.button
+              key={stepNum}
+              type="button"
+              onClick={() => clickable && onStepClick(stepNum)}
+              disabled={!clickable && !isActive}
+              className="flex items-center gap-2 px-4 py-2 whitespace-nowrap text-xs font-bold transition-all shrink-0"
+              style={{
+                borderRadius: 'var(--r-full)',
+                background: isActive
+                  ? 'linear-gradient(135deg, var(--cp-primary), hsl(290,90%,60%))'
+                  : isCompleted
+                  ? 'var(--cp-surface-dim)'
+                  : 'transparent',
+                color: isActive
+                  ? 'white'
+                  : isCompleted
+                  ? 'var(--cp-text-2)'
+                  : 'var(--cp-text-3)',
+                border: isActive
+                  ? 'none'
+                  : isCompleted
+                  ? '1.5px solid var(--cp-border)'
+                  : '1.5px dashed var(--cp-border)',
+                boxShadow: isActive
+                  ? '0 6px 20px -6px hsl(from var(--cp-primary) h s l / 0.45)'
+                  : 'none',
+                cursor: clickable ? 'pointer' : isActive ? 'default' : 'not-allowed',
+                opacity: !isActive && !isCompleted ? 0.5 : 1,
+              }}
+              animate={{ scale: isActive ? 1.04 : 1 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            >
+              {isCompleted ? (
+                <motion.span
+                  initial={{ scale: 0, rotate: -90 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 20 }}
                 >
-                  {isCompleted ? <Check size={20} strokeWidth={3} /> : <Icon size={20} />}
-                </motion.div>
-                <span
-                  className="text-[11px] font-bold uppercase tracking-wider whitespace-nowrap"
-                  style={{ color: isActive ? 'var(--cp-primary)' : isCompleted ? 'var(--cp-secondary)' : 'var(--cp-text-3)' }}
-                >
-                  {step.label}
-                </span>
-              </div>
-
-              {/* Connector line */}
-              {idx < STEPS.length - 1 && (
-                <div className="w-16 xl:w-24 h-0.5 mx-3 rounded-full relative" style={{ background: 'var(--cp-border)' }}>
-                  <motion.div
-                    className="absolute inset-y-0 left-0 rounded-full"
-                    style={{ background: 'linear-gradient(90deg, var(--cp-secondary), var(--cp-primary))' }}
-                    initial={false}
-                    animate={{ width: isCompleted ? '100%' : '0%' }}
-                    transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                  />
-                </div>
+                  <Check size={12} strokeWidth={3} />
+                </motion.span>
+              ) : (
+                <Icon size={12} />
               )}
-            </div>
+              {step.label}
+            </motion.button>
           );
         })}
+
+        {/* Step counter — pushed right */}
+        <span
+          className="ml-auto pl-3 text-[11px] font-bold shrink-0"
+          style={{ color: 'var(--cp-text-3)' }}
+        >
+          Step {currentStep} of {totalSteps}
+        </span>
+      </div>
+
+      {/* Progress bar */}
+      <div
+        className="mt-3 h-0.5 rounded-full overflow-hidden"
+        style={{ background: 'var(--cp-border)' }}
+      >
+        <motion.div
+          className="h-full rounded-full"
+          style={{ background: 'linear-gradient(90deg, var(--cp-primary), hsl(290,90%,60%))' }}
+          initial={false}
+          animate={{ width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%` }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        />
       </div>
     </div>
   );
