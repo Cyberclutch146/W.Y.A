@@ -345,7 +345,7 @@ function HeroVisual() {
   const [liveEvent, setLiveEvent] = useState<CommunityEvent | null>(null);
   const [upcomingEvent, setUpcomingEvent] = useState<CommunityEvent | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
-  const [stats, setStats] = useState({ totalVolunteers: 12400 });
+  const [stats, setStats] = useState({ totalAttendees: 12400 });
 
   useEffect(() => {
     const fetchLiveData = async () => {
@@ -360,8 +360,8 @@ function HeroVisual() {
         setLeaderboard(board);
 
         const leaderStats = await getLeaderboardStats();
-        if (leaderStats && leaderStats.totalVolunteers > 0) {
-          setStats({ totalVolunteers: leaderStats.totalVolunteers });
+        if (leaderStats && leaderStats.totalAttendees > 0) {
+          setStats({ totalAttendees: leaderStats.totalAttendees });
         }
       } catch (error) {
         console.error("Failed to fetch live data for hero:", error);
@@ -370,8 +370,8 @@ function HeroVisual() {
     fetchLiveData();
   }, []);
 
-  const liveGoal = liveEvent?.needs?.volunteers?.goal || 200;
-  const liveCurrent = liveEvent?.needs?.volunteers?.current || 142;
+  const liveGoal = liveEvent?.needs?.attendees?.goal || 200;
+  const liveCurrent = liveEvent?.needs?.attendees?.current || 142;
   const liveProgress = Math.min(100, Math.round((liveCurrent / liveGoal) * 100));
 
   const formatNumber = (num: number) => {
@@ -778,7 +778,7 @@ function HeroVisual() {
           <Users size={12} style={{ color: "var(--cp-primary)" }} />
         </div>
         <div>
-          <div className="text-[13px] font-extrabold" style={{ color: "var(--cp-text-1)" }}>{formatNumber(stats.totalVolunteers)}</div>
+          <div className="text-[13px] font-extrabold" style={{ color: "var(--cp-text-1)" }}>{formatNumber(stats.totalAttendees)}</div>
           <div className="text-[8px] uppercase tracking-wider" style={{ color: "var(--cp-text-3)" }}>Active Users</div>
         </div>
       </motion.div>
@@ -1027,11 +1027,11 @@ function HeroVisualRadar() {
   }, []);
 
   const fallback: Partial<CommunityEvent>[] = [
-    { id:'a', title:'Hackathon Kick-off', category:'Hackathon', location:'Lab Block', needs:{ volunteers:{ current:38, goal:60 } } },
-    { id:'b', title:'Music Fest', category:'Concert', location:'Open Stage', needs:{ volunteers:{ current:210, goal:300 } } },
-    { id:'c', title:'Tech Summit', category:'Tech Talk', location:'Main Hall', needs:{ volunteers:{ current:92, goal:120 } } },
-    { id:'d', title:'Art & Design Expo', category:'Cultural Fest', location:'Gallery Wing', needs:{ volunteers:{ current:44, goal:80 } } },
-    { id:'e', title:'Career Fair', category:'Career Fair', location:'Convention Ctr', needs:{ volunteers:{ current:175, goal:200 } } },
+    { id:'a', title:'Hackathon Kick-off', category:'Hackathon', location:'Lab Block', needs:{ attendees:{ current:38, goal:60 } } },
+    { id:'b', title:'Music Fest', category:'Concert', location:'Open Stage', needs:{ attendees:{ current:210, goal:300 } } },
+    { id:'c', title:'Tech Summit', category:'Tech Talk', location:'Main Hall', needs:{ attendees:{ current:92, goal:120 } } },
+    { id:'d', title:'Art & Design Expo', category:'Cultural Fest', location:'Gallery Wing', needs:{ attendees:{ current:44, goal:80 } } },
+    { id:'e', title:'Career Fair', category:'Career Fair', location:'Convention Ctr', needs:{ attendees:{ current:175, goal:200 } } },
   ];
   const display = (events.length > 0 ? events : fallback).slice(0, 5) as CommunityEvent[];
 
@@ -1066,8 +1066,8 @@ function HeroVisualRadar() {
         {/* Feed */}
         <div className="divide-y" style={{ borderColor: 'var(--cp-border)' }}>
           {display.map((ev, i) => {
-            const current = ev.needs?.volunteers?.current ?? 0;
-            const goal = ev.needs?.volunteers?.goal ?? 100;
+            const current = ev.needs?.attendees?.current ?? 0;
+            const goal = ev.needs?.attendees?.goal ?? 100;
             const pct = Math.min(100, Math.round((current / goal) * 100));
             const isHot = pct > 70;
             return (
@@ -1123,14 +1123,14 @@ function HeroVisualIsometric() {
   }, []);
 
   const fallback: Partial<CommunityEvent>[] = [
-    { id:'x', title:'Spring Music Festival', category:'Concert', location:'Main Campus Square', needs:{ volunteers:{ current:210, goal:300 } }, tags:['open to all'] },
-    { id:'y', title:'National Hackathon', category:'Hackathon', location:'Innovation Hub', needs:{ volunteers:{ current:38, goal:60 } }, tags:['registration required'] },
-    { id:'z', title:'Career Connect Fair', category:'Career Fair', location:'Convention Centre', needs:{ volunteers:{ current:92, goal:120 } }, tags:['bring resume'] },
+    { id:'x', title:'Spring Music Festival', category:'Concert', location:'Main Campus Square', needs:{ attendees:{ current:210, goal:300 } }, tags:['open to all'] },
+    { id:'y', title:'National Hackathon', category:'Hackathon', location:'Innovation Hub', needs:{ attendees:{ current:38, goal:60 } }, tags:['registration required'] },
+    { id:'z', title:'Career Connect Fair', category:'Career Fair', location:'Convention Centre', needs:{ attendees:{ current:92, goal:120 } }, tags:['bring resume'] },
   ];
   const cards = (events.length > 0 ? events : fallback) as CommunityEvent[];
   const ev = cards[active];
-  const current = ev?.needs?.volunteers?.current ?? 0;
-  const goal = ev?.needs?.volunteers?.goal ?? 100;
+  const current = ev?.needs?.attendees?.current ?? 0;
+  const goal = ev?.needs?.attendees?.goal ?? 100;
   const pct = Math.min(100, Math.round((current / goal) * 100));
   const gradients = [
     'linear-gradient(135deg, var(--cp-primary), var(--cp-accent))',

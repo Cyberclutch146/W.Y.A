@@ -67,7 +67,7 @@ export default function StaggeredNav() {
           title: 'Complete Your Profile',
           body: 'Fill in your details to unlock all features.',
           path: '/profile',
-          type: 'system',
+          type: 'general',
           tone: 'info',
           read: false,
           createdAt: null,

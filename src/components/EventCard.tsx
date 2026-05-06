@@ -504,7 +504,7 @@ export function EventCard({
             <div className="text-[10px] font-semibold mb-1.5" style={{ color: 'var(--cp-text-3)' }}>Needs</div>
             <div className="flex flex-wrap gap-1">
               {event.needs?.goods   && <span className="pill-tag px-1.5 py-0.5" style={{ background: 'hsl(25 100% 62% / 0.15)', color: 'var(--cp-orange)', border: '1px solid hsl(25 100% 62% / 0.3)' }}>Goods</span>}
-              {event.needs?.volunteers && <span className="pill-tag px-1.5 py-0.5" style={{ background: 'hsl(160 70% 44% / 0.15)', color: 'var(--cp-secondary)', border: '1px solid hsl(160 70% 44% / 0.3)' }}>Crew</span>}
+              {event.needs?.attendees && <span className="pill-tag px-1.5 py-0.5" style={{ background: 'hsl(160 70% 44% / 0.15)', color: 'var(--cp-secondary)', border: '1px solid hsl(160 70% 44% / 0.3)' }}>RSVP</span>}
               {event.needs?.funds   && <span className="pill-tag px-1.5 py-0.5" style={{ background: 'hsl(258 90% 63% / 0.15)', color: 'var(--cp-primary)', border: '1px solid hsl(258 90% 63% / 0.3)' }}>Funds</span>}
               {!event.needs         && <span className="text-[10px]" style={{ color: 'var(--cp-text-3)' }}>Review</span>}
             </div>

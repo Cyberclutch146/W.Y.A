@@ -201,7 +201,7 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
                 <option>🏆 Sports & Fitness</option>
                 <option>💻 Tech</option>
                 <option>🎨 Arts & Culture</option>
-                <option>🤝 Volunteering</option>
+                <option>🤝 Participanting</option>
                 <option>🍕 Food & Hangouts</option>
                 <option>💼 Career</option>
               </select>

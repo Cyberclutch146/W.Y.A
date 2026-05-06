@@ -19,7 +19,7 @@ const PAGE_SIZE = 12;
 
 type FilterState = {
   urgency: 'all' | 'high' | 'normal';
-  need: 'all' | 'volunteers' | 'funds' | 'goods';
+  need: 'all' | 'attendees' | 'funds' | 'goods';
   distance: 'all' | 'within-5' | 'within-15' | 'within-30';
   category: string;
 };
@@ -332,7 +332,7 @@ function FeedContent() {
 
     if (filters.need !== 'all') {
       result = result.filter((event) => {
-        if (filters.need === 'volunteers') return Boolean(event.needs?.volunteers?.goal);
+        if (filters.need === 'attendees') return Boolean(event.needs?.attendees?.goal);
         if (filters.need === 'funds') return Boolean(event.needs?.funds?.goal);
         if (filters.need === 'goods') return Boolean(event.needs?.goods?.length);
         return true;
@@ -415,7 +415,7 @@ function FeedContent() {
         ? 'Needs goods'
         : filters.need === 'funds'
           ? 'Needs funds'
-          : 'Needs volunteers',
+          : 'Needs attendees',
     } : null,
     filters.distance !== 'all' ? {
       key: 'distance' as const,
@@ -441,14 +441,14 @@ function FeedContent() {
         : 'Nearest';
 
   const sortOptions: Array<{ value: SortOption; label: string; description: string }> = [
-    { value: 'recommended', label: 'Recommended', description: 'Best matches based on your profile skills.' },
+    { value: 'recommended', label: 'Recommended', description: 'Best matches based on your profile interests.' },
     { value: 'recent', label: 'Recent', description: 'Newest event posts first.' },
     { value: 'urgent', label: 'Urgent first', description: 'High-urgency events rise to the top.' },
     { value: 'nearest', label: 'Nearest', description: 'Events with the shortest listed distance first.' },
   ];
 
   const recommendationData = (() => {
-    if (sortBy !== 'recommended' || (!profile?.skills && !profile?.interests) || events.length === 0) {
+    if (sortBy !== 'recommended' || (!profile?.interests && !profile?.interests) || events.length === 0) {
       return {};
     }
 
@@ -549,7 +549,7 @@ function FeedContent() {
                 <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors group-focus-within:text-primary" style={{ color: 'var(--cp-text-3)' }} />
                 <input
                   type="text"
-                  placeholder="Search events, skills, or causes..."
+                  placeholder="Search events, interests, or causes..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 text-sm font-medium transition-all"
@@ -632,7 +632,7 @@ function FeedContent() {
                       <div className="p-3" style={{ borderRadius: 'var(--r-lg)', border: '1px solid var(--cp-border)' }}>
                         <span className="mb-2 block text-[10px] font-bold tracking-tight" style={{ color: 'var(--cp-text-3)' }}>Support Needed</span>
                         <div className="grid grid-cols-2 gap-1 p-1" style={{ borderRadius: 'var(--r-lg)', background: 'var(--cp-surface-dim)' }}>
-                          {[{ value: 'all', label: 'Any' }, { value: 'volunteers', label: 'Volunteers' }, { value: 'funds', label: 'Funds' }, { value: 'goods', label: 'Goods' }].map((o) => {
+                          {[{ value: 'all', label: 'Any' }, { value: 'attendees', label: 'Attendees' }, { value: 'funds', label: 'Funds' }, { value: 'goods', label: 'Goods' }].map((o) => {
                             const active = filters.need === o.value;
                             return (
                               <button key={o.value} onClick={() => setFilters((c) => ({ ...c, need: o.value as FilterState['need'] }))}

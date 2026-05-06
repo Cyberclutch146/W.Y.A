@@ -12,7 +12,7 @@ export interface User {
 }
 
 export interface Needs {
-  volunteers?: { current: number; goal: number };
+  attendees?: { current: number; goal: number };
   funds?: { current: number; goal: number };
   goods?: string[];
 }
@@ -63,7 +63,7 @@ export const mockEvents: Event[] = [
     urgency: 'high',
     image: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=2670&auto=format&fit=crop',
     needs: {
-      volunteers: { current: 28, goal: 60 },
+      attendees: { current: 28, goal: 60 },
     },
     progress: 46,
     category: 'Hackathon',
@@ -81,7 +81,7 @@ export const mockEvents: Event[] = [
     urgency: 'normal',
     image: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=2671&auto=format&fit=crop',
     needs: {
-      volunteers: { current: 12, goal: 40 },
+      attendees: { current: 12, goal: 40 },
     },
     progress: 30,
     category: 'Workshop',
@@ -99,7 +99,7 @@ export const mockEvents: Event[] = [
     urgency: 'normal',
     image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=2670&auto=format&fit=crop',
     needs: {
-      volunteers: { current: 40, goal: 80 },
+      attendees: { current: 40, goal: 80 },
       funds: { current: 12000, goal: 30000 },
     },
     progress: 50,
@@ -117,7 +117,7 @@ export const mockEvents: Event[] = [
     urgency: 'high',
     image: 'https://images.unsplash.com/photo-1554774853-719586f82d77?q=80&w=2670&auto=format&fit=crop',
     needs: {
-      volunteers: { current: 5, goal: 10 },
+      attendees: { current: 5, goal: 10 },
     },
     progress: 50,
     category: 'Career Fair',
@@ -134,7 +134,7 @@ export const mockEvents: Event[] = [
     urgency: 'normal',
     image: '',
     needs: {
-      volunteers: { current: 3, goal: 15 },
+      attendees: { current: 3, goal: 15 },
     },
     progress: 20,
     category: 'Social',

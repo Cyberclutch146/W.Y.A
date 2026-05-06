@@ -53,7 +53,7 @@ export default function AIChatWidget() {
     setIsOpen(!isOpen);
     if (!isOpen && messages.length === 0) {
       const greeting = user && profile
-        ? `Hi ${profile.displayName?.split(' ')[0] || 'there'}! 👋 I'm the W.Y.A AI. I can help you find events, sign you up to volunteer, and navigate the platform. What would you like to do?`
+        ? `Hi ${profile.displayName?.split(' ')[0] || 'there'}! 👋 I'm the W.Y.A AI. I can help you find events, sign you up to attendee, and navigate the platform. What would you like to do?`
         : "Hi there! 👋 I'm the W.Y.A AI assistant. How can I help you today?";
       setMessages([{ role: 'assistant', content: greeting }]);
     }
@@ -77,12 +77,12 @@ export default function AIChatWidget() {
         body: JSON.stringify({
           messages: updatedMessages.map(m => ({ role: m.role, content: m.content })),
           userId: user?.uid || '',
-          userName: profile?.displayName || 'Volunteer',
+          userName: profile?.displayName || 'Participant',
           userEmail: user?.email || '',
-          userSkills: profile?.skills || [],
-          userEquipment: profile?.equipment || [],
-          userAvailability: profile?.availability || 'anytime',
-          userTravelRadius: profile?.travelRadius || 0,
+          userSkills: profile?.interests || [],
+          userEquipment: profile?.clubs || [],
+          userAvailability: profile?.department || 'anytime',
+          userTravelRadius: profile?.campusZone || 0,
           pendingSignup: pendingSignup || undefined,
         }),
       });

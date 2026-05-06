@@ -50,7 +50,7 @@ export default function DashboardPage() {
 
   // ── Aggregate Stats ──
   const totalRaised = events.reduce((sum, e) => sum + (e.needs?.funds?.current ?? 0), 0);
-  const totalVolunteers = events.reduce((sum, e) => sum + (e.needs?.volunteers?.current ?? 0), 0);
+  const totalAttendees = events.reduce((sum, e) => sum + (e.needs?.attendees?.current ?? 0), 0);
   const activeCount = events.filter(e => e.status === 'active').length;
 
   if (!user) {
@@ -72,7 +72,7 @@ export default function DashboardPage() {
   const statCards = [
     { label: 'Active Events', value: activeCount, icon: Megaphone, bg: 'var(--cp-primary-light)' },
     { label: 'Total Raised', value: `$${totalRaised.toLocaleString()}`, icon: DollarSign, bg: 'var(--cp-surface-dim)' },
-    { label: 'Volunteers', value: totalVolunteers, icon: Users, bg: 'var(--cp-surface)' }
+    { label: 'Attendees', value: totalAttendees, icon: Users, bg: 'var(--cp-surface)' }
   ];
 
   return (
@@ -159,7 +159,7 @@ export default function DashboardPage() {
         <div className="mt-16">
           <div className="mb-6">
             <h3 className="text-xl font-bold tracking-tight" style={{ color: 'var(--cp-text-1)' }}>Events You&apos;re Supporting</h3>
-            <p className="text-sm mt-1" style={{ color: 'var(--cp-text-2)' }}>Initiatives you&apos;re helping through volunteer support.</p>
+            <p className="text-sm mt-1" style={{ color: 'var(--cp-text-2)' }}>Initiatives you&apos;re helping through attendee support.</p>
           </div>
           <div className="grid grid-cols-1 gap-4 min-[560px]:grid-cols-2 md:gap-6 lg:grid-cols-3">
             {registeredEvents.map(event => (
@@ -175,7 +175,7 @@ export default function DashboardPage() {
 // ── Helper Component for Event Cards ──
 function EventCard({ event, onClick }: { event: CommunityEvent, onClick: () => void }) {
   const fundPercent = event.needs?.funds ? Math.min(100, Math.round((event.needs.funds.current / event.needs.funds.goal) * 100)) : null;
-  const volPercent = event.needs?.volunteers ? Math.min(100, Math.round((event.needs.volunteers.current / event.needs.volunteers.goal) * 100)) : null;
+  const volPercent = event.needs?.attendees ? Math.min(100, Math.round((event.needs.attendees.current / event.needs.attendees.goal) * 100)) : null;
 
   return (
     <button
@@ -227,7 +227,7 @@ function EventCard({ event, onClick }: { event: CommunityEvent, onClick: () => v
         {volPercent !== null && (
           <div className="mb-3">
             <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider mb-1">
-              <span style={{ color: 'var(--cp-text-2)' }}>Volunteers</span>
+              <span style={{ color: 'var(--cp-text-2)' }}>Attendees</span>
               <span style={{ color: 'var(--cp-text-1)' }}>{volPercent}%</span>
             </div>
             <div className="w-full h-2 overflow-hidden" style={{ background: 'var(--cp-surface-dim)', borderRadius: 'var(--r-full)' }}>

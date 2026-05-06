@@ -24,7 +24,7 @@ const CATEGORIES = [
   { value: '🏆 Sports & Fitness', label: 'Sports',       Icon: Trophy        },
   { value: '💻 Tech',           label: 'Tech',           Icon: Code2         },
   { value: '🎨 Arts & Culture', label: 'Arts & Culture', Icon: Palette       },
-  { value: '🤝 Volunteering',   label: 'Volunteering',   Icon: Heart         },
+  { value: '🤝 Participanting',   label: 'Participanting',   Icon: Heart         },
   { value: '🍕 Food & Hangouts', label: 'Food & Hangouts', Icon: Coffee      },
   { value: '💼 Career',         label: 'Career',         Icon: Briefcase     },
 ];

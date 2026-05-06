@@ -63,7 +63,7 @@ export interface UserProfile {
   campusZone: string;
   avatarUrl: string;
   role: string;                // 'student' | 'club_admin' | 'faculty' | 'admin'
-  volunteerHours: number;      // repurposed: total event hours
+  eventHours: number;          // repurposed from eventHours
   totalDonated: number;
   profileComplete: boolean;
   createdAt: Timestamp | null;
@@ -86,24 +86,18 @@ export type UserProfileCreate = Omit<UserProfile, 'id' | 'createdAt' | 'updatedA
 
 // ─── Event Categories ────────────────────────────────────
 export type EventCategory =
-  | 'Hackathon'
-  | 'Workshop'
-  | 'Cultural Fest'
-  | 'Sports'
-  | 'Tech Talk'
-  | 'Club Meet'
+  | 'Technical'
+  | 'Cultural'
   | 'Academic'
-  | 'Career Fair'
-  | 'Concert'
-  | 'Competition'
-  | 'Seminar'
+  | 'Sports'
   | 'Social'
-  | 'Volunteer'
+  | 'Career'
+  | 'Club'
   | 'Other';
 
 // ─── Event ──────────────────────────────────────────────
 export interface EventNeeds {
-  volunteers?: { current: number; goal: number };   // attendee count
+  attendees?: { current: number; goal: number };
   funds?: { current: number; goal: number };
   goods?: string[];                                  // items to bring / sponsor
 }

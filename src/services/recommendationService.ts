@@ -20,7 +20,7 @@ const INTEREST_CATEGORY_MAP: Record<string, string[]> = {
   debate: ["Academic", "Competition", "Seminar", "debate", "MUN", "public speaking"],
   journalism: ["Academic", "Workshop", "journalism", "media", "writing", "newsletter"],
   entrepreneurship: ["Career Fair", "Workshop", "Seminar", "startup", "entrepreneur", "business", "pitch"],
-  "community service": ["Volunteer", "Social", "community", "outreach", "NGO", "charity"],
+  "community service": ["Participant", "Social", "community", "outreach", "NGO", "charity"],
 };
 
 // ─── Department-to-Category Affinity ───────────────────
@@ -168,7 +168,7 @@ export function getRecommendedEvents(
       }
 
       // 5. Social Proof & Departmental Trending - 15% Weight
-      const attendees = event.needs?.volunteers?.current || 0;
+      const attendees = event.needs?.attendees?.current || 0;
       if (attendees > 5) {
         let socialBoost = Math.min(20, Math.floor(attendees / 2));
         

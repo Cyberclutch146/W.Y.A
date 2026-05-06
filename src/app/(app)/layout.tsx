@@ -7,7 +7,7 @@ import AppNavigation from '@/components/AppNavigation';
 
 export const metadata: Metadata = {
   title: 'Home — W.Y.A',
-  description: 'W.Y.A — Campus Events & Volunteering Platform',
+  description: 'W.Y.A — Campus Events & Participanting Platform',
 };
 
 export default function AppLayout({

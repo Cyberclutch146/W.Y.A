@@ -279,7 +279,7 @@ export default function AboutPage() {
             <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--cp-text-3)' }}>Join the mission</p>
             <h2 className="mt-2 font-headline font-bold text-3xl md:text-4xl tracking-tight" style={{ color: 'var(--cp-text-1)' }}>Turn campus intent into coordinated action.</h2>
             <p className="mt-3 leading-relaxed" style={{ color: 'var(--cp-text-2)' }}>
-              Explore live events, volunteer where you can help most, and build stronger campus connections together.
+              Explore live events, attendee where you can help most, and build stronger campus connections together.
             </p>
           </div>
 

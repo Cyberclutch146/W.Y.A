@@ -57,7 +57,7 @@ export interface LeaderboardEntry {
   id: string;
   displayName: string;
   avatarUrl: string;
-  volunteerHours: number;
+  eventHours: number;
   totalDonated: number;
   interests: string[];
   location: string;
@@ -73,12 +73,12 @@ export const getGlobalLeaderboard = async (topN: number = 50): Promise<Leaderboa
       .map(doc => {
         const data = doc.data() as UserProfile;
         // Composite impact score: hours * 10 + donations * 1 + interests * 5
-        const impactScore = (data.volunteerHours || 0) * 10 + (data.totalDonated || 0) + (data.interests?.length || 0) * 5;
+        const impactScore = (data.eventHours || 0) * 10 + (data.totalDonated || 0) + (data.interests?.length || 0) * 5;
         return {
           id: doc.id,
           displayName: data.displayName || 'Anonymous Hero',
           avatarUrl: data.avatarUrl || '',
-          volunteerHours: data.volunteerHours || 0,
+          eventHours: data.eventHours || 0,
           totalDonated: data.totalDonated || 0,
           interests: data.interests || [],
           location: data.location || '',
@@ -97,7 +97,7 @@ export const getGlobalLeaderboard = async (topN: number = 50): Promise<Leaderboa
 };
 
 export const getLeaderboardStats = async (): Promise<{
-  totalVolunteers: number;
+  totalAttendees: number;
   totalHours: number;
   totalDonated: number;
 }> => {
@@ -110,18 +110,18 @@ export const getLeaderboardStats = async (): Promise<{
 
     snapshot.docs.forEach(doc => {
       const data = doc.data();
-      totalHours += data.volunteerHours || 0;
+      totalHours += data.eventHours || 0;
       totalDonated += data.totalDonated || 0;
     });
 
     return {
-      totalVolunteers: snapshot.docs.length,
+      totalAttendees: snapshot.docs.length,
       totalHours,
       totalDonated,
     };
   } catch (error) {
     console.error('Failed to fetch leaderboard stats:', error);
-    return { totalVolunteers: 0, totalHours: 0, totalDonated: 0 };
+    return { totalAttendees: 0, totalHours: 0, totalDonated: 0 };
   }
 };
 

@@ -6,10 +6,10 @@ import { useAuth } from '@/context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, User, Mail, Lock, ShieldCheck, Download, CalendarPlus, Copy, Loader2, Heart } from 'lucide-react';
 
-interface VolunteerModalProps {
+interface RSVPModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onRegister: (name: string, email: string, ticketId: string) => Promise<void>;
+  onRegister: (name: string, email: string, ticketId: string, status: 'interested' | 'going') => Promise<void>;
   eventTitle: string;
   eventDescription: string;
   eventLocation: string;
@@ -17,7 +17,7 @@ interface VolunteerModalProps {
   enrolledCount: number;
 }
 
-export function VolunteerModal({ 
+export function RSVPModal({ 
   isOpen, 
   onClose, 
   onRegister, 
@@ -26,7 +26,7 @@ export function VolunteerModal({
   eventLocation,
   eventTime,
   enrolledCount
-}: VolunteerModalProps) {
+}: RSVPModalProps) {
   const { profile } = useAuth();
   const [step, setStep] = useState<'form' | 'success'>('form');
   const [loading, setLoading] = useState(false);
@@ -35,7 +35,8 @@ export function VolunteerModal({
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    otp: ''
+    otp: '',
+    status: 'going' as 'interested' | 'going'
   });
   const [ticketId, setTicketId] = useState('');
 
@@ -85,23 +86,25 @@ export function VolunteerModal({
         return;
       }
 
-      const newTicketId = Math.random().toString(36).substring(2, 12).toUpperCase();
-      await onRegister(formData.name, formData.email, newTicketId);
+      const newTicketId = formData.status === 'going' ? Math.random().toString(36).substring(2, 12).toUpperCase() : '';
+      await onRegister(formData.name, formData.email, newTicketId, formData.status);
       
-      // Send confirmation email with QR code
-      try {
-        await fetch('/api/auth/confirm-registration', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: formData.email,
-            eventTitle,
-            ticketId: newTicketId
-          }),
-        });
-      } catch (emailErr) {
-        console.error("Failed to send confirmation email:", emailErr);
-        // We don't block the success UI if just the email fails
+      // Send confirmation email with QR code if going
+      if (formData.status === 'going') {
+        try {
+          await fetch('/api/auth/confirm-registration', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: formData.email,
+              eventTitle,
+              ticketId: newTicketId
+            }),
+          });
+        } catch (emailErr) {
+          console.error("Failed to send confirmation email:", emailErr);
+          // We don't block the success UI if just the email fails
+        }
       }
 
       setTicketId(newTicketId);
@@ -165,7 +168,7 @@ export function VolunteerModal({
 
   const calendarUrl = (() => {
     const baseUrl = 'https://www.google.com/calendar/render?action=TEMPLATE';
-    const text = encodeURIComponent(`Volunteer: ${eventTitle}`);
+    const text = encodeURIComponent(`Event RSVP: ${eventTitle}`);
     const details = encodeURIComponent(eventDescription);
     const location = encodeURIComponent(eventLocation);
     // Use a real date if possible, fallback to tomorrow
@@ -228,10 +231,10 @@ export function VolunteerModal({
                 </div>
                 <div>
                   <h2 className="font-headline font-bold text-base" style={{ color: 'var(--cp-text-1)' }}>
-                    {step === 'form' ? 'Be a Hero' : "You're All Set!"}
+                    {step === 'form' ? 'RSVP for Event' : "You're All Set!"}
                   </h2>
                   <p className="text-xs" style={{ color: 'var(--cp-text-3)' }}>
-                    {step === 'form' ? 'Volunteer registration' : 'Registration confirmed'}
+                    {step === 'form' ? 'Choose how you want to participate' : 'RSVP confirmed'}
                   </p>
                 </div>
               </div>
@@ -249,6 +252,39 @@ export function VolunteerModal({
             <div className="p-6">
               {step === 'form' ? (
                 <form onSubmit={handleRegister} className="space-y-5">
+                  {/* RSVP Status */}
+                  <div>
+                    <label className="block text-xs font-semibold mb-2" style={{ color: 'var(--cp-text-2)' }}>
+                      Participation Level
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, status: 'interested' })}
+                        className={`py-3 px-4 rounded-xl border text-sm font-bold transition-all flex flex-col items-center justify-center gap-1 ${
+                          formData.status === 'interested'
+                            ? 'border-[var(--cp-secondary)] bg-[hsl(from_var(--cp-secondary)_h_s_l_/_0.1)] text-[var(--cp-secondary)]'
+                            : 'border-[var(--cp-border)] text-[var(--cp-text-2)] hover:bg-[var(--cp-surface-dim)]'
+                        }`}
+                      >
+                        <Heart size={18} />
+                        <span>Interested</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, status: 'going' })}
+                        className={`py-3 px-4 rounded-xl border text-sm font-bold transition-all flex flex-col items-center justify-center gap-1 ${
+                          formData.status === 'going'
+                            ? 'border-[var(--cp-primary)] bg-[hsl(from_var(--cp-primary)_h_s_l_/_0.1)] text-[var(--cp-primary)]'
+                            : 'border-[var(--cp-border)] text-[var(--cp-text-2)] hover:bg-[var(--cp-surface-dim)]'
+                        }`}
+                      >
+                        <ShieldCheck size={18} />
+                        <span>Going</span>
+                      </button>
+                    </div>
+                  </div>
+
                   {/* Name */}
                   <div>
                     <label className="block text-xs font-semibold mb-2" style={{ color: 'var(--cp-text-2)' }} htmlFor="vol-name">
@@ -338,7 +374,7 @@ export function VolunteerModal({
                     {loading ? (
                       <><Loader2 size={16} className="animate-spin" /> Processing...</>
                     ) : (
-                      <><Heart size={16} /> Confirm Registration →</>
+                      <><Heart size={16} /> {formData.status === 'going' ? 'Confirm RSVP & Get Ticket →' : 'Confirm Interest →'}</>
                     )}
                   </button>
                 </form>
@@ -355,73 +391,79 @@ export function VolunteerModal({
                     <ShieldCheck size={28} className="text-white" />
                   </motion.div>
                   
-                  <h3 className="font-headline font-bold text-xl mb-2" style={{ color: 'var(--cp-text-1)' }}>Registration Confirmed</h3>
+                  <h3 className="font-headline font-bold text-xl mb-2" style={{ color: 'var(--cp-text-1)' }}>
+                    {formData.status === 'going' ? 'RSVP Confirmed' : 'Interest Logged!'}
+                  </h3>
                   <p className="text-sm mb-6" style={{ color: 'var(--cp-text-2)' }}>
-                    Thank you for joining<br />
+                    {formData.status === 'going' ? 'Thank you for joining' : "We'll keep you updated on"}<br />
                     <span className="font-headline font-bold" style={{ color: 'var(--cp-text-1)' }}>{eventTitle}</span>
                   </p>
 
-                  {/* Ticket Card */}
-                  <div
-                    className="rounded-2xl p-5 mb-6 text-left"
-                    style={{ background: 'var(--cp-surface-dim)', border: '1px solid var(--cp-border)' }}
-                  >
-                    <div className="grid grid-cols-2 gap-4 mb-5">
-                      <div>
-                        <span className="block text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--cp-text-3)' }}>Queue Pos</span>
-                        <span className="text-xl font-headline font-bold" style={{ color: 'var(--cp-text-1)' }}>#{enrolledCount + 1}</span>
-                      </div>
-                      <div className="text-right">
-                        <span className="block text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--cp-text-3)' }}>Time</span>
-                        <span className="text-sm font-bold leading-tight block" style={{ color: 'var(--cp-text-1)' }}>{eventTime}</span>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-center mb-4">
+                  {/* Ticket Card for 'going' */}
+                  {formData.status === 'going' && (
+                    <>
                       <div
-                        className="p-3 rounded-xl inline-block"
-                        style={{ background: 'white', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-md)' }}
+                        className="rounded-2xl p-5 mb-6 text-left"
+                        style={{ background: 'var(--cp-surface-dim)', border: '1px solid var(--cp-border)' }}
                       >
-                        <img src={qrUrl} alt="Ticket QR Code" className="w-32 h-32 rounded-lg" />
+                        <div className="grid grid-cols-2 gap-4 mb-5">
+                          <div>
+                            <span className="block text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--cp-text-3)' }}>Queue Pos</span>
+                            <span className="text-xl font-headline font-bold" style={{ color: 'var(--cp-text-1)' }}>#{enrolledCount + 1}</span>
+                          </div>
+                          <div className="text-right">
+                            <span className="block text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--cp-text-3)' }}>Time</span>
+                            <span className="text-sm font-bold leading-tight block" style={{ color: 'var(--cp-text-1)' }}>{eventTime}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-center mb-4">
+                          <div
+                            className="p-3 rounded-xl inline-block"
+                            style={{ background: 'white', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-md)' }}
+                          >
+                            <img src={qrUrl} alt="Ticket QR Code" className="w-32 h-32 rounded-lg" />
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-center gap-2">
+                          <code
+                            className="px-4 py-2 text-sm font-mono font-bold tracking-widest rounded-lg"
+                            style={{ background: 'hsl(from var(--cp-primary) h s l / 0.1)', color: 'var(--cp-primary)', border: '1px solid hsl(from var(--cp-primary) h s l / 0.2)' }}
+                          >
+                            {ticketId}
+                          </code>
+                          <button
+                            onClick={copyTicketId}
+                            className="w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110"
+                            style={{ background: 'hsl(from var(--cp-secondary) h s l / 0.12)', color: 'var(--cp-secondary)' }}
+                            title="Copy ID"
+                          >
+                            <Copy size={14} />
+                          </button>
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="flex items-center justify-center gap-2">
-                      <code
-                        className="px-4 py-2 text-sm font-mono font-bold tracking-widest rounded-lg"
-                        style={{ background: 'hsl(from var(--cp-primary) h s l / 0.1)', color: 'var(--cp-primary)', border: '1px solid hsl(from var(--cp-primary) h s l / 0.2)' }}
-                      >
-                        {ticketId}
-                      </code>
-                      <button
-                        onClick={copyTicketId}
-                        className="w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110"
-                        style={{ background: 'hsl(from var(--cp-secondary) h s l / 0.12)', color: 'var(--cp-secondary)' }}
-                        title="Copy ID"
-                      >
-                        <Copy size={14} />
-                      </button>
-                    </div>
-                  </div>
+                      <div className="space-y-3">
+                        <a
+                          href={qrUrl}
+                          download={`rsvp-ticket-${ticketId}.png`}
+                          className="btn-primary w-full justify-center py-3.5 text-sm"
+                        >
+                          <Download size={16} /> Save Digital Ticket
+                        </a>
 
-                  <div className="space-y-3">
-                    <a
-                      href={qrUrl}
-                      download={`volunteer-ticket-${ticketId}.png`}
-                      className="btn-primary w-full justify-center py-3.5 text-sm"
-                    >
-                      <Download size={16} /> Save Digital Ticket
-                    </a>
-
-                    <a
-                      href={calendarUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn-secondary w-full justify-center py-3.5 text-sm"
-                    >
-                      <CalendarPlus size={16} /> Sync to Calendar
-                    </a>
-                  </div>
+                        <a
+                          href={calendarUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn-secondary w-full justify-center py-3.5 text-sm"
+                        >
+                          <CalendarPlus size={16} /> Sync to Calendar
+                        </a>
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
             </div>

@@ -45,7 +45,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const messages = body.messages || [];
     const userId = body.userId || "";
-    const userName = body.userName || "Volunteer";
+    const userName = body.userName || "Participant";
     const userEmail = body.userEmail || "";
     const userInterests = body.userInterests || [];
     const userCampusZone = body.userCampusZone || '';
@@ -76,8 +76,8 @@ export async function POST(req: Request) {
     const eventContext = events
       .map((e) => {
         let needsStr = [];
-        if (e.volunteersNeeded)
-          needsStr.push(`${e.volunteersNeeded} volunteers`);
+        if (e.attendeesNeeded)
+          needsStr.push(`${e.attendeesNeeded} attendees`);
         if (e.goalAmount)
           needsStr.push(
             `$${e.goalAmount} (Raised: $${e.donatedAmount || 0})`
@@ -102,8 +102,8 @@ export async function POST(req: Request) {
 
 
     const systemInstruction = `You are the W.Y.A (Where You At) AI Assistant. 
-You are a helpful, empathetic, and encouraging assistant for a campus event and volunteering platform.
-Your primary goal is to help users discover events, learn how to volunteer or donate, and guide them on organizing new events.
+You are a helpful, empathetic, and encouraging assistant for a campus event and attendeeing platform.
+Your primary goal is to help users discover events, learn how to attendee or donate, and guide them on organizing new events.
 
 ${userContext}
 
@@ -112,12 +112,12 @@ ${eventContext || "No active events right now."}
 
 IMPORTANT INSTRUCTIONS:
 - When users ask for events, recommend specific live events. Be conversational and natural.
-- When a user wants to sign up/volunteer, use the "request_signup" function first to confirm, then "confirm_signup" only after they say yes.
+- When a user wants to sign up/attendee, use the "request_signup" function first to confirm, then "confirm_signup" only after they say yes.
 - When a user says "yes", "confirm", "go ahead", "sure" in response to a signup confirmation, use the "confirm_signup" function.
 - When a user asks to navigate somewhere, use the "navigate_to_page" function.
 - Keep responses concise (under 4-5 sentences) and engaging.
 - Use bold text (**text**) for event names and important information.
-- Always be encouraging about volunteering and community involvement.${pendingSignup ? `
+- Always be encouraging about attendeeing and community involvement.${pendingSignup ? `
 
 IMPORTANT CONTEXT: The user was just asked to confirm signing up for the event titled "${pendingSignup.eventTitle}"${pendingSignup.eventId ? ` (ID: ${pendingSignup.eventId})` : ''}. If the user says "yes", "confirm", "sure", "go ahead", or anything affirmative, you MUST call the confirm_signup function with eventTitle: "${pendingSignup.eventTitle}"${pendingSignup.eventId ? ` and eventId: "${pendingSignup.eventId}"` : ''}.` : ''}`;
 

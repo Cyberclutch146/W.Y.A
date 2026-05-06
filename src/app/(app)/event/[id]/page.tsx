@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import { ProgressBar } from '@/components/ProgressBar';
 import { DonationPanel } from '@/components/DonationPanel';
 import { ChatBox } from '@/components/ai/ChatBox';
-import { VolunteerLeaderboard } from '@/components/VolunteerLeaderboard';
+import { EngagementLeaderboard } from '@/components/EngagementLeaderboard';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect, use, useCallback } from 'react';
@@ -103,7 +103,7 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
         },
         body: JSON.stringify({
           to: smsNumber,
-          message: `Hi! You are invited to join "${event.title}" on W.Y.A. Location: ${event.location}. Please open the platform to volunteer or support this event.`,
+          message: `Hi! You are invited to join "${event.title}" on W.Y.A. Location: ${event.location}. Please open the platform to attendee or support this event.`,
           url: window.location.href     
         }),
       });
@@ -334,7 +334,7 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
           <div className="mt-10">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <ChatBox eventId={event.id} />
-              <VolunteerLeaderboard eventId={event.id} />
+              <EngagementLeaderboard eventId={event.id} />
             </div>
           </div>
         </div>
@@ -351,7 +351,7 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
                 ? new Date(event.eventDate).toLocaleString()
                 : event.createdAt?.toDate?.()?.toLocaleString() || 'TBD'
             }
-            enrolledCount={event.needs?.volunteers?.current || 0}
+            enrolledCount={event.needs?.attendees?.current || 0}
             needs={event.needs}
             onActionComplete={refreshEvent}
           />

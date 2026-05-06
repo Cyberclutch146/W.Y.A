@@ -16,7 +16,7 @@ export function ChatPanel({ onClose }: Props) {
     {
       id: crypto.randomUUID(),
       role: "assistant",
-      content: "Hi — I'm W.Y.A AI. I can help with volunteering, donations, event discovery, and platform questions.",
+      content: "Hi — I'm W.Y.A AI. I can help with attendeeing, donations, event discovery, and platform questions.",
     },
   ]);
 

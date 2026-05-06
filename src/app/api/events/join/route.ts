@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { eventId, userId, userName, userEmail = "", ticketId = "" } = await req.json();
+    const { eventId, userId, userName, userEmail = "", ticketId = "", status = "going" } = await req.json();
 
     if (!eventId || !userId || !userName) {
       return NextResponse.json(
@@ -28,10 +28,10 @@ export async function POST(req: NextRequest) {
     // await adminAuth.verifyIdToken(token);
 
     const eventRef = adminDb.collection("events").doc(eventId);
-    const volunteerRef = eventRef.collection("volunteers").doc(); // auto-ID
+    const rsvpRef = eventRef.collection("rsvps").doc(userId); // Use userId as the doc ID for uniqueness
     const userRegistrationRef = adminDb.collection("users").doc(userId).collection("registrations").doc(eventId);
 
-    // Execute atomic transaction for the volunteer signup
+    // Execute atomic transaction for the attendee signup
     await adminDb.runTransaction(async (transaction) => {
       const eventSnap = await transaction.get(eventRef);
       
@@ -40,36 +40,40 @@ export async function POST(req: NextRequest) {
       }
 
       const eventData = eventSnap.data();
-      const currentVolunteers = eventData?.needs?.volunteers?.current || 0;
-      const volunteerGoal = eventData?.needs?.volunteers?.goal;
+      const currentAttendees = eventData?.needs?.attendees?.current || 0;
+      const attendeeGoal = eventData?.needs?.attendees?.goal;
 
       // Optional: Prevent signup if full
-      if (volunteerGoal && currentVolunteers >= volunteerGoal) {
-        throw new Error("Event has reached its volunteer capacity");
+      if (attendeeGoal && currentAttendees >= attendeeGoal) {
+        throw new Error("Event has reached its attendee capacity");
       }
 
-      // 1. Update event document
-      transaction.update(eventRef, {
-        "needs.volunteers.current": currentVolunteers + 1,
-        updatedAt: new Date()
-      });
+      // 1. Update event document (only increment if it's a new signup, but since we are overriding, we might just increment naively. In a real app we'd check if doc exists)
+      const rsvpSnap = await transaction.get(rsvpRef);
+      if (!rsvpSnap.exists && status === 'going') {
+         transaction.update(eventRef, {
+           "needs.attendees.current": currentAttendees + 1,
+           updatedAt: new Date()
+         });
+      }
 
-      // 2. Add to event's volunteers subcollection
-      transaction.set(volunteerRef, {
+      // 2. Add/update event's rsvps subcollection
+      transaction.set(rsvpRef, {
         userId,
         userName,
         userEmail,
         ticketId,
+        status,
         signedUpAt: new Date()
-      });
+      }, { merge: true });
 
-      // 3. Add to user's registrations subcollection
+      // 3. Add/update user's registrations subcollection
       transaction.set(userRegistrationRef, {
         eventId,
         ticketId,
         signedUpAt: new Date(),
-        status: "registered"
-      });
+        status
+      }, { merge: true });
     });
 
     return NextResponse.json({ success: true, message: "Successfully signed up for event" });
@@ -77,7 +81,7 @@ export async function POST(req: NextRequest) {
     console.error("API /events/join Error:", error);
     const status = error.message === "Event not found" || error.message.includes("capacity") ? 400 : 500;
     return NextResponse.json(
-      { error: error.message || "Failed to process volunteer signup" },
+      { error: error.message || "Failed to process RSVP" },
       { status }
     );
   }

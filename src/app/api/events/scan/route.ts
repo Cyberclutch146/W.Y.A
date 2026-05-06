@@ -14,31 +14,31 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { eventId, volunteerId, attended } = await req.json();
+    const { eventId, rsvpId, status } = await req.json();
 
-    if (!eventId || !volunteerId || typeof attended !== "boolean") {
+    if (!eventId || !rsvpId || !status) {
       return NextResponse.json(
-        { error: "Missing required fields (eventId, volunteerId, attended)." },
+        { error: "Missing required fields (eventId, rsvpId, status)." },
         { status: 400 }
       );
     }
 
-    const volunteerRef = adminDb
+    const rsvpRef = adminDb
       .collection("events")
       .doc(eventId)
-      .collection("volunteers")
-      .doc(volunteerId);
+      .collection("rsvps")
+      .doc(rsvpId);
 
-    const volunteerSnap = await volunteerRef.get();
-    if (!volunteerSnap.exists) {
+    const rsvpSnap = await rsvpRef.get();
+    if (!rsvpSnap.exists) {
       return NextResponse.json(
-        { error: "Volunteer record not found." },
+        { error: "RSVP record not found." },
         { status: 404 }
       );
     }
 
-    await volunteerRef.update({
-      attended,
+    await rsvpRef.update({
+      status,
       updatedAt: new Date(),
     });
 

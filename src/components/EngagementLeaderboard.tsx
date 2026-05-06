@@ -1,26 +1,27 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getEventVolunteers, EventVolunteer } from '@/services/eventService';
+import { getEventRSVPs } from '@/services/eventService';
+import { EventRSVP } from '@/types';
 import { motion } from 'framer-motion';
 import { Users, Verified, Heart, Loader2 } from 'lucide-react';
 
-export function VolunteerLeaderboard({ eventId }: { eventId: string }) {
-  const [volunteers, setVolunteers] = useState<EventVolunteer[]>([]);
+export function EngagementLeaderboard({ eventId }: { eventId: string }) {
+  const [attendees, setAttendees] = useState<EventRSVP[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchVolunteers = async () => {
+    const fetchAttendees = async () => {
       try {
-        const data = await getEventVolunteers(eventId);
-        setVolunteers(data);
+        const data = await getEventRSVPs(eventId);
+        setAttendees(data);
       } catch (err) {
-        console.error('Failed to fetch volunteers:', err);
+        console.error('Failed to fetch attendees:', err);
       } finally {
         setLoading(false);
       }
     };
-    fetchVolunteers();
+    fetchAttendees();
   }, [eventId]);
 
   if (loading) {
@@ -52,19 +53,19 @@ export function VolunteerLeaderboard({ eventId }: { eventId: string }) {
         <h3 className="font-headline text-base font-bold" style={{ color: 'var(--cp-text-1)' }}>Community Heroes</h3>
       </div>
       
-      {volunteers.length === 0 ? (
+      {attendees.length === 0 ? (
         <div className="text-center py-10 px-5">
           <Heart size={36} className="mx-auto mb-3 opacity-20" style={{ color: 'var(--cp-text-3)' }} />
           <p className="text-sm font-semibold" style={{ color: 'var(--cp-text-3)' }}>Be the first to step up!</p>
         </div>
       ) : (
         <div>
-          {volunteers.slice(0, 5).map((volunteer, index) => (
+          {attendees.slice(0, 5).map((attendee, index) => (
             <motion.div 
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}
-              key={volunteer.id} 
+              key={attendee.id} 
               className="flex items-center justify-between px-5 py-3 transition-colors"
               style={{
                 background: index === 0 ? 'hsl(from var(--cp-primary) h s l / 0.05)' : 'transparent',
@@ -84,19 +85,19 @@ export function VolunteerLeaderboard({ eventId }: { eventId: string }) {
                   {index + 1}
                 </div>
                 <div>
-                  <p className="font-semibold text-sm" style={{ color: 'var(--cp-text-1)' }}>{volunteer.userName || 'Anonymous'}</p>
+                  <p className="font-semibold text-sm" style={{ color: 'var(--cp-text-1)' }}>{attendee.userName || 'Anonymous'}</p>
                   <p className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--cp-text-3)' }}>
-                    Joined {volunteer.signedUpAt?.seconds ? new Date(volunteer.signedUpAt.seconds * 1000).toLocaleDateString() : 'recently'}
+                    Joined {attendee.signedUpAt?.seconds ? new Date(attendee.signedUpAt.seconds * 1000).toLocaleDateString() : 'recently'}
                   </p>
                 </div>
               </div>
               <Verified size={15} style={{ color: 'var(--cp-secondary)' }} />
             </motion.div>
           ))}
-          {volunteers.length > 5 && (
+          {attendees.length > 5 && (
             <div className="text-center px-5 py-3" style={{ background: 'var(--cp-surface-dim)' }}>
               <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--cp-text-2)' }}>
-                + {volunteers.length - 5} more heroes joined
+                + {attendees.length - 5} more heroes joined
               </span>
             </div>
           )}

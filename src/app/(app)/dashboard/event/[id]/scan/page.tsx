@@ -3,8 +3,8 @@
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { getEventById, getEventVolunteers, updateVolunteerStatus, EventVolunteer, ADMIN_EMAILS } from '@/services/eventService';
-import { CommunityEvent } from '@/types';
+import { getEventById, getEventRSVPs, updateRSVPStatus, ADMIN_EMAILS } from '@/services/eventService';
+import { CommunityEvent, EventRSVP } from '@/types';
 import { ArrowLeft, Users, CheckCircle, QrCode } from 'lucide-react';
 import { toast } from 'sonner';
 import dynamic from 'next/dynamic';
@@ -18,7 +18,7 @@ export default function ScanPage({ params }: { params: Promise<{ id: string }> }
   const eventId = resolvedParams.id;
 
   const [event, setEvent] = useState<CommunityEvent | null>(null);
-  const [volunteers, setVolunteers] = useState<EventVolunteer[]>([]); 
+  const [attendees, setAttendees] = useState<EventRSVP[]>([]); 
   const [loading, setLoading] = useState(true);
   const [checkedInCount, setCheckedInCount] = useState(0);
 
@@ -26,11 +26,11 @@ export default function ScanPage({ params }: { params: Promise<{ id: string }> }
     if (!user) { setLoading(false); return; }
     const loadData = async () => {
       try {
-        const [eventData, volunteerData] = await Promise.all([getEventById(eventId), getEventVolunteers(eventId)]);
+        const [eventData, attendeeData] = await Promise.all([getEventById(eventId), getEventRSVPs(eventId)]);
         if (eventData?.organizerId !== user.uid && !ADMIN_EMAILS.includes(user.email || '')) {
           toast.error('You do not have permission to access this page.'); router.push('/dashboard'); return;
         }
-        setEvent(eventData); setVolunteers(volunteerData); setCheckedInCount(volunteerData.filter(v => v.attended).length);
+        setEvent(eventData); setAttendees(attendeeData); setCheckedInCount(attendeeData.filter(v => v.status === 'attended').length);
       } catch (err) { console.error('Failed to load scan data:', err); toast.error('Could not load event data.'); }
       finally { setLoading(false); }
     };
@@ -38,13 +38,13 @@ export default function ScanPage({ params }: { params: Promise<{ id: string }> }
   }, [eventId, user, router]);
 
   const handleScanSuccess = async (scannedTicketId: string) => {
-    const volunteer = volunteers.find(v => v.id === scannedTicketId || (v as any).ticketId === scannedTicketId);
-    if (!volunteer) throw new Error(`Ticket "${scannedTicketId}" not found in volunteer roster.`);
-    if (volunteer.attended) throw new Error(`${volunteer.userName} is already checked in.`);
-    await updateVolunteerStatus(eventId, volunteer.id, true);
-    setVolunteers(prev => prev.map(v => v.id === volunteer.id ? { ...v, attended: true } : v));
+    const attendee = attendees.find(v => v.id === scannedTicketId || v.ticketId === scannedTicketId);
+    if (!attendee) throw new Error(`Ticket "${scannedTicketId}" not found in attendee roster.`);
+    if (attendee.status === 'attended') throw new Error(`${attendee.userName} is already checked in.`);
+    await updateRSVPStatus(eventId, attendee.id, 'attended');
+    setAttendees(prev => prev.map(v => v.id === attendee.id ? { ...v, status: 'attended' as const } : v));
     setCheckedInCount(prev => prev + 1);
-    toast.success(`✅ ${volunteer.userName} checked in!`);
+    toast.success(`✅ ${attendee.userName} checked in!`);
   };
 
   if (loading) {
@@ -57,8 +57,8 @@ export default function ScanPage({ params }: { params: Promise<{ id: string }> }
 
   if (!event) return null;
 
-  const totalVolunteers = volunteers.length;
-  const checkInProgress = totalVolunteers > 0 ? Math.round((checkedInCount / totalVolunteers) * 100) : 0;
+  const totalAttendees = attendees.length;
+  const checkInProgress = totalAttendees > 0 ? Math.round((checkedInCount / totalAttendees) * 100) : 0;
 
   return (
     <main className="flex-1 p-4 md:p-10 max-w-3xl mx-auto w-full pb-28 md:pb-10">
@@ -88,9 +88,9 @@ export default function ScanPage({ params }: { params: Promise<{ id: string }> }
         >
           <div className="flex items-center gap-2 mb-2">
             <Users size={16} style={{ color: 'var(--cp-primary)' }} />
-            <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--cp-text-2)' }}>Total Volunteers</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--cp-text-2)' }}>Total Attendees</span>
           </div>
-          <p className="text-3xl font-headline font-bold" style={{ color: 'var(--cp-text-1)' }}>{totalVolunteers}</p>
+          <p className="text-3xl font-headline font-bold" style={{ color: 'var(--cp-text-1)' }}>{totalAttendees}</p>
         </div>
         <div
           className="p-5 rounded-xl"
@@ -118,7 +118,7 @@ export default function ScanPage({ params }: { params: Promise<{ id: string }> }
 
       <ScannerView eventId={eventId} onScanSuccess={handleScanSuccess} />
 
-      {volunteers.filter(v => v.attended).length > 0 && (
+      {attendees.filter(v => v.status === 'attended').length > 0 && (
         <div
           className="mt-8 overflow-hidden rounded-2xl"
           style={{ background: 'var(--cp-surface)', border: '1.5px solid var(--cp-border)', boxShadow: 'var(--shadow-md)' }}
@@ -129,7 +129,7 @@ export default function ScanPage({ params }: { params: Promise<{ id: string }> }
             </h3>
           </div>
           <div className="divide-y" style={{ borderColor: 'var(--cp-border)' }}>
-            {volunteers.filter(v => v.attended).slice(0, 10).map(vol => (
+            {attendees.filter(v => v.status === 'attended').slice(0, 10).map(vol => (
               <div key={vol.id} className="flex items-center gap-3 px-5 py-3">
                 <div
                   className="w-8 h-8 flex items-center justify-center font-bold text-xs text-white rounded-lg"

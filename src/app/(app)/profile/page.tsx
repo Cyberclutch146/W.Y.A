@@ -7,7 +7,7 @@ import { updateUserProfile } from '@/services/userService';
 import { uploadImage } from '@/services/storageService';
 import { toast } from 'sonner';
 import { getUserAvatar } from '@/lib/avatar';
-import { Department, AcademicYear } from '@/types';
+import { Department, AcademicYear, StudentInterest } from '@/types';
 import { Camera, Loader2, MapPin, Clock, ArrowLeft, CheckCircle, Wrench, BarChart3, Heart, Sparkles, Compass, ChevronDown, Check, GraduationCap, BookOpen, User, AlignLeft, Award, X, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import LanyardBadge from '@/components/LanyardBadge';
@@ -37,7 +37,7 @@ const SKILL_DATABASE = [
   'Financial Analysis', 'Business Strategy', 'Marketing Research', 'Sales',
   // Soft Skills & Campus
   'Communication', 'Teamwork', 'Problem Solving', 'Critical Thinking', 'Time Management', 
-  'Event Planning', 'Volunteering', 'Community Organizing', 'Debate', 'Foreign Languages', 
+  'Event Planning', 'Participanting', 'Community Organizing', 'Debate', 'Foreign Languages', 
   'First Aid', 'Music Production', 'Guitar', 'Piano', 'Cooking', 'Fitness'
 ].sort();
 
@@ -205,7 +205,7 @@ function SkillTagInput({ value, onChange }: { value: string[]; onChange: (val: s
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
           onFocus={() => inputValue && setShowSuggestions(true)}
-          placeholder={value.length === 0 ? "Add skills (e.g. React, Figma...)" : "Add another..."}
+          placeholder={value.length === 0 ? "Add interests (e.g. React, Figma...)" : "Add another..."}
           className="input-base w-full h-[48px] pl-11 pr-12 text-sm font-medium rounded-xl transition-all focus:bg-surface"
           style={{ background: 'var(--cp-surface-dim)', paddingLeft: '2.75rem' }}
         />
@@ -290,7 +290,7 @@ export default function ProfilePage() {
   const [displayName, setDisplayName] = useState('');
   const [bio, setBio] = useState('');
   const [location, setLocation] = useState('');
-  const [skills, setSkills] = useState<string[]>([]);
+  const [interests, setSkills] = useState<string[]>([]);
   const [department, setDepartment] = useState('');
   const [year, setYear] = useState('');
   const [availability, setAvailability] = useState('anytime');
@@ -300,10 +300,10 @@ export default function ProfilePage() {
       setDisplayName(profile.displayName || '');
       setBio(profile.bio || '');
       setLocation(profile.location || '');
-      setSkills(profile.skills || []);
+      setSkills(profile.interests || []);
       setDepartment(profile.department || '');
       setYear(profile.year || '');
-      setAvailability(profile.availability || 'anytime');
+      setAvailability(profile.campusZone || 'anytime');
     }
   }, [profile, isEditing]);
 
@@ -361,10 +361,10 @@ export default function ProfilePage() {
         displayName: displayName.trim(),
         bio: bio.trim(),
         location: location.trim(),
-        skills: skills.map(s => s.trim()).filter(Boolean),
+        interests: interests.map(s => s.trim()).filter(Boolean) as StudentInterest[],
         department: department as Department | '',
         year: year as AcademicYear | '',
-        availability: availability,
+        campusZone: availability,
         profileComplete: true,
       });
       setIsEditing(false);
@@ -483,7 +483,7 @@ export default function ProfilePage() {
                 </div>
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider mb-2 px-0.5" style={{ color: 'var(--cp-text-3)' }}>Skills & Interests</label>
-                  <SkillTagInput value={skills} onChange={setSkills} />
+                  <SkillTagInput value={interests} onChange={setSkills} />
                 </div>
               </motion.div>
 
@@ -495,7 +495,7 @@ export default function ProfilePage() {
                 </div>
                 <div className="flex flex-wrap gap-2.5">
                   {AVAIL_OPTIONS.map((opt) => (
-                    <button key={opt.key} type="button" onClick={() => setAvailability(opt.key)} className="px-5 py-2.5 rounded-2xl text-sm font-bold transition-all active:scale-95" style={{ background: availability === opt.key ? 'linear-gradient(135deg, var(--cp-primary), hsl(290,90%,60%))' : 'var(--cp-surface-dim)', color: availability === opt.key ? 'white' : 'var(--cp-text-2)', border: availability === opt.key ? 'none' : '1px solid var(--cp-border)', boxShadow: availability === opt.key ? '0 6px 20px -6px hsl(from var(--cp-primary) h s l / 0.45)' : 'none' }}>
+                    <button key={opt.key} type="button" onClick={() => setAvailability(opt.key)} className="px-5 py-2.5 rounded-2xl text-sm font-bold transition-all active:scale-95" style={{ background: department === opt.key ? 'linear-gradient(135deg, var(--cp-primary), hsl(290,90%,60%))' : 'var(--cp-surface-dim)', color: department === opt.key ? 'white' : 'var(--cp-text-2)', border: department === opt.key ? 'none' : '1px solid var(--cp-border)', boxShadow: department === opt.key ? '0 6px 20px -6px hsl(from var(--cp-primary) h s l / 0.45)' : 'none' }}>
                       {opt.label}
                     </button>
                   ))}
@@ -573,7 +573,7 @@ export default function ProfilePage() {
               <div className="flex flex-wrap justify-center gap-2 mb-6">
                 <span className="pill-tag px-4 py-1.5 font-bold" style={{ background: 'linear-gradient(135deg, var(--cp-primary), hsl(280, 80%, 60%))', color: '#fff', border: 'none', boxShadow: '0 4px 12px -2px hsl(from var(--cp-primary) h s l / 0.3)' }}>
                   <Heart size={12} className="mr-1.5" />
-                  {profile.role === 'organizer' ? 'Organizer' : 'Volunteer'}
+                  {profile.role === 'organizer' ? 'Organizer' : 'Participant'}
                 </span>
                 {profile.location && (
                   <span className="pill-tag px-4 py-1.5 font-bold" style={{ background: 'var(--cp-surface-dim)', color: 'var(--cp-text-2)', border: '1px solid var(--cp-border)' }}>
@@ -600,7 +600,7 @@ export default function ProfilePage() {
               <div className="grid grid-cols-2 gap-4 w-full mt-8 pt-8 border-t border-border">
                 <div className="text-center">
                   <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: 'var(--cp-text-3)' }}>Impact</p>
-                  <p className="font-headline font-bold text-xl text-primary">{profile.volunteerHours || 0}h</p>
+                  <p className="font-headline font-bold text-xl text-primary">{profile.eventHours || 0}h</p>
                 </div>
                 <div className="text-center">
                   <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: 'var(--cp-text-3)' }}>Points</p>
@@ -643,9 +643,9 @@ export default function ProfilePage() {
                         <Sparkles size={10} className="mr-1" /> +12% month
                       </span>
                     </div>
-                    <p className="text-xs font-bold uppercase tracking-[0.2em] mb-2" style={{ color: 'var(--cp-text-2)' }}>Volunteered Time</p>
+                    <p className="text-xs font-bold uppercase tracking-[0.2em] mb-2" style={{ color: 'var(--cp-text-2)' }}>Participanted Time</p>
                     <h3 className="font-headline font-black text-4xl tracking-tight text-white">
-                      {profile.volunteerHours || 0} <span className="text-xl font-medium" style={{ color: 'var(--cp-text-3)' }}>Hours</span>
+                      {profile.eventHours || 0} <span className="text-xl font-medium" style={{ color: 'var(--cp-text-3)' }}>Hours</span>
                     </h3>
                   </div>
                 </motion.div>
@@ -696,9 +696,9 @@ export default function ProfilePage() {
                   </div>
                 </div>
                 <div className="relative z-10">
-                  {profile.skills && profile.skills.length > 0 ? (
+                  {profile.interests && profile.interests.length > 0 ? (
                     <div className="flex flex-wrap gap-2.5">
-                      {profile.skills.map((skill, idx) => (
+                      {profile.interests.map((skill, idx) => (
                         <span key={idx} className="px-3 py-1.5 rounded-md text-xs font-bold transition-all hover:scale-105 hover:shadow-md cursor-default" 
                           style={{ 
                             background: SKILL_COLORS[idx % SKILL_COLORS.length], 
@@ -711,7 +711,7 @@ export default function ProfilePage() {
                     </div>
                   ) : (
                     <div className="text-center py-6 px-4 rounded-lg border-2 border-dashed transition-colors hover:border-accent" style={{ borderColor: 'var(--cp-border)', background: 'var(--cp-surface-dim)' }}>
-                      <p className="text-sm font-medium" style={{ color: 'var(--cp-text-3)' }}>No skills listed yet.</p>
+                      <p className="text-sm font-medium" style={{ color: 'var(--cp-text-3)' }}>No interests listed yet.</p>
                     </div>
                   )}
                 </div>
@@ -758,7 +758,7 @@ export default function ProfilePage() {
             </div>
   
             {/* Logistics Card */}
-            {(profile.availability && profile.availability !== 'anytime') && (
+            {(profile.campusZone && profile.campusZone !== 'anytime') && (
               <div className="card-base p-6 md:p-8">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-gold-light text-gold shadow-sm" style={{ border: '1px solid hsl(from var(--cp-gold) h s l / 0.1)' }}>
@@ -772,7 +772,7 @@ export default function ProfilePage() {
                   </div>
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--cp-text-3)' }}>Availability</p>
-                    <p className="font-bold text-lg capitalize">{profile.availability}</p>
+                    <p className="font-bold text-lg capitalize">{profile.campusZone}</p>
                   </div>
                 </div>
               </div>

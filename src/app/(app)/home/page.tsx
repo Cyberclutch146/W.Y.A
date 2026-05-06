@@ -131,8 +131,8 @@ export default function HomePage() {
     return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
   }
 
-  const volCurrent = featured?.needs?.volunteers?.current ?? 0
-  const volGoal = featured?.needs?.volunteers?.goal ?? 1
+  const volCurrent = featured?.needs?.attendees?.current ?? 0
+  const volGoal = featured?.needs?.attendees?.goal ?? 1
   const volPercent = Math.min(Math.round((volCurrent / volGoal) * 100), 100)
 
   const getGreeting = () => {
@@ -396,7 +396,7 @@ export default function HomePage() {
       {(() => {
         const totalEvents = events.length
         const activeNow = events.filter(e => e.status === 'active').length
-        const totalVolunteers = events.reduce((sum, e) => sum + (e.needs?.volunteers?.current ?? 0), 0)
+        const totalAttendees = events.reduce((sum, e) => sum + (e.needs?.attendees?.current ?? 0), 0)
         const uniqueCategories = [...new Set(events.map(e => e.category).filter(Boolean))]
         const categoryCounts = events.reduce((acc, e) => {
           if (e.category) acc[e.category] = (acc[e.category] || 0) + 1
@@ -404,17 +404,17 @@ export default function HomePage() {
         }, {} as Record<string, number>)
         const trending = Object.entries(categoryCounts).sort(([,a], [,b]) => b - a).slice(0, 6)
         const recentEvents = [...events].sort((a, b) => {
-          const tA = a.createdAt ? (typeof a.createdAt.toDate === 'function' ? a.createdAt.toDate() : new Date(a.createdAt)) : new Date(0)
-          const tB = b.createdAt ? (typeof b.createdAt.toDate === 'function' ? b.createdAt.toDate() : new Date(b.createdAt)) : new Date(0)
+          const tA = a.createdAt ? (typeof (a.createdAt as any).toDate === 'function' ? (a.createdAt as any).toDate() : new Date(a.createdAt as any)) : new Date(0)
+          const tB = b.createdAt ? (typeof (b.createdAt as any).toDate === 'function' ? (b.createdAt as any).toDate() : new Date(b.createdAt as any)) : new Date(0)
           return tB.getTime() - tA.getTime()
         }).slice(0, 8)
         // Compute a "pulse" percentage (0-100) based on activity ratio
-        const pulseLevel = totalEvents > 0 ? Math.min(100, Math.round((activeNow / totalEvents) * 100 + totalVolunteers * 2)) : 0
+        const pulseLevel = totalEvents > 0 ? Math.min(100, Math.round((activeNow / totalEvents) * 100 + totalAttendees * 2)) : 0
 
         const statCards = [
           { label: 'Total Events', value: totalEvents, icon: <Calendar size={20} />, color: 'var(--cp-primary)', glow: 'hsl(258 90% 63% / 0.35)' },
           { label: 'Live Now', value: activeNow, icon: <Zap size={20} />, color: 'var(--cp-secondary)', glow: 'hsl(160 70% 50% / 0.35)' },
-          { label: 'Volunteers', value: totalVolunteers, icon: <Users size={20} />, color: 'var(--cp-cyan, #06b6d4)', glow: 'hsl(185 100% 55% / 0.35)' },
+          { label: 'Attendees', value: totalAttendees, icon: <Users size={20} />, color: 'var(--cp-cyan, #06b6d4)', glow: 'hsl(185 100% 55% / 0.35)' },
           { label: 'Categories', value: uniqueCategories.length, icon: <Plus size={20} />, color: 'var(--cp-violet, #8b5cf6)', glow: 'hsl(270 100% 70% / 0.35)' },
         ]
 

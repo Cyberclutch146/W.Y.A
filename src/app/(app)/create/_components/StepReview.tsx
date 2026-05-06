@@ -144,7 +144,7 @@ export default function StepReview({
               {needVols && (
                 <span className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold"
                   style={{ borderRadius: '3px', background: 'var(--cp-secondary-light)', color: 'var(--cp-secondary)', border: '1px solid hsl(from var(--cp-secondary) h s l / 0.2)' }}>
-                  <Users size={11} /> {volGoal} volunteers
+                  <Users size={11} /> {volGoal} attendees
                 </span>
               )}
               {needGoods && goodsList.length > 0 && (

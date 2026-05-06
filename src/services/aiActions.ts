@@ -1,6 +1,6 @@
 import { db } from "@/lib/firebase";
 import { collection, getDocs, query, where, orderBy, limit } from "firebase/firestore";
-import { addVolunteerSignup } from "@/services/eventService";
+import { addEventRSVP } from "@/services/eventService";
 
 // ─── Types ──────────────────────────────────────────────
 interface ActionResult {
@@ -26,7 +26,7 @@ interface EventDoc {
   urgency: string;
   eventDate?: string;
   needs?: {
-    volunteers?: { current: number; goal: number };
+    attendees?: { current: number; goal: number };
     funds?: { current: number; goal: number };
   };
 }
@@ -66,7 +66,7 @@ export const AI_FUNCTION_DECLARATIONS = [
   {
     name: "request_signup",
     description:
-      "Request to sign the user up as a volunteer for a specific event. This should be used when the user expresses intent to volunteer or sign up for an event. Always confirm with the user before executing.",
+      "Request to sign the user up as an attendee for a specific event. This should be used when the user expresses intent to register or sign up for an event. Always confirm with the user before executing.",
     parameters: {
       type: "object" as const,
       properties: {
@@ -225,9 +225,9 @@ export async function handleGetEventDetails(eventTitle: string): Promise<ActionR
       };
     }
 
-    const volunteerInfo = event.needs?.volunteers
-      ? `Volunteers: ${event.needs.volunteers.current}/${event.needs.volunteers.goal}`
-      : "No volunteer goal set";
+    const attendeeInfo = event.needs?.attendees
+      ? `Attendees: ${event.needs.attendees.current}/${event.needs.attendees.goal}`
+      : "No attendee capacity set";
 
     const fundingInfo = event.needs?.funds
       ? `Funding: $${event.needs.funds.current.toLocaleString()} raised of $${event.needs.funds.goal.toLocaleString()}`
@@ -235,7 +235,7 @@ export async function handleGetEventDetails(eventTitle: string): Promise<ActionR
 
     return {
       success: true,
-      message: `**${event.title}**\n📍 ${event.location}\n📂 ${event.category}\n👤 Organized by ${event.organizer}\n${event.eventDate ? `📅 ${event.eventDate}` : ""}\n📊 ${volunteerInfo} | ${fundingInfo}\n\n${event.description}`,
+      message: `**${event.title}**\n📍 ${event.location}\n📂 ${event.category}\n👤 Organized by ${event.organizer}\n${event.eventDate ? `📅 ${event.eventDate}` : ""}\n📊 ${attendeeInfo} | ${fundingInfo}\n\n${event.description}`,
       action: { type: "navigate", url: `/event/${event.id}`, eventId: event.id },
     };
   } catch (error) {
@@ -256,13 +256,13 @@ export async function handleRequestSignup(eventTitle: string): Promise<ActionRes
       };
     }
 
-    // Check if volunteer slots are available
-    if (event.needs?.volunteers) {
-      const { current, goal } = event.needs.volunteers;
+    // Check if attendee slots are available
+    if (event.needs?.attendees) {
+      const { current, goal } = event.needs.attendees;
       if (current >= goal) {
         return {
           success: false,
-          message: `The event **${event.title}** has already reached its volunteer goal (${goal}/${goal}). You can still check it out though!`,
+          message: `The event **${event.title}** has already reached its attendee capacity (${goal}/${goal}). You can still check it out though!`,
           action: { type: "navigate", url: `/event/${event.id}` },
         };
       }
@@ -270,7 +270,7 @@ export async function handleRequestSignup(eventTitle: string): Promise<ActionRes
 
     return {
       success: true,
-      message: `I found **${event.title}** at ${event.location}. Would you like me to sign you up as a volunteer? Just say **"yes"** or **"confirm"** to proceed.`,
+      message: `I found **${event.title}** at ${event.location}. Would you like me to register you for the event? Just say **"yes"** or **"confirm"** to proceed.`,
       action: {
         type: "confirm_signup",
         eventId: event.id,
@@ -323,11 +323,11 @@ export async function handleConfirmSignup(
       };
     }
 
-    await addVolunteerSignup(resolvedId, userId, userName, userEmail);
+    await addEventRSVP(resolvedId, userId, userName, userEmail, "going");
 
     return {
       success: true,
-      message: `🎉 You're all set! You've been signed up as a volunteer for **${resolvedTitle}**. You can view your registered events on your dashboard.`,
+      message: `🎉 You're all set! You've been registered for **${resolvedTitle}**. You can view your registered events on your dashboard.`,
       action: {
         type: "signed_up",
         url: `/event/${resolvedId}`,

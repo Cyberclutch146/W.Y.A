@@ -8,7 +8,7 @@ type EventItem = {
   location?: string;
   goalAmount?: number;
   donatedAmount?: number;
-  volunteersNeeded?: number;
+  attendeesNeeded?: number;
   description?: string;
 };
 
@@ -25,7 +25,7 @@ export async function getAllEvents(): Promise<EventItem[]> {
       description: data.description,
       goalAmount: data.needs?.funds?.goal,
       donatedAmount: data.needs?.funds?.current,
-      volunteersNeeded: data.needs?.volunteers?.goal,
+      attendeesNeeded: data.needs?.attendees?.goal,
     };
   });
 }
@@ -43,13 +43,13 @@ export function formatEventList(events: EventItem[], limit = 3) {
     .join("\n");
 }
 
-export function getVolunteerGuidance(events: EventItem[]) {
+export function getAttendeeGuidance(events: EventItem[]) {
   if (!events.length) {
-    return "I couldn't find any events right now, but you can still volunteer by checking the feed and opening any event that needs support.";
+    return "I couldn't find any events right now, but you can still register by checking the feed and opening any event that interests you.";
   }
 
   return [
-    "You can volunteer by opening an event and checking whether it needs help.",
+    "You can RSVP by opening an event and hitting the register button.",
     "A good place to start is one of these events:",
     formatEventList(events, 3),
     "If you want, I can also help you decide which one to join."
@@ -77,15 +77,15 @@ export function getOrganizeGuidance() {
     "2. location",
     "3. category or cause",
     "4. description of the need",
-    "5. volunteer or donation goal",
+    "5. attendee or funding goal",
     "Once you create it, others can discover it from the feed."
   ].join("\n");
 }
 
 export function getGeneralHelp() {
   const variants = [
-    "I can help you discover events, understand how to volunteer, donate through the platform, and guide you on organizing a new event.",
-    "I can help with volunteering, donations, event discovery, and creating or organizing events.",
+    "I can help you discover events, understand how to register, find funding opportunities, and guide you on organizing a new event.",
+    "I can help with RSVPs, funding, event discovery, and creating or organizing events.",
     "You can ask me about joining events, donating, organizing relief efforts, or using the platform."
   ];
 
@@ -94,8 +94,8 @@ export function getGeneralHelp() {
 
 export function getUnknownReply() {
   const variants = [
-    "I didn't fully catch that. Ask me about volunteering, donations, events, or organizing an event.",
-    "I'm not sure what you mean yet, but I can help with event discovery, donations, volunteering, and creating events.",
+    "I didn't fully catch that. Ask me about registering, funding, events, or organizing an event.",
+    "I'm not sure what you mean yet, but I can help with event discovery, funding, RSVPs, and creating events.",
     "Try asking something like 'How do I donate?', 'Show me events', or 'How do I create an event?'"
   ];
 

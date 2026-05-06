@@ -36,14 +36,14 @@ export const sendOTPEmail = async (to: string, code: string, eventTitle: string)
     subject: `Verification Code: ${code} for ${eventTitle}`,
     html: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 12px;">
-        <h2 style="color: #3b6b4a; margin-bottom: 16px;">Volunteer Verification</h2>
-        <p style="color: #4b5563; line-height: 1.5;">You are signing up to volunteer for <strong>${eventTitle}</strong>. Please use the following code to verify your registration:</p>
+        <h2 style="color: #3b6b4a; margin-bottom: 16px;">Event Registration Verification</h2>
+        <p style="color: #4b5563; line-height: 1.5;">You are registering for <strong>${eventTitle}</strong>. Please use the following code to verify your registration:</p>
         <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; text-align: center; margin: 24px 0;">
           <span style="font-size: 32px; font-weight: bold; letter-spacing: 4px; color: #111827;">${code}</span>
         </div>
         <p style="color: #6b7280; font-size: 14px;">This code will expire in 10 minutes. If you did not request this, please ignore this email.</p>
         <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 24px 0;" />
-        <p style="color: #9ca3af; font-size: 12px; text-align: center;">W.Y.A &bull; Where You At — Campus Events & Volunteering</p>
+        <p style="color: #9ca3af; font-size: 12px; text-align: center;">W.Y.A &bull; Where You At — Campus Events & Registration</p>
       </div>
     `
   });
@@ -64,7 +64,7 @@ export const sendRegistrationEmail = async (to: string, eventTitle: string, tick
     html: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 12px;">
         <h2 style="color: #3b6b4a; margin-bottom: 8px;">Registration Confirmed!</h2>
-        <p style="color: #4b5563; line-height: 1.5;">Thank you for volunteering for <strong>${eventTitle}</strong>. Your registration is confirmed.</p>
+        <p style="color: #4b5563; line-height: 1.5;">Thank you for registering for <strong>${eventTitle}</strong>. Your registration is confirmed.</p>
         
         <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; text-align: center; margin: 32px 0;">
           <h3 style="color: #111827; margin-top: 0; margin-bottom: 16px;">Your Digital Ticket</h3>
@@ -74,7 +74,7 @@ export const sendRegistrationEmail = async (to: string, eventTitle: string, tick
 
         <p style="color: #4b5563; font-size: 14px;">Please present this QR code or Ticket ID when you arrive at the event.</p>
         <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 32px 0;" />
-        <p style="color: #9ca3af; font-size: 12px; text-align: center;">W.Y.A &bull; Where You At — Campus Events & Volunteering</p>
+        <p style="color: #9ca3af; font-size: 12px; text-align: center;">W.Y.A &bull; Where You At — Campus Events & Registration</p>
       </div>
     `
   });

@@ -9,7 +9,7 @@ interface SearchableEvent {
   category: string;
   location: string;
   urgency: string;
-  volunteersNeeded?: number;
+  attendeesNeeded?: number;
   goalAmount?: number;
   donatedAmount?: number;
 }
@@ -28,7 +28,7 @@ async function fetchSearchableEvents(): Promise<SearchableEvent[]> {
       category: data.category || "",
       location: data.location || "",
       urgency: data.urgency || "normal",
-      volunteersNeeded: data.needs?.volunteers?.goal,
+      attendeesNeeded: data.needs?.attendees?.goal,
       goalAmount: data.needs?.funds?.goal,
       donatedAmount: data.needs?.funds?.current,
     };
@@ -102,7 +102,7 @@ export async function semanticSearch(searchQuery: string): Promise<{
       )
       .join("\n");
 
-    const prompt = `You are a search engine for community volunteering events. Given a user's search query and a list of events, return ONLY the IDs of events that match the query, ranked by relevance (most relevant first).
+    const prompt = `You are a search engine for campus events and registrations. Given a user's search query and a list of events, return ONLY the IDs of events that match the query, ranked by relevance (most relevant first).
 
 Consider semantic meaning, not just keyword matching. For example:
 - "food help" should match events about food drives, community kitchens, meal programs

@@ -70,8 +70,8 @@ export async function POST(req: NextRequest) {
           goal: data.needs?.funds?.goal || 0,
           current: 0
         },
-        volunteers: {
-          goal: data.needs?.volunteers?.goal || 0,
+        attendees: {
+          goal: data.needs?.attendees?.goal || 0,
           current: 0
         }
       }

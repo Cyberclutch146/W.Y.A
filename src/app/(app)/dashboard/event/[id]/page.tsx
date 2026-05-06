@@ -3,8 +3,8 @@
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { getEventById, getEventVolunteers, updateVolunteerStatus, EventVolunteer, deleteEvent, ADMIN_EMAILS, getEventGoodsPledges } from '@/services/eventService';
-import { CommunityEvent } from '@/types';
+import { getEventById, getEventRSVPs, updateRSVPStatus, deleteEvent, ADMIN_EMAILS, getEventGoodsPledges } from '@/services/eventService';
+import { CommunityEvent, EventRSVP } from '@/types';
 import { ArrowLeft, Users, Download, Calendar, Mail, CheckCircle, Circle, Trash2, Send, Pencil, AlertTriangle, QrCode, Package } from 'lucide-react';
 import { toast } from 'sonner';
 import PromotionModal from '@/components/PromotionModal';
@@ -15,11 +15,11 @@ export default function OrganizerEventPage({ params }: { params: Promise<{ id: s
   const eventId = resolvedParams.id;
 
   const [event, setEvent] = useState<CommunityEvent | null>(null);
-  const [volunteers, setVolunteers] = useState<EventVolunteer[]>([]);
+  const [attendees, setAttendees] = useState<EventRSVP[]>([]);
   const [goodsPledges, setGoodsPledges] = useState<Awaited<ReturnType<typeof getEventGoodsPledges>>>([]);
   const [loading, setLoading] = useState(true);
   const [isPromotionModalOpen, setIsPromotionModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'volunteers' | 'goods'>('volunteers');
+  const [activeTab, setActiveTab] = useState<'attendees' | 'goods'>('attendees');
   const [smsNumber, setSmsNumber] = useState('');
   const [sendingSms, setSendingSms] = useState(false);
 
@@ -27,26 +27,26 @@ export default function OrganizerEventPage({ params }: { params: Promise<{ id: s
     if (!user) { setLoading(false); return; }
     const loadData = async () => {
       try {
-        const [eventData, volunteerData, pledgesData] = await Promise.all([
-          getEventById(eventId), getEventVolunteers(eventId),
+        const [eventData, attendeeData, pledgesData] = await Promise.all([
+          getEventById(eventId), getEventRSVPs(eventId),
           getEventGoodsPledges(eventId)
         ]);
         if (eventData?.organizerId !== user.uid && !ADMIN_EMAILS.includes(user.email || '')) {
           toast.error('You do not have permission to view this event.'); router.push('/dashboard'); return;
         }
-        setEvent(eventData); setVolunteers(volunteerData); setGoodsPledges(pledgesData);
+        setEvent(eventData); setAttendees(attendeeData); setGoodsPledges(pledgesData);
       } catch (err) { console.error('Failed to load event data:', err); toast.error('Could not load event data.'); }
       finally { setLoading(false); }
     };
     loadData();
   }, [eventId, user, router]);
 
-  const handleToggleAttendance = async (volunteerId: string, currentStatus: boolean | undefined) => {
+  const handleToggleAttendance = async (attendeeId: string, currentStatus: boolean | undefined) => {
     try {
       const newStatus = !currentStatus;
-      await updateVolunteerStatus(eventId, volunteerId, newStatus);
-      setVolunteers(prev => prev.map(v => v.id === volunteerId ? { ...v, attended: newStatus } : v));
-      toast.success(`Volunteer marked as ${newStatus ? 'attended' : 'not attended'}.`);
+      await updateRSVPStatus(eventId, attendeeId, newStatus ? 'attended' : 'going');
+      setAttendees(prev => prev.map(v => v.id === attendeeId ? { ...v, status: newStatus ? 'attended' : 'going' } : v));
+      toast.success(`Participant marked as ${newStatus ? 'attended' : 'not attended'}.`);
     } catch (error) { console.error('Failed to update attendance:', error); toast.error('Failed to update attendance.'); }
   };
 
@@ -72,23 +72,23 @@ export default function OrganizerEventPage({ params }: { params: Promise<{ id: s
   };
 
   const handleEmailAll = async () => {
-    const emails = volunteers.map(v => v.userEmail).filter((email): email is string => Boolean(email));
-    if (emails.length === 0) { toast.info('No volunteer emails to send.'); return; }
+    const emails = attendees.map(v => v.userEmail).filter((email): email is string => Boolean(email));
+    if (emails.length === 0) { toast.info('No attendee emails to send.'); return; }
     const subject = encodeURIComponent(`Update regarding ${event?.title || 'Community Event'}`);
     window.location.href = `mailto:?bcc=${emails.join(',')}&subject=${subject}`;
     try { await navigator.clipboard.writeText(emails.join(', ')); toast.success('Opening mail client (copied emails to clipboard!)'); } catch {}
   };
 
   const handleExportCSV = () => {
-    if (volunteers.length === 0) { toast.info('No volunteers to export.'); return; }
+    if (attendees.length === 0) { toast.info('No attendees to export.'); return; }
     const headers = ['Name', 'Email/ID', 'Signed Up Date'];
-    const rows = volunteers.map(v => [v.userName, v.userEmail || v.userId, v.signedUpAt?.toDate?.()?.toLocaleDateString() || 'N/A']);
+    const rows = attendees.map(v => [v.userName, v.userEmail || v.userId, v.signedUpAt?.toDate?.()?.toLocaleDateString() || 'N/A']);
     const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a'); link.href = url; link.setAttribute('download', `event_${eventId}_volunteers.csv`);
+    const link = document.createElement('a'); link.href = url; link.setAttribute('download', `event_${eventId}_attendees.csv`);
     document.body.appendChild(link); link.click(); document.body.removeChild(link);
-    toast.success('Volunteer list exported successfully.');
+    toast.success('Participant list exported successfully.');
   };
 
   if (loading) {
@@ -103,8 +103,8 @@ export default function OrganizerEventPage({ params }: { params: Promise<{ id: s
 
   const eventLat = event.lat ?? 0;
   const eventLng = event.lng ?? 0;
-  const currentVols = event.needs?.volunteers?.current || 0;
-  const goalVols = event.needs?.volunteers?.goal || 1;
+  const currentVols = event.needs?.attendees?.current || 0;
+  const goalVols = event.needs?.attendees?.goal || 1;
   const progress = Math.min(100, Math.round((currentVols / goalVols) * 100));
   return (
     <main className="flex-1 p-4 md:p-10 max-w-7xl mx-auto w-full pb-28 md:pb-10">
@@ -147,9 +147,9 @@ export default function OrganizerEventPage({ params }: { params: Promise<{ id: s
 
           <div className="p-6" style={{ borderRadius: 'var(--r-xl)', background: 'var(--cp-surface)', border: '1.5px solid var(--cp-border)' }}>
             <h3 className="font-bold text-sm uppercase tracking-tight mb-4 flex items-center gap-2" style={{ color: 'var(--cp-text-1)' }}><CheckCircle size={20} /> Checked In</h3>
-            <div className="text-3xl font-bold mb-2" style={{ color: 'var(--cp-text-1)' }}>{volunteers.filter(v => v.attended).length} <span className="text-sm font-normal" style={{ color: 'var(--cp-text-2)' }}>/ {volunteers.length}</span></div>
+            <div className="text-3xl font-bold mb-2" style={{ color: 'var(--cp-text-1)' }}>{attendees.filter(v => v.status === 'attended').length} <span className="text-sm font-normal" style={{ color: 'var(--cp-text-2)' }}>/ {attendees.length}</span></div>
             <div className="w-full h-2 overflow-hidden" style={{ background: 'var(--cp-surface-dim)', borderRadius: 'var(--r-full)' }}>
-              <div className="h-full transition-all duration-1000" style={{ width: `${Math.min(100, Math.round((volunteers.filter(v => v.attended).length / (volunteers.length || 1)) * 100))}%`, background: 'var(--cp-primary)', borderRadius: 'var(--r-full)' }} />
+              <div className="h-full transition-all duration-1000" style={{ width: `${Math.min(100, Math.round((attendees.filter(v => v.status === 'attended').length / (attendees.length || 1)) * 100))}%`, background: 'var(--cp-primary)', borderRadius: 'var(--r-full)' }} />
             </div>
           </div>
         </div>
@@ -157,8 +157,8 @@ export default function OrganizerEventPage({ params }: { params: Promise<{ id: s
         <div className="md:col-span-3">
           <div className="overflow-hidden" style={{ borderRadius: 'var(--r-xl)', border: '1.5px solid var(--cp-border)', background: 'var(--cp-surface)' }}>
             <div className="p-4 flex items-center gap-2 border-b" style={{ borderColor: 'var(--cp-border)', background: 'var(--cp-surface-dim)' }}>
-              <button onClick={() => setActiveTab('volunteers')} className={`flex items-center gap-2 px-4 py-2 text-sm font-bold uppercase tracking-wider transition-all ${activeTab === 'volunteers' ? 'btn-primary' : 'btn-secondary'}`}>
-                <Users size={15} /> Volunteers <span className="px-1.5 py-0.5 text-xs ml-1" style={{ borderRadius: 'var(--r-full)', background: 'rgba(0,0,0,0.1)' }}>{volunteers.length}</span>
+              <button onClick={() => setActiveTab('attendees')} className={`flex items-center gap-2 px-4 py-2 text-sm font-bold uppercase tracking-wider transition-all ${activeTab === 'attendees' ? 'btn-primary' : 'btn-secondary'}`}>
+                <Users size={15} /> Attendees <span className="px-1.5 py-0.5 text-xs ml-1" style={{ borderRadius: 'var(--r-full)', background: 'rgba(0,0,0,0.1)' }}>{attendees.length}</span>
               </button>
               {event.needs?.goods && event.needs.goods.length > 0 && (
                 <button onClick={() => setActiveTab('goods')} className={`flex items-center gap-2 px-4 py-2 text-sm font-bold uppercase tracking-wider transition-all ${activeTab === 'goods' ? 'btn-primary' : 'btn-secondary'}`}>
@@ -167,9 +167,9 @@ export default function OrganizerEventPage({ params }: { params: Promise<{ id: s
               )}
             </div>
 
-            {activeTab === 'volunteers' && (
-              volunteers.length === 0 ? (
-                <div className="p-12 text-center" style={{ color: 'var(--cp-text-3)' }}><Users size={48} className="mx-auto mb-4 opacity-20" /><p className="font-bold uppercase tracking-wider">No volunteers yet.</p></div>
+            {activeTab === 'attendees' && (
+              attendees.length === 0 ? (
+                <div className="p-12 text-center" style={{ color: 'var(--cp-text-3)' }}><Users size={48} className="mx-auto mb-4 opacity-20" /><p className="font-bold uppercase tracking-wider">No attendees yet.</p></div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
@@ -179,13 +179,13 @@ export default function OrganizerEventPage({ params }: { params: Promise<{ id: s
                       </tr>
                     </thead>
                     <tbody>
-                      {volunteers.map(vol => (
+                      {attendees.map(vol => (
                         <tr key={vol.id} className="border-b transition-colors hover:bg-black/5" style={{ borderColor: 'var(--cp-border)' }}>
                           <td className="px-6 py-4"><div className="font-bold" style={{ color: 'var(--cp-text-1)' }}>{vol.userName}</div><div className="text-[10px] font-mono" style={{ color: 'var(--cp-text-3)' }}>{vol.userId.slice(0, 12)}...</div></td>
                           <td className="px-6 py-4 text-sm" style={{ color: 'var(--cp-text-2)' }}>{vol.signedUpAt?.toDate?.()?.toLocaleDateString() || 'N/A'}</td>
                           <td className="px-6 py-4 text-center">
-                            <button onClick={() => handleToggleAttendance(vol.id, vol.attended)} className={`p-2 transition-all hover:scale-105`} style={{ background: vol.attended ? 'var(--cp-primary-light)' : 'transparent', color: vol.attended ? 'var(--cp-primary)' : 'var(--cp-text-3)', borderRadius: 'var(--r-full)', border: vol.attended ? '1.5px solid var(--cp-primary)' : '1.5px solid var(--cp-border)' }} title={vol.attended ? 'Mark as Not Attended' : 'Mark as Attended'}>
-                              {vol.attended ? <CheckCircle size={18} /> : <Circle size={18} />}
+                            <button onClick={() => handleToggleAttendance(vol.id, vol.status === 'attended')} className={`p-2 transition-all hover:scale-105`} style={{ background: vol.status === 'attended' ? 'var(--cp-primary-light)' : 'transparent', color: vol.status === 'attended' ? 'var(--cp-primary)' : 'var(--cp-text-3)', borderRadius: 'var(--r-full)', border: vol.status === 'attended' ? '1.5px solid var(--cp-primary)' : '1.5px solid var(--cp-border)' }} title={vol.status === 'attended' ? 'Mark as Not Attended' : 'Mark as Attended'}>
+                              {vol.status === 'attended' ? <CheckCircle size={18} /> : <Circle size={18} />}
                             </button>
                           </td>
                           <td className="px-6 py-4 text-right">

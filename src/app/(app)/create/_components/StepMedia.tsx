@@ -237,12 +237,12 @@ export default function StepMedia({
                   )}
                 </div>
 
-                {/* Volunteers */}
+                {/* Attendees */}
                 <div className="flex items-center gap-4">
                   <input type="checkbox" id="needVols" checked={needVols}
                     onChange={e => setNeedVols(e.target.checked)}
                     className="w-4 h-4 cursor-pointer" style={{ accentColor: 'var(--cp-primary)' }} />
-                  <label htmlFor="needVols" className="text-sm font-semibold cursor-pointer flex-1">Volunteers</label>
+                  <label htmlFor="needVols" className="text-sm font-semibold cursor-pointer flex-1">Attendees</label>
                   {needVols && (
                     <input type="number" value={volGoal}
                       onChange={e => setVolGoal(Number(e.target.value))}

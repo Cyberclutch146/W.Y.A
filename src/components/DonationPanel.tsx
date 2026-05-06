@@ -3,9 +3,9 @@
 import { EventNeeds } from '@/types';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { updateDonation, addVolunteerSignup, getUserPledge } from '@/services/eventService';
+import { updateDonation, addEventRSVP, getUserPledge } from '@/services/eventService';
 import { toast } from 'sonner';
-import { VolunteerModal } from './VolunteerModal';
+import { RSVPModal } from './RSVPModal';
 import { GoodsPledgeModal } from './GoodsPledgeModal';
 import { Heart, HandHelping, Package, CheckCircle2, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -40,12 +40,12 @@ export function DonationPanel({
   const { user, profile } = useAuth();
   const [pledged, setPledged] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [isVolunteerModalOpen, setIsVolunteerModalOpen] = useState(false);
+  const [isRSVPModalOpen, setIsRSVPModalOpen] = useState(false);
   const [isGoodsPledgeModalOpen, setIsGoodsPledgeModalOpen] = useState(false);
   const [goodsPledged, setGoodsPledged] = useState(false);
   const [donationAmount, setDonationAmount] = useState(50);
-  const [activeTab, setActiveTab] = useState<'funds' | 'volunteers' | 'goods'>(
-    needs.funds ? 'funds' : needs.volunteers ? 'volunteers' : 'goods'
+  const [activeTab, setActiveTab] = useState<'funds' | 'attendees' | 'goods'>(
+    needs.funds ? 'funds' : needs.attendees ? 'attendees' : 'goods'
   );
 
   // Load Razorpay script
@@ -130,24 +130,24 @@ export function DonationPanel({
     }
   };
 
-  const handleVolunteerClick = () => {
+  const handleRSVPClick = () => {
     if (!user || !profile) { 
-      toast.info('Please sign in to volunteer'); 
+      toast.info('Please sign in to RSVP'); 
       return; 
     }
-    setIsVolunteerModalOpen(true);
+    setIsRSVPModalOpen(true);
   };
 
-  const handleVolunteerRegister = async (name: string, email: string, ticketId: string) => {
+  const handleRSVPRegister = async (name: string, email: string, ticketId: string, status: 'interested' | 'going') => {
     if (!user) return;
-    await addVolunteerSignup(eventId, user.uid, name, email, ticketId);
+    await addEventRSVP(eventId, user.uid, name, email, ticketId, status);
     setPledged(true);
     onActionComplete?.();
   };
 
   const TABS = [
     { key: 'funds' as const, label: '💰 Funds', icon: Heart, show: !!needs.funds, color: 'var(--cp-primary)' },
-    { key: 'volunteers' as const, label: '🙋 Volunteer', icon: HandHelping, show: !!needs.volunteers, color: 'var(--cp-secondary)' },
+    { key: 'attendees' as const, label: '🙋 RSVP', icon: HandHelping, show: !!needs.attendees, color: 'var(--cp-secondary)' },
     { key: 'goods' as const, label: '📦 Goods', icon: Package, show: !!needs.goods, color: 'var(--cp-orange)' },
   ].filter(t => t.show);
 
@@ -267,19 +267,19 @@ export function DonationPanel({
             </div>
           )}
 
-          {activeTab === 'volunteers' && needs.volunteers && (
+          {activeTab === 'attendees' && needs.attendees && (
             <div>
               <p className="text-sm mb-6 leading-relaxed" style={{ color: 'var(--cp-text-2)' }}>
-                Sign up for a shift. The organizer will contact you with details and waivers if necessary.
+                RSVP to secure your spot. Choose to confirm your attendance and get a ticket, or just mark yourself as interested.
               </p>
               {!pledged ? (
                 <button 
-                  onClick={handleVolunteerClick}
+                  onClick={handleRSVPClick}
                   disabled={loading || !user}
                   className="btn-primary w-full justify-center py-4 text-sm disabled:opacity-50"
                   style={{ background: 'linear-gradient(135deg, var(--cp-secondary), var(--cp-lime))' }}
                 >
-                  {user ? '🙋 Sign Up to Volunteer →' : 'Sign in to Volunteer'}
+                  {user ? '🙋 RSVP Now →' : 'Sign in to RSVP'}
                 </button>
               ) : (
                 <motion.div
@@ -293,7 +293,7 @@ export function DonationPanel({
                   }}
                 >
                   <CheckCircle2 size={16} />
-                  You are signed up!
+                  Your RSVP is confirmed!
                 </motion.div>
               )}
             </div>
@@ -349,10 +349,10 @@ export function DonationPanel({
         </div>
       </div>
 
-      <VolunteerModal 
-        isOpen={isVolunteerModalOpen}
-        onClose={() => setIsVolunteerModalOpen(false)}
-        onRegister={handleVolunteerRegister}
+      <RSVPModal 
+        isOpen={isRSVPModalOpen}
+        onClose={() => setIsRSVPModalOpen(false)}
+        onRegister={handleRSVPRegister}
         eventTitle={eventTitle}
         eventDescription={eventDescription}
         eventLocation={eventLocation}

@@ -9,7 +9,7 @@ import { motion } from 'framer-motion';
 import { Trophy, Clock, DollarSign, Users, Loader2, MapPin, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
 function getStatValue(entry: LeaderboardEntry, tab: 'impact' | 'hours' | 'donated'): string {
-  if (tab === 'hours') return `${entry.volunteerHours}h`;
+  if (tab === 'hours') return `${entry.eventHours}h`;
   if (tab === 'donated') return `$${entry.totalDonated.toLocaleString()}`;
   return entry.impactScore.toLocaleString();
 }
@@ -22,7 +22,7 @@ const PODIUM_CONFIG = [
 
 export default function LeaderboardPage() {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
-  const [stats, setStats] = useState({ totalVolunteers: 0, totalHours: 0, totalDonated: 0 });
+  const [stats, setStats] = useState({ totalAttendees: 0, totalHours: 0, totalDonated: 0 });
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'impact' | 'hours' | 'donated'>('impact');
 
@@ -42,7 +42,7 @@ export default function LeaderboardPage() {
   }, []);
 
   const sortedEntries = [...entries].sort((a, b) => {
-    if (activeTab === 'hours') return b.volunteerHours - a.volunteerHours;
+    if (activeTab === 'hours') return b.eventHours - a.eventHours;
     if (activeTab === 'donated') return b.totalDonated - a.totalDonated;
     return b.impactScore - a.impactScore;
   });
@@ -64,7 +64,7 @@ export default function LeaderboardPage() {
   }
 
   const STAT_CARDS = [
-    { icon: Users, value: stats.totalVolunteers, label: 'Volunteers', accent: 'var(--cp-secondary)', gradient: 'linear-gradient(135deg, var(--cp-secondary), hsl(160, 70%, 30%))' },
+    { icon: Users, value: stats.totalAttendees, label: 'Attendees', accent: 'var(--cp-secondary)', gradient: 'linear-gradient(135deg, var(--cp-secondary), hsl(160, 70%, 30%))' },
     { icon: Clock, value: `${stats.totalHours.toLocaleString()}h`, label: 'Hours Given', accent: 'var(--cp-gold)', gradient: 'linear-gradient(135deg, var(--cp-gold), var(--cp-orange))' },
     { icon: DollarSign, value: `$${stats.totalDonated.toLocaleString()}`, label: 'Donated', accent: 'var(--cp-primary)', gradient: 'linear-gradient(135deg, var(--cp-primary), var(--cp-violet))' },
   ];
@@ -137,7 +137,7 @@ export default function LeaderboardPage() {
         <div className="text-center py-20 rounded-2xl" style={{ background: 'var(--cp-surface-dim)', border: '1px solid var(--cp-border)' }}>
           <Trophy size={48} style={{ color: 'var(--cp-gold)', margin: '0 auto 1rem' }} />
           <h3 className="text-2xl font-bold mb-2" style={{ color: 'var(--cp-text-1)' }}>No Heroes Yet</h3>
-          <p className="mb-6" style={{ color: 'var(--cp-text-2)' }}>Be the first to volunteer and climb the leaderboard!</p>
+          <p className="mb-6" style={{ color: 'var(--cp-text-2)' }}>Be the first to attendee and climb the leaderboard!</p>
           <Link href="/feed" className="btn-primary inline-flex">Browse Events</Link>
         </div>
       ) : (

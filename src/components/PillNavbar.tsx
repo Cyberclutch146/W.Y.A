@@ -78,7 +78,7 @@ export default function PillNavbar() {
     async function loadLocal() {
       const items: NotificationData[] = []
       if (!profile?.profileComplete) {
-        items.push({ id: 'complete-profile', title: 'Complete Your Profile', body: 'Fill in your details to unlock all features.', path: '/profile', type: 'system', tone: 'info', read: false, createdAt: null })
+        items.push({ id: 'complete-profile', title: 'Complete Your Profile', body: 'Fill in your details to unlock all features.', path: '/profile', type: 'general', tone: 'info', read: false, createdAt: null })
       }
       try {
         const res = await fetch('/api/bulletin')
@@ -234,7 +234,7 @@ export default function PillNavbar() {
     router.push(href)
   }
 
-  // Theme-aware colors pulled from the design system
+  // Theme-aware colors pulled from the design general
   const isDark = mounted && resolvedTheme === 'dark'
   const pillColor = isDark ? 'hsl(240, 20%, 18%)' : 'hsl(258, 30%, 22%)'
   const baseColor = isDark ? 'hsl(240, 20%, 10%)' : 'hsl(258, 20%, 95%)'

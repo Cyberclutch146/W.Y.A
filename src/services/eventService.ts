@@ -1,6 +1,6 @@
 import { db } from '@/lib/firebase';
 import { collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, query, orderBy, runTransaction, where, limit, startAfter, documentId, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
-import { CommunityEvent, CommunityEventCreate } from '@/types';
+import { CommunityEvent, CommunityEventCreate, EventRSVP } from '@/types';
 import { createNotification } from './notificationService';
 
 const EVENTS_COLLECTION = 'events';
@@ -77,8 +77,8 @@ export const getEventsByOrganizer = async (userId: string): Promise<CommunityEve
 
     // Sort locally by createdAt descending to avoid needing a composite index
     return events.sort((a, b) => {
-      const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt ? new Date(a.createdAt).getTime() : 0);
-      const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt ? new Date(b.createdAt).getTime() : 0);
+      const timeA = (a.createdAt as any)?.toMillis ? (a.createdAt as any).toMillis() : (a.createdAt ? new Date(a.createdAt as any).getTime() : 0);
+      const timeB = (b.createdAt as any)?.toMillis ? (b.createdAt as any).toMillis() : (b.createdAt ? new Date(b.createdAt as any).getTime() : 0);
       return timeB - timeA;
     });
   } catch (error) {
@@ -189,8 +189,8 @@ export const updateDonation = async (eventId: string, amount: number): Promise<v
   }
 };
 
-// ─── Volunteer signup (transactional via API) ─────────────
-export const addVolunteerSignup = async (eventId: string, userId: string, userName: string, userEmail: string = '', ticketId: string = ''): Promise<void> => {
+// ─── Event RSVP / Signup (transactional via API) ─────────────
+export const addEventRSVP = async (eventId: string, userId: string, userName: string, userEmail: string = '', ticketId: string = '', status: 'interested' | 'going' = 'going'): Promise<void> => {
   try {
     const response = await fetch('/api/events/join', {
       method: 'POST',
@@ -202,7 +202,8 @@ export const addVolunteerSignup = async (eventId: string, userId: string, userNa
         userId,
         userName,
         userEmail,
-        ticketId
+        ticketId,
+        status
       }),
     });
 
@@ -246,37 +247,28 @@ export const addVolunteerSignup = async (eventId: string, userId: string, userNa
   }
 };
 
-// ─── Volunteer Fetching ──────────────────────────────────
-export interface EventVolunteer {
-  id: string;
-  userId: string;
-  userName: string;
-  userEmail?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  signedUpAt: any;
-  attended?: boolean;
-}
+// ─── Attendee Fetching ──────────────────────────────────
 
-export const getEventVolunteers = async (eventId: string): Promise<EventVolunteer[]> => {
-  const volunteerRef = collection(db, `${EVENTS_COLLECTION}/${eventId}/volunteers`);
-  const snapshot = await getDocs(query(volunteerRef, orderBy('signedUpAt', 'desc')));
+export const getEventRSVPs = async (eventId: string): Promise<EventRSVP[]> => {
+  const rsvpRef = collection(db, `${EVENTS_COLLECTION}/${eventId}/rsvps`);
+  const snapshot = await getDocs(query(rsvpRef, orderBy('signedUpAt', 'desc')));
   
   return snapshot.docs.map(doc => ({
     id: doc.id,
     ...doc.data()
-  })) as EventVolunteer[];
+  })) as EventRSVP[];
 };
 
-export const updateVolunteerStatus = async (eventId: string, volunteerId: string, attended: boolean): Promise<void> => {
+export const updateRSVPStatus = async (eventId: string, rsvpId: string, status: 'interested' | 'going' | 'attended'): Promise<void> => {
   const response = await fetch('/api/events/scan', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ eventId, volunteerId, attended }),
+    body: JSON.stringify({ eventId, rsvpId, status }),
   });
 
   if (!response.ok) {
     const errorData = await response.json();
-    throw new Error(errorData.error || 'Failed to update volunteer status');
+    throw new Error(errorData.error || 'Failed to update RSVP status');
   }
 };
 

@@ -23,10 +23,10 @@ import StepReview from './_components/StepReview';
 const TOTAL_STEPS = 4;
 
 const STEPS = [
-  { icon: ZapIcon,            label: 'The Spark',  },
-  { icon: MapPin,         label: 'When & Where', },
-  { icon: FileImage,      label: 'Content', },
-  { icon: ClipboardCheck, label: 'Review',  },
+  { icon: ZapIcon,            label: 'The Spark',    subtitle: 'Basic info' },
+  { icon: MapPin,         label: 'When & Where', subtitle: 'Time & location' },
+  { icon: FileImage,      label: 'Content',      subtitle: 'Details & media' },
+  { icon: ClipboardCheck, label: 'Review',       subtitle: 'Publish' },
 ];
 
 const variants = {
@@ -104,7 +104,7 @@ export default function CreateEventPage() {
         imageUrl: image, eventDate,
         needs: {
           ...(needFunds ? { funds: { goal: fundGoal, current: 0 } } : {}),
-          ...(needVols  ? { volunteers: { goal: volGoal, current: 0 } } : {}),
+          ...(needVols  ? { attendees: { goal: volGoal, current: 0 } } : {}),
           ...(needGoods && goodsList.length > 0 ? { goods: goodsList } : {}),
         },
       });
