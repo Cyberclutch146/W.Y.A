@@ -39,7 +39,13 @@ service cloud.firestore {
         allow create, update, delete: if false;
       }
 
-      // Volunteers — join is via /api/events/join, scan via /api/events/scan (Admin SDK)
+      // RSVPs — join is via /api/events/join, scan via /api/events/scan (Admin SDK)
+      match /rsvps/{rsvpId} {
+        allow read: if request.auth != null;
+        allow create, update, delete: if false;
+      }
+
+      // Volunteers (legacy) — kept for backward compatibility
       match /volunteers/{volunteerId} {
         allow read: if request.auth != null;
         allow create, update, delete: if false;

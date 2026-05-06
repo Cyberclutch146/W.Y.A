@@ -352,7 +352,7 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
                 : event.createdAt?.toDate?.()?.toLocaleString() || 'TBD'
             }
             enrolledCount={event.needs?.attendees?.current || 0}
-            needs={event.needs}
+            needs={event.needs || {}}
             onActionComplete={refreshEvent}
           />
         </div>

@@ -45,7 +45,7 @@ export function DonationPanel({
   const [goodsPledged, setGoodsPledged] = useState(false);
   const [donationAmount, setDonationAmount] = useState(50);
   const [activeTab, setActiveTab] = useState<'funds' | 'attendees' | 'goods'>(
-    needs.funds ? 'funds' : needs.attendees ? 'attendees' : 'goods'
+    needs.funds && needs.funds.goal > 0 ? 'funds' : 'attendees'
   );
 
   // Load Razorpay script
@@ -146,9 +146,9 @@ export function DonationPanel({
   };
 
   const TABS = [
-    { key: 'funds' as const, label: '💰 Funds', icon: Heart, show: !!needs.funds, color: 'var(--cp-primary)' },
-    { key: 'attendees' as const, label: '🙋 RSVP', icon: HandHelping, show: !!needs.attendees, color: 'var(--cp-secondary)' },
-    { key: 'goods' as const, label: '📦 Goods', icon: Package, show: !!needs.goods, color: 'var(--cp-orange)' },
+    { key: 'funds' as const, label: '💰 Funds', icon: Heart, show: !!(needs.funds && needs.funds.goal > 0), color: 'var(--cp-primary)' },
+    { key: 'attendees' as const, label: '🙋 RSVP', icon: HandHelping, show: true, color: 'var(--cp-secondary)' },
+    { key: 'goods' as const, label: '📦 Goods', icon: Package, show: !!(needs.goods && needs.goods.length > 0), color: 'var(--cp-orange)' },
   ].filter(t => t.show);
 
   return (
@@ -267,7 +267,7 @@ export function DonationPanel({
             </div>
           )}
 
-          {activeTab === 'attendees' && needs.attendees && (
+          {activeTab === 'attendees' && (
             <div>
               <p className="text-sm mb-6 leading-relaxed" style={{ color: 'var(--cp-text-2)' }}>
                 RSVP to secure your spot. Choose to confirm your attendance and get a ticket, or just mark yourself as interested.

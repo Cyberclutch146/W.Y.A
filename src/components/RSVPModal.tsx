@@ -74,7 +74,7 @@ export function RSVPModal({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: formData.email,
-          code: formData.otp,
+          otp: formData.otp,
         }),
       });
 

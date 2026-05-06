@@ -27,16 +27,37 @@ export default function OrganizerEventPage({ params }: { params: Promise<{ id: s
     if (!user) { setLoading(false); return; }
     const loadData = async () => {
       try {
-        const [eventData, attendeeData, pledgesData] = await Promise.all([
-          getEventById(eventId), getEventRSVPs(eventId),
-          getEventGoodsPledges(eventId)
-        ]);
-        if (eventData?.organizerId !== user.uid && !ADMIN_EMAILS.includes(user.email || '')) {
+        // Load event first — if this fails, the whole page is broken
+        const eventData = await getEventById(eventId);
+        if (!eventData) {
+          toast.error('Event not found.'); router.push('/dashboard'); return;
+        }
+        if (eventData.organizerId !== user.uid && !ADMIN_EMAILS.includes(user.email || '')) {
           toast.error('You do not have permission to view this event.'); router.push('/dashboard'); return;
         }
-        setEvent(eventData); setAttendees(attendeeData); setGoodsPledges(pledgesData);
-      } catch (err) { console.error('Failed to load event data:', err); toast.error('Could not load event data.'); }
-      finally { setLoading(false); }
+        setEvent(eventData);
+
+        // Load sub-data independently — don't let one failure crash everything
+        try {
+          const attendeeData = await getEventRSVPs(eventId);
+          setAttendees(attendeeData);
+        } catch (rsvpErr) {
+          console.error('Failed to load attendees:', rsvpErr);
+          toast.error('Could not load attendee list.');
+        }
+
+        try {
+          const pledgesData = await getEventGoodsPledges(eventId);
+          setGoodsPledges(pledgesData);
+        } catch (pledgeErr) {
+          console.error('Failed to load goods pledges:', pledgeErr);
+        }
+      } catch (err) {
+        console.error('Failed to load event data:', err);
+        toast.error('Could not load event data.');
+      } finally {
+        setLoading(false);
+      }
     };
     loadData();
   }, [eventId, user, router]);
