@@ -36,9 +36,15 @@ if (!admin.apps.length) {
       const fs = require('fs');
       const path = require('path');
       const serviceAccountPath = path.join(process.cwd(), 'serviceAccountKey.json');
+      const backendServiceAccountPath = path.join(process.cwd(), '..', 'backend', 'serviceAccountKey.json');
 
       if (fs.existsSync(serviceAccountPath)) {
         const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
+        admin.initializeApp({
+          credential: admin.credential.cert(serviceAccount)
+        });
+      } else if (fs.existsSync(backendServiceAccountPath)) {
+        const serviceAccount = JSON.parse(fs.readFileSync(backendServiceAccountPath, 'utf8'));
         admin.initializeApp({
           credential: admin.credential.cert(serviceAccount)
         });

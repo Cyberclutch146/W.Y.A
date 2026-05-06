@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="/public/logo.png" alt="W.Y.A Logo" width="120" style="margin-bottom: 20px" />
+  <img src="frontend/public/logo.svg" alt="W.Y.A Logo" width="120" style="margin-bottom: 20px" />
 
 # 🌐 W.Y.A — Where You At?
 ### **The Premium Intelligence Engine for Campus Life**
@@ -71,19 +71,22 @@ graph LR
 
 ## 📂 Folder Structure
 
+The project is cleanly divided into three primary domains:
+
 ```text
-├── src/
-│   ├── app/                # Next.js App Router (Marketing & Dashboard)
-│   │   ├── (app)/          # Protected app routes
-│   │   ├── (marketing)/    # Public landing pages
-│   │   └── api/            # Server-side API routes (Admin SDK)
-│   ├── components/         # Premium UI Components (PillNavbar, SuccessModal)
-│   ├── lib/                # Shared utilities (Firebase, Gemini, Mail)
-│   ├── services/           # Business logic (EventService, AuthService)
-│   └── styles/             # Tailwind 4.0 & Global Design Tokens
-├── public/                 # Static assets (Logos, Lottie files)
-├── CAMPUS_ENGINE_ROADMAP.md # 30-feature growth plan
-└── PROJECT_STATUS.md       # Real-time milestone tracker
+├── frontend/               # Next.js 15 App Router Project
+│   ├── src/                # Core React components & API routes
+│   ├── public/             # Static assets
+│   ├── .env.local          # Environment configuration
+│   └── package.json        # Frontend-specific dependencies
+├── backend/                # Firebase & Server-side configuration
+│   ├── firebase.json       # Firebase Hosting & RTDB config
+│   ├── firestore.rules     # Security rules for Firestore
+│   ├── scripts/            # Admin utility scripts
+│   └── serviceAccountKey.json # Sensitive Admin SDK credentials
+└── documentation/          # Extensive project guides
+    ├── PROJECT_STATUS.md   # Real-time milestone tracker
+    └── CAMPUS_ENGINE_ROADMAP.md # 30-feature growth plan
 ```
 
 ---
@@ -104,7 +107,7 @@ graph LR
 ## ⚙️ Igniting the Pulse
 
 ### 1. Configure the Core
-Create `.env.local` and inject your credentials:
+Create `frontend/.env.local` and inject your credentials:
 ```env
 # Firebase Public
 NEXT_PUBLIC_FIREBASE_API_KEY=...
@@ -124,6 +127,7 @@ EMAIL_PASS=xxxx_xxxx_xxxx_xxxx
 ```
 
 ### 2. Launch
+You can run the project directly from the root directory:
 ```bash
 npm install
 npm run dev
@@ -144,7 +148,7 @@ npm run dev
 
 Developed with ❤️ by the W.Y.A Team.
 
-[**Check Progress**](PROJECT_STATUS.md) • [**View Roadmap**](CAMPUS_ENGINE_ROADMAP.md) • [**Source**](https://github.com/your-repo/wya-campus)
+[**Check Progress**](documentation/PROJECT_STATUS.md) • [**View Roadmap**](documentation/CAMPUS_ENGINE_ROADMAP.md) • [**Source**](https://github.com/your-repo/wya-campus)
 
 </div>
 
