@@ -1,54 +1,85 @@
-# NexusAid - Project Status & Roadmap
+# 💎 W.Y.A Campus (formerly NexusAid) — Project Status
 
-This document outlines the current state of the NexusAid project, tracking completed milestones and remaining high-priority tasks.
-
-## ✅ Completed Milestones
-
-### 🛡️ Security & Infrastructure
-- [x] **Firebase Admin SDK Integration**: Established a secure server-side bridge (`src/lib/firebase-admin.ts`).
-- [x] **Secure Event Creation**: Migrated event creation to `/api/events/create` for server-side validation and geocoding.
-- [x] **Atomic Volunteer Signups**: Implemented `/api/events/join` with transactions to ensure data consistency across events and user profiles.
-
-### 🧠 AI & Intelligence
-- [x] **RAG Pattern Implementation**: The AI assistant now uses semantic retrieval (`searchService.ts`) to provide context-aware event recommendations.
-- [x] **AI Function Calling**: Integrated Gemini functions for navigation and event signups directly from the chat interface.
-
-### 🗺️ Dashboard & UI
-- [x] **Sentinel Dashboard Aesthetics**: Refined dark mode and glassmorphism styling for the live safety monitoring map.
-- [x] **Premium Components**: Implemented high-fidelity UI components for event cards, search, and AI chat.
+This document tracks the evolution of the **W.Y.A (Where You At)** Campus Intelligence Platform. It serves as the single source of truth for completed milestones, active bug fixes, and the immediate development trajectory.
 
 ---
 
-## 🛠️ Remaining Tasks (TODO)
+## 📊 System Health Overview
 
-### 1. 🔐 Security Hardening (Highest Priority)
-- [ ] **Migrate Remaining Writes**: Move these operations from client-side direct writes to API routes:
-    - [ ] **Chat Messages**: Move `chatService.ts` writes to a new `/api/chat/send` route.
-    - [ ] **User Profiles**: Move `userService.ts` (create/update) to `/api/user/profile`.
-    - [ ] **Event Updates**: Move `updateEvent` and `deleteEvent` to `/api/events/[id]` routes.
-    - [ ] **Donations**: Move `updateDonation` to a secure server-side transaction.
-- [ ] **Tighten Firestore Rules**: Once all writes are migrated, update `firestore.rules` to set `allow write: if false;` for public collections, enforcing all changes through the Admin SDK.
-- [ ] **Auth Token Verification**: Implement `verifyIdToken` in all API routes to ensure users can only modify their own data.
-
-### 2. 🤖 AI & RAG Refinement
-- [ ] **Fix Model Version**: Correct the model name in `searchService.ts` from the placeholder `gemini-2.5-flash` to a stable version (e.g., `gemini-1.5-flash`).
-- [ ] **Retrieval Precision**: Fine-tune the RAG prompt to better prioritize urgency and proximity in recommendations.
-
-### 3. 🎫 Feature Verification
-- [ ] **Digital Ticket Flow**: Verify that QR codes are being correctly generated and sent via email upon event registration.
-- [ ] **Volunteer Leaderboard**: Implement the dynamic scoring logic for the "Community Heroes" section.
-- [ ] **Bulk Promotions**: Stress-test the CSV/Excel parser with larger contact lists (100+ entries).
-
-### 4. 🧪 Testing & Quality Assurance
-- [ ] **E2E Testing**: Verify the full user journey: Register -> Find Event via AI -> Volunteer -> Receive Ticket.
-- [ ] **Error Handling**: Implement more robust error boundaries for the Sentinel real-time feeds (USGS/NOAA).
+| Component | Status | Connectivity | Notes |
+| :--- | :--- | :--- | :--- |
+| **Identity Engine (OTP)** | 🟢 Healthy | SMTP / Firebase | Fixed EAUTH & Field Mismatch. |
+| **Event Discovery (RAG)** | 🟡 Partial | Gemini 1.5 Flash | Basic keyword search active; Semantic embeddings pending. |
+| **Realtime Database** | 🟢 Healthy | Admin SDK | Subcollection rules verified. |
+| **Ticket Verification** | 🟠 Beta | QR Generation | Logic stable; In-app scanner in active test. |
+| **Performance (Lighthouse)** | 🟢 90+ | Next.js Edge | optimized images & motion performance. |
 
 ---
 
-## 📅 Future Roadmap
-- [ ] **Mobile App PWA**: Optimize the platform for installation as a Progressive Web App.
-- [ ] **Advanced Analytics**: NGO-specific dashboard for tracking volunteer impact over time.
-- [ ] **Multi-Language Support**: AI-driven translation for regional relief efforts.
+## ✅ Completed Milestones (The "SaaS" Evolution)
+
+### 🎨 Premium UI/UX Overhaul
+- **Aesthetic Pivot**: Successfully transitioned from the "Zine/Brutalist" style to a high-end, premium SaaS aesthetic.
+- **Glassmorphism & Motion**: Integrated GSAP-powered animations and a custom `PillNavbar` for fluid navigation.
+- **Y2K-Inspired Branding**: Implemented the "W.Y.A?" signature branding across registration and profile panels.
+- **Themed Consistency**: Global CSS refactor ensuring all components (Cards, Modals, Panels) adhere to the new design tokens.
+- **Asset Integration**: Fully integrated generated image assets for Category selection and Hero sections.
+
+### 🛡️ Security & Auth Hardening
+- **OTP Verification Engine**: Resolved the `EAUTH` SMTP authentication failure (Gmail security block) and aligned the `code` vs `otp` field-name mismatch in `/api/auth/verify-otp`.
+- **Firestore Rule Optimization**: Implemented recursive subcollection rules for `events/{eventId}/rsvps`, resolving the "Failed to load event data" permission errors.
+- **Admin SDK Middleware**: Secured event creation and RSVP logging via server-side API routes, bypassing direct client-side Firestore writes for critical paths.
+- **Token Resilience**: Added session persistence logic for authenticated users navigating between marketing and app sub-routes.
+
+### 🎫 Event & RSVP Intelligence
+- **Resilient Data Fetching**: Refactored the Dashboard Event Manager to use sequential, error-handled loading. The page no longer crashes if a single sub-query (like RSVPs) fails.
+- **Unified Participation Flow**: Decoupled the RSVP system from specific event "needs." Users can now RSVP to any event regardless of whether the creator explicitly requested "Volunteers."
+- **Donation Panel Refactor**: Streamlined the three-pillar participation model (Funds, Attendees, Goods) into a cohesive UI.
 
 ---
-*Last Updated: 2026-04-27*
+
+## 🛠️ Active Development (Current Sprint: "The Guardian")
+
+### 1. 🎫 Ticket & Check-in Verification (Priority: Critical)
+- [ ] **E2E Ticket Flow**: Finalize the link between `SuccessModal.tsx` and the `ticketId` lookup in the Admin panel.
+- [ ] **Email Delivery Validation**: Automated retry logic for failed SMTP sends (handling 429 or auth timeouts).
+- [ ] **In-App Scanner Testing**: Polish the `QRScanner` UI with Haptic Feedback (for mobile) and instant attendance status updates.
+- [ ] **Offline Tickets**: Implement `localStorage` caching for tickets so students can check in even with poor campus Wi-Fi.
+
+### 🧠 2. AI & Recommendation Refinement (Priority: High)
+- [ ] **Vector Search Integration**: Migrate from Firestore basic `where` queries to a Pinecone/Supabase Vector or Gemini-native embedding search for event matching.
+- [ ] **Persona Profiling**: Build the "Interest Archetype" generator — analyzing user behavior to assign tags (e.g., "Tech Hustler," "Arts Enthusiast").
+- [ ] **Dynamic Hero**: Adjust the landing page hero message based on the user's most recent interaction.
+
+### 📊 3. Dashboard Analytics (Priority: Medium)
+- [ ] **RSVP Heatmap**: Implement a deck-style visualizer showing real-time event density across campus zones.
+- [ ] **Organizer Insights**: Detailed breakdown of "RSVP Churn" (Users who said 'Going' but didn't check in).
+
+---
+
+## 🧠 Technical Retrospective & Lessons Learned
+
+> [!NOTE]
+> **Issue: Field Mismatch in RSVP Flow**
+> *   **Discovery**: The `/api/auth/verify-otp` expected `otp` in the JSON body, but `RSVPModal.tsx` was sending `code`.
+> *   **Resolution**: Unified the payload structure to use `otp` globally. 
+> *   **Takeaway**: Always generate Type Definitions for API request/response bodies to catch mismatches at compile time.
+
+> [!WARNING]
+> **Issue: Gmail EAUTH Failures**
+> *   **Discovery**: Standard login credentials failed due to Google's "Less Secure Apps" deprecation.
+> *   **Resolution**: Switched to "App Passwords" and moved SMTP config to a dedicated `mailService.ts` utility.
+> *   **Takeaway**: Relying on personal SMTP is a bottleneck; plan migration to Resend or SendGrid for Phase 2.
+
+---
+
+## 📅 Roadmap Highlights
+
+- **Phase 1 (Imminent)**: Mobile-first PWA optimization and Offline RSVP support.
+- **Phase 2 (Growth)**: "Social Graph" integration — see which friend groups are intersecting.
+- **Phase 3 (Scale)**: Multi-campus deployment architecture and Departmental leaderboards.
+
+---
+*Last Updated: 2026-05-06 (Current Session: Post-OTP & RSVP Fixes)*
+
+
