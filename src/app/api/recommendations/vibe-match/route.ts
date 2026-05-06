@@ -28,10 +28,10 @@ export async function POST(req: Request) {
       )
       .join("\n");
 
-    const profileSummary = `Bio: ${profile.bio || "None"} | Interests: ${profile.interests?.join(", ")} | Skills: ${profile.skills?.join(", ")} | Department: ${profile.department}`;
+    const profileSummary = `Bio: ${profile.bio || "None"} | Interests: ${profile.interests?.join(", ")} | Department: ${profile.department}`;
 
     const prompt = `You are an AI recommendation engine for a college campus event platform.
-Given a student's profile and a list of upcoming events, return ONLY the IDs of the top 3 events that are a perfect "vibe match" for the student, based on semantic alignment between their bio, interests, skills and the event descriptions.
+Given a student's profile and a list of upcoming events, return ONLY the IDs of the top 3 events that are a perfect "vibe match" for the student, based on semantic alignment between their bio, interests, and the event descriptions.
 
 Student Profile:
 ${profileSummary}

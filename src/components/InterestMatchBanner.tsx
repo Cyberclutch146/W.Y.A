@@ -8,18 +8,18 @@ import { motion } from 'framer-motion';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
-interface SkillMatchBannerProps {
+interface InterestMatchBannerProps {
   condensed?: boolean;
 }
 
-export default function SkillMatchBanner({ condensed = false }: SkillMatchBannerProps) {
+export default function InterestMatchBanner({ condensed = false }: InterestMatchBannerProps) {
   const { user, profile } = useAuth();
   const [hasRecommendations, setHasRecommendations] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchRecommendations = async () => {
-      if (!profile?.skills || profile.skills.length === 0) {
+      if (!profile?.interests || profile.interests.length === 0) {
         setLoading(false);
         return;
       }
@@ -36,12 +36,12 @@ export default function SkillMatchBanner({ condensed = false }: SkillMatchBanner
     };
 
     fetchRecommendations();
-  }, [profile?.skills, profile?.equipment]);
+  }, [profile?.interests, profile?.campusZone]);
 
   if (loading || !user) return null;
 
-  // No skills set — show clean CTA
-  if (!profile?.skills || profile.skills.length === 0) {
+  // No interests set — show clean CTA
+  if (!profile?.interests || profile.interests.length === 0) {
     return (
       <motion.div
         initial={{ opacity: 0, y: 10 }}
@@ -65,14 +65,14 @@ export default function SkillMatchBanner({ condensed = false }: SkillMatchBanner
             </div>
             <div>
               <h3 className="font-headline font-bold text-base" style={{ color: 'var(--cp-text-1)' }}>Unlock Personalized Matches</h3>
-              <p className="text-sm mt-1" style={{ color: 'var(--cp-text-2)' }}>Add skills to your profile to see events that need your exact expertise.</p>
+              <p className="text-sm mt-1" style={{ color: 'var(--cp-text-2)' }}>Add interests to your profile to see events that match your vibe.</p>
             </div>
           </div>
           <Link
             href="/profile"
             className="btn-primary w-full md:w-auto justify-center py-3 text-sm"
           >
-            Add Skills
+            Add Interests
             <ArrowRight size={16} />
           </Link>
         </div>
@@ -106,8 +106,8 @@ export default function SkillMatchBanner({ condensed = false }: SkillMatchBanner
           <div>
             <h3 className="font-headline font-bold text-base" style={{ color: 'var(--cp-text-1)' }}>Recommended for You</h3>
             <p className="text-sm mt-1" style={{ color: 'var(--cp-text-2)' }}>
-              We found event matches based on <span className="font-bold" style={{ color: 'var(--cp-text-1)' }}>{profile.skills.slice(0, 2).join(', ')}</span>
-              {profile.skills.length > 2 ? ` and ${profile.skills.length - 2} more` : ''}.
+              We found event matches based on <span className="font-bold" style={{ color: 'var(--cp-text-1)' }}>{profile.interests.slice(0, 2).join(', ')}</span>
+              {profile.interests.length > 2 ? ` and ${profile.interests.length - 2} more` : ''}.
             </p>
           </div>
         </div>

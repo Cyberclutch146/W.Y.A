@@ -59,7 +59,7 @@ export interface LeaderboardEntry {
   avatarUrl: string;
   volunteerHours: number;
   totalDonated: number;
-  skills: string[];
+  interests: string[];
   location: string;
   impactScore: number; // Computed composite score
 }
@@ -72,15 +72,15 @@ export const getGlobalLeaderboard = async (topN: number = 50): Promise<Leaderboa
     const entries: LeaderboardEntry[] = snapshot.docs
       .map(doc => {
         const data = doc.data() as UserProfile;
-        // Composite impact score: hours * 10 + donations * 1 + skills * 5
-        const impactScore = (data.volunteerHours || 0) * 10 + (data.totalDonated || 0) + (data.skills?.length || 0) * 5;
+        // Composite impact score: hours * 10 + donations * 1 + interests * 5
+        const impactScore = (data.volunteerHours || 0) * 10 + (data.totalDonated || 0) + (data.interests?.length || 0) * 5;
         return {
           id: doc.id,
           displayName: data.displayName || 'Anonymous Hero',
           avatarUrl: data.avatarUrl || '',
           volunteerHours: data.volunteerHours || 0,
           totalDonated: data.totalDonated || 0,
-          skills: data.skills || [],
+          interests: data.interests || [],
           location: data.location || '',
           impactScore,
         };

@@ -47,10 +47,8 @@ export async function POST(req: Request) {
     const userId = body.userId || "";
     const userName = body.userName || "Volunteer";
     const userEmail = body.userEmail || "";
-    const userSkills = body.userSkills || [];
-    const userEquipment = body.userEquipment || [];
-    const userAvailability = body.userAvailability || 'anytime';
-    const userTravelRadius = body.userTravelRadius || 0;
+    const userInterests = body.userInterests || [];
+    const userCampusZone = body.userCampusZone || '';
     const pendingSignup = body.pendingSignup || null;
 
     if (!messages || messages.length === 0) {
@@ -71,9 +69,8 @@ export async function POST(req: Request) {
 
     // Fetch relevant events to provide targeted RAG context to Gemini
     const events = await ragRetrieveEvents(messages[messages.length - 1]?.content || "", {
-      skills: userSkills,
-      equipment: userEquipment,
-      travelRadius: userTravelRadius
+      interests: userInterests,
+      campusZone: userCampusZone
     });
     
     const eventContext = events
@@ -92,18 +89,14 @@ export async function POST(req: Request) {
 
     const userContext = userId
       ? `\nThe current user is "${userName}" (ID: ${userId}). ${
-          userSkills.length > 0
-            ? `Their skills include: ${userSkills.join(", ")}.`
+          userInterests.length > 0
+            ? `Their interests include: ${userInterests.join(", ")}.`
             : ""
         }${
-          userEquipment.length > 0
-            ? ` They have equipment: ${userEquipment.join(", ")}.`
+          userCampusZone
+            ? ` Their campus zone is: ${userCampusZone}.`
             : ""
-        }${
-          userTravelRadius > 0
-            ? ` They can travel up to ${userTravelRadius} km.`
-            : ""
-        } Available: ${userAvailability}.`
+        }`
       : "\nThe user is not logged in.";
 
 

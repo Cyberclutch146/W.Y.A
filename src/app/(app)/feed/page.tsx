@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { EventCard, CATEGORY_COLORS } from '@/components/EventCard';
 import { getEvents } from '@/services/eventService';
 import MapWrapper from '@/components/MapWrapper';
-import SkillMatchBanner from '@/components/SkillMatchBanner';
+import InterestMatchBanner from '@/components/InterestMatchBanner';
 import { useAuth } from '@/context/AuthContext';
 import { CommunityEvent } from '@/types';
 import { QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
@@ -788,7 +788,7 @@ function FeedContent() {
         {/* Skill Match Banner */}
         {(sortBy === 'recommended' && !searchQuery) || bannerHiding ? (
           <div className={bannerHiding ? 'animate-slide-up' : 'animate-slide-down'}>
-            <SkillMatchBanner condensed />
+            <InterestMatchBanner condensed />
           </div>
         ) : null}
 

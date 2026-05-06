@@ -60,10 +60,7 @@ export interface UserProfile {
   badges: string[];
   eventsAttended: number;
   // Legacy / kept for compatibility
-  skills: string[];            // maps to interests under the hood
-  equipment: string[];
-  travelRadius: number;
-  availability: string;
+  campusZone: string;
   avatarUrl: string;
   role: string;                // 'student' | 'club_admin' | 'faculty' | 'admin'
   volunteerHours: number;      // repurposed: total event hours
