@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="frontend/public/logo.svg" alt="W.Y.A Logo" width="120" style="margin-bottom: 20px" />
+  <img src="frontend/public/logo.png" alt="W.Y.A Logo" width="120" style="margin-bottom: 20px" />
 
 # 🌐 W.Y.A — Where You At?
 ### **The Premium Intelligence Engine for Campus Life**
