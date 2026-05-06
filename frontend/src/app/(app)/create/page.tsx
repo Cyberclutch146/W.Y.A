@@ -140,7 +140,7 @@ export default function CreateEventPage() {
             style={{ background: 'var(--cp-primary)', borderRadius: '6px' }}>
             <PartyPopper size={28} className="text-white" />
           </div>
-          <h1 className="font-headline font-bold text-4xl tracking-tight mb-3">Event Published</h1>
+          <h1 className="font-headline font-bold text-2xl md:text-4xl tracking-tight mb-3">Event Published</h1>
           <p className="text-sm leading-relaxed mb-8" style={{ color: 'var(--cp-text-2)' }}>
             <span className="font-bold" style={{ color: 'var(--cp-text-1)' }}>{title}</span> is now live on the campus feed.
           </p>
@@ -287,7 +287,7 @@ export default function CreateEventPage() {
 
         {/* Scrollable content */}
         <div className="flex-1 flex flex-col items-center w-full">
-          <div className="w-full max-w-4xl px-5 md:px-8 pt-6 pb-16">
+          <div className="w-full max-w-4xl px-4 md:px-8 pt-4 md:pt-6 pb-12 md:pb-16">
 
           {/* Step header — desktop only (mobile uses sticky top bar) */}
           <div className="hidden md:block mb-10">

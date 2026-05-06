@@ -510,11 +510,21 @@ export default function ProfilePage() {
                 </button>
               </motion.div>
             </form>
+
+            {/* Mobile Scroll Indicator for ID Card */}
+            <motion.div 
+              className="lg:hidden flex flex-col items-center justify-center mt-10 mb-4 opacity-70"
+              animate={{ y: [0, 10, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2 text-center" style={{ color: 'var(--cp-text-3)' }}>Scroll to view ID Card</p>
+              <ChevronDown size={18} style={{ color: 'var(--cp-text-3)' }} />
+            </motion.div>
           </motion.div>
 
-            {/* ── Live ID Card Preview ── */}
-            <motion.div
-              className="hidden lg:flex flex-col items-center sticky top-24 mt-[72px]"
+          {/* ── Live ID Card Preview ── */}
+          <motion.div
+              className="flex flex-col items-center lg:sticky lg:top-24 mt-4 lg:mt-[72px]"
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}

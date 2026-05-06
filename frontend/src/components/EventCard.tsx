@@ -81,9 +81,9 @@ export function EventCard({
   if (isDismissing) {
     return (
       <div
-        className="h-full min-h-[380px] flex items-center justify-center animate-pulse"
+        className="h-full min-h-[260px] md:min-h-[380px] flex items-center justify-center animate-pulse"
         style={{
-          borderRadius: 'var(--r-2xl)',
+          borderRadius: 'var(--r-xl)',
           border: '1.5px dashed var(--cp-border)',
           background: 'var(--cp-surface-dim)',
         }}
@@ -155,7 +155,7 @@ export function EventCard({
         />
 
         {/* Image */}
-        <div className="relative h-64 sm:h-72 md:h-80 overflow-hidden">
+        <div className="relative h-44 sm:h-56 md:h-80 overflow-hidden">
           <Image
             alt={event.title}
             src={event.imageUrl || event.image || '/logo.svg'}
@@ -200,7 +200,7 @@ export function EventCard({
         </div>
 
         {/* Body */}
-        <div className="relative flex flex-col gap-4 p-6 sm:p-8 z-10">
+        <div className="relative flex flex-col gap-3 p-4 sm:p-6 md:p-8 z-10">
           <div className="flex flex-wrap items-center gap-3 text-sm" style={{ color: 'var(--cp-text-3)' }}>
             <span className="font-semibold" style={{ color: 'var(--cp-text-1)' }}>{event.organizer}</span>
             <span
@@ -277,7 +277,7 @@ export function EventCard({
       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
       className="group relative flex h-full flex-col overflow-hidden"
       style={{
-        borderRadius: 'var(--r-2xl)',
+        borderRadius: 'var(--r-xl)',
         border: '1.5px solid var(--cp-border)',
         background: 'var(--cp-surface)',
         boxShadow: 'var(--shadow-sm)',
@@ -303,7 +303,7 @@ export function EventCard({
       />
 
       {/* Image */}
-      <div className="relative h-48 overflow-hidden shrink-0" style={{ borderRadius: 'var(--r-2xl) var(--r-2xl) 0 0' }}>
+      <div className="relative h-36 md:h-48 overflow-hidden shrink-0" style={{ borderRadius: 'var(--r-xl) var(--r-xl) 0 0' }}>
         <Image
           src={event.imageUrl || event.image || '/logo.svg'}
           alt={event.title}
@@ -356,7 +356,7 @@ export function EventCard({
       </div>
 
       {/* Body */}
-      <div className="relative flex flex-1 flex-col gap-3 p-5 z-10">
+      <div className="relative flex flex-1 flex-col gap-2.5 p-3.5 md:p-5 z-10">
 
         {/* Organizer row */}
         <div className="flex flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
@@ -441,11 +441,11 @@ export function EventCard({
         )}
 
         {/* Title + Description */}
-        <div className="flex-1 space-y-1.5">
+        <div className="flex-1 space-y-1">
           <h3
             ref={titleRef}
             className="font-headline font-bold tracking-tight"
-            style={{ fontSize: '1.0625rem', lineHeight: 1.25, color: 'var(--cp-text-1)' }}
+            style={{ fontSize: 'clamp(0.9375rem, 2.5vw, 1.0625rem)', lineHeight: 1.25, color: 'var(--cp-text-1)' }}
           >
             {event.title}
           </h3>
@@ -463,17 +463,17 @@ export function EventCard({
         </div>
 
         {/* Progress + Needs */}
-        <div className="grid grid-cols-2 gap-2 mt-1">
+        <div className="grid grid-cols-2 gap-1.5 mt-1">
           {/* Hype Progress */}
           <div
-            className="p-3"
+            className="p-2 md:p-3"
             style={{
-              borderRadius: 'var(--r-lg)',
+              borderRadius: 'var(--r-md)',
               background: 'var(--cp-surface-dim)',
               border: '1px solid var(--cp-border)',
             }}
           >
-            <div className="text-[10px] font-semibold mb-1.5" style={{ color: 'var(--cp-text-3)' }}>Hype Progress</div>
+            <div className="text-[9px] md:text-[10px] font-semibold mb-1" style={{ color: 'var(--cp-text-3)' }}>Hype</div>
             <div
               className="h-1.5 w-full overflow-hidden mb-1"
               style={{ borderRadius: 'var(--r-full)', background: 'var(--cp-border)' }}
@@ -489,19 +489,19 @@ export function EventCard({
                 }}
               />
             </div>
-            <div className="text-xs font-bold" style={{ color: 'var(--cp-text-1)' }}>{progress}%</div>
+            <div className="text-[10px] md:text-xs font-bold" style={{ color: 'var(--cp-text-1)' }}>{progress}%</div>
           </div>
 
           {/* Needs */}
           <div
-            className="p-3"
+            className="p-2 md:p-3"
             style={{
-              borderRadius: 'var(--r-lg)',
+              borderRadius: 'var(--r-md)',
               background: 'var(--cp-surface-dim)',
               border: '1px solid var(--cp-border)',
             }}
           >
-            <div className="text-[10px] font-semibold mb-1.5" style={{ color: 'var(--cp-text-3)' }}>Needs</div>
+            <div className="text-[9px] md:text-[10px] font-semibold mb-1" style={{ color: 'var(--cp-text-3)' }}>Needs</div>
             <div className="flex flex-wrap gap-1">
               {event.needs?.goods   && <span className="pill-tag px-1.5 py-0.5" style={{ background: 'hsl(25 100% 62% / 0.15)', color: 'var(--cp-orange)', border: '1px solid hsl(25 100% 62% / 0.3)' }}>Goods</span>}
               {event.needs?.attendees && <span className="pill-tag px-1.5 py-0.5" style={{ background: 'hsl(160 70% 44% / 0.15)', color: 'var(--cp-secondary)', border: '1px solid hsl(160 70% 44% / 0.3)' }}>RSVP</span>}
@@ -514,9 +514,9 @@ export function EventCard({
         {/* CTA */}
         <Link
           href={`/event/${event.id}`}
-          className="mt-3 group/btn relative overflow-hidden inline-flex w-full items-center justify-center font-bold text-sm py-3 transition-all duration-300"
+          className="mt-2.5 group/btn relative overflow-hidden inline-flex w-full items-center justify-center font-bold text-sm py-2.5 md:py-3 transition-all duration-300"
           style={{
-            borderRadius: 'var(--r-xl)',
+            borderRadius: 'var(--r-lg)',
             background: 'var(--cp-surface-dim)',
             color: 'var(--cp-text-1)',
             border: '1.5px solid var(--cp-border)',

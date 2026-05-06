@@ -542,6 +542,51 @@ body {
     ring-width: 2px;
     ring-offset-width: 2px;
   }
+
+  /* ── Mobile Touch Target Enforcement ── */
+  @media (pointer: coarse) {
+    button, a, [role="button"] {
+      min-height: 44px;
+    }
+  }
+
+  /* ── Mobile Card Overrides ── */
+  @media (max-width: 767px) {
+    .card-base {
+      border-radius: var(--r-lg);
+    }
+    .card-elevated {
+      border-radius: var(--r-lg);
+    }
+    .card-elevated:hover {
+      transform: none;
+      box-shadow: var(--shadow-sm);
+    }
+    .stat-card {
+      padding: 0.875rem;
+    }
+    .stat-card:hover {
+      transform: none;
+    }
+    .btn-primary,
+    .btn-secondary {
+      padding: 0.625rem 1.125rem;
+      font-size: 0.8125rem;
+      box-shadow: 3px 3px 0px var(--cp-primary);
+    }
+    .btn-primary:hover {
+      transform: translate(-1px, -1px);
+      box-shadow: 4px 4px 0px var(--cp-primary);
+    }
+    .btn-secondary:hover {
+      transform: translate(-1px, -1px);
+      box-shadow: 4px 4px 0px var(--cp-border);
+    }
+    .premium-card-hover:hover {
+      transform: none;
+      box-shadow: var(--shadow-sm);
+    }
+  }
 }
 
 /* ─────────────────── KEYFRAME ANIMATIONS ─────────────────── */

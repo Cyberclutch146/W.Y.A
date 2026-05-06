@@ -89,7 +89,7 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Stat Cards ── */}
-      <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4 mb-10">
+      <div className="grid grid-cols-3 gap-2 sm:gap-5 mb-8 md:mb-10">
         {statCards.map((stat, i) => (
           <div
             key={stat.label}
@@ -105,7 +105,7 @@ export default function DashboardPage() {
               </div>
               <p className="text-[10px] font-bold uppercase tracking-wider min-[430px]:text-xs" style={{ color: 'var(--cp-text-2)' }}>{stat.label}</p>
             </div>
-            <p className="text-2xl font-bold min-[430px]:text-3xl md:text-4xl" style={{ color: 'var(--cp-text-1)' }}>{stat.value}</p>
+            <p className="text-xl font-bold min-[430px]:text-2xl md:text-4xl" style={{ color: 'var(--cp-text-1)' }}>{stat.value}</p>
           </div>
         ))}
       </div>
@@ -156,8 +156,8 @@ export default function DashboardPage() {
 
       {/* ── Registered Events Section ── */}
       {registeredEvents.length > 0 && (
-        <div className="mt-16">
-          <div className="mb-6">
+        <div className="mt-10 md:mt-16">
+          <div className="mb-5 md:mb-6">
             <h3 className="text-xl font-bold tracking-tight" style={{ color: 'var(--cp-text-1)' }}>Events You&apos;re Supporting</h3>
             <p className="text-sm mt-1" style={{ color: 'var(--cp-text-2)' }}>Initiatives you&apos;re helping through attendee support.</p>
           </div>
@@ -180,10 +180,10 @@ function EventCard({ event, onClick }: { event: CommunityEvent, onClick: () => v
   return (
     <button
       onClick={onClick}
-      className="overflow-hidden text-left transition-all duration-300 group flex flex-col h-full hover:-translate-y-1"
-      style={{ background: 'var(--cp-surface)', borderRadius: 'var(--r-xl)', border: '1.5px solid var(--cp-border)', boxShadow: 'var(--shadow-sm)' }}
+      className="overflow-hidden text-left transition-all duration-300 group flex flex-col h-full active:scale-[0.98]"
+      style={{ background: 'var(--cp-surface)', borderRadius: 'var(--r-lg)', border: '1.5px solid var(--cp-border)', boxShadow: 'var(--shadow-sm)' }}
     >
-      <div className="relative h-40 w-full overflow-hidden" style={{ borderBottom: '1.5px solid var(--cp-border)' }}>
+      <div className="relative h-32 md:h-40 w-full overflow-hidden" style={{ borderBottom: '1.5px solid var(--cp-border)' }}>
         <Image
           src={event.imageUrl || '/logo.svg'}
           alt={event.title}
@@ -206,7 +206,7 @@ function EventCard({ event, onClick }: { event: CommunityEvent, onClick: () => v
         </span>
       </div>
 
-      <div className="p-5 flex flex-col flex-1">
+      <div className="p-3.5 md:p-5 flex flex-col flex-1">
         <div>
           <h4 className="font-bold mb-1 line-clamp-1 text-base" style={{ color: 'var(--cp-text-1)' }}>{event.title}</h4>
           <p className="text-sm mb-4" style={{ color: 'var(--cp-text-2)' }}>{event.category}</p>

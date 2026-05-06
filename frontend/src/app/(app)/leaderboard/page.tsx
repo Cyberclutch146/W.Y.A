@@ -15,9 +15,9 @@ function getStatValue(entry: LeaderboardEntry, tab: 'impact' | 'hours' | 'donate
 }
 
 const PODIUM_CONFIG = [
-  { medal: '🥇', ringColor: 'var(--cp-gold)', glowColor: 'hsl(42, 100%, 56%, 0.4)', height: 'h-28', size: 'w-20 h-20 md:w-24 md:h-24', textSize: 'text-sm', rank: 1 },
-  { medal: '🥈', ringColor: 'hsl(220, 15%, 65%)', glowColor: 'hsl(220, 15%, 65%, 0.3)', height: 'h-20', size: 'w-14 h-14 md:w-16 md:h-16', textSize: 'text-xs', rank: 2 },
-  { medal: '🥉', ringColor: 'hsl(25, 80%, 60%)', glowColor: 'hsl(25, 80%, 60%, 0.3)', height: 'h-14', size: 'w-14 h-14 md:w-16 md:h-16', textSize: 'text-xs', rank: 3 },
+  { medal: '🥇', ringColor: 'var(--cp-gold)', glowColor: 'hsl(42, 100%, 56%, 0.4)', height: 'h-28', size: 'w-16 h-16 md:w-24 md:h-24', textSize: 'text-sm', rank: 1 },
+  { medal: '🥈', ringColor: 'hsl(220, 15%, 65%)', glowColor: 'hsl(220, 15%, 65%, 0.3)', height: 'h-20', size: 'w-12 h-12 md:w-16 md:h-16', textSize: 'text-xs', rank: 2 },
+  { medal: '🥉', ringColor: 'hsl(25, 80%, 60%)', glowColor: 'hsl(25, 80%, 60%, 0.3)', height: 'h-14', size: 'w-12 h-12 md:w-16 md:h-16', textSize: 'text-xs', rank: 3 },
 ];
 
 export default function LeaderboardPage() {
@@ -83,7 +83,7 @@ export default function LeaderboardPage() {
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-4" style={{ background: 'hsl(42, 100%, 56%, 0.12)', color: 'var(--cp-gold)', border: '1px solid hsl(42, 100%, 56%, 0.3)' }}>
           <Trophy size={12} /> Community Heroes
         </div>
-        <h1 className="font-headline font-bold text-5xl md:text-7xl tracking-tight leading-none mb-3" style={{ color: 'var(--cp-text-1)' }}>
+        <h1 className="font-headline font-bold text-3xl md:text-5xl lg:text-7xl tracking-tight leading-none mb-3" style={{ color: 'var(--cp-text-1)' }}>
           Leader<span className="energy-gradient-text">board</span>
         </h1>
         <p className="max-w-md leading-relaxed" style={{ color: 'var(--cp-text-2)' }}>
@@ -92,27 +92,27 @@ export default function LeaderboardPage() {
       </motion.div>
 
       {/* ── Stats Row ── */}
-      <motion.div className="grid grid-cols-3 gap-3 md:gap-5 mb-12" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.45, ease: [0.16, 1, 0.3, 1] }}>
+      <motion.div className="grid grid-cols-3 gap-2 md:gap-5 mb-8 md:mb-12" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.45, ease: [0.16, 1, 0.3, 1] }}>
         {STAT_CARDS.map((s) => {
           const Icon = s.icon;
           return (
             <div
               key={s.label}
-              className="stat-card flex flex-col items-center text-center p-4 md:p-6 group relative overflow-hidden"
+              className="stat-card flex flex-col items-center text-center p-3 md:p-6 group relative overflow-hidden"
             >
               <div className="absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 rounded-full opacity-10 group-hover:opacity-20 transition-opacity" style={{ background: s.accent }} />
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform" style={{ background: 'var(--cp-surface-dim)', border: '1px solid var(--cp-border)' }}>
-                <Icon size={22} style={{ color: s.accent }} />
+              <div className="w-8 h-8 md:w-12 md:h-12 rounded-2xl flex items-center justify-center mb-2 md:mb-4 shadow-sm group-hover:scale-110 transition-transform" style={{ background: 'var(--cp-surface-dim)', border: '1px solid var(--cp-border)' }}>
+                <Icon size={16} style={{ color: s.accent }} />
               </div>
-              <p className="text-xl md:text-3xl font-black tracking-tight" style={{ color: 'var(--cp-text-1)' }}>{s.value}</p>
-              <p className="text-[10px] md:text-xs font-black uppercase tracking-widest mt-1.5 opacity-40" style={{ color: 'var(--cp-text-1)' }}>{s.label}</p>
+              <p className="text-base md:text-3xl font-black tracking-tight" style={{ color: 'var(--cp-text-1)' }}>{s.value}</p>
+              <p className="text-[9px] md:text-xs font-black uppercase tracking-widest mt-1 opacity-40" style={{ color: 'var(--cp-text-1)' }}>{s.label}</p>
             </div>
           );
         })}
       </motion.div>
 
       {/* ── Tabs ── */}
-      <motion.div className="flex items-center gap-2 mb-10 p-1.5 rounded-3xl w-fit mx-auto md:mx-0" style={{ background: 'var(--cp-surface-dim)', border: '1px solid var(--cp-border)' }} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.4 }}>
+      <motion.div className="flex items-center gap-1.5 mb-8 md:mb-10 p-1.5 rounded-3xl overflow-x-auto no-scrollbar" style={{ background: 'var(--cp-surface-dim)', border: '1px solid var(--cp-border)' }} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.4 }}>
         {TABS.map(tab => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.key;
@@ -120,13 +120,13 @@ export default function LeaderboardPage() {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-2 px-6 py-2.5 rounded-2xl text-sm font-black transition-all ${isActive ? 'shadow-lg' : 'hover:bg-white/50 dark:hover:bg-black/20'}`}
+              className={`flex items-center gap-1.5 px-4 md:px-6 py-2.5 rounded-2xl text-xs md:text-sm font-black transition-all shrink-0 ${isActive ? 'shadow-lg' : 'hover:bg-white/50 dark:hover:bg-black/20'}`}
               style={{
                 background: isActive ? 'linear-gradient(135deg, var(--cp-primary), var(--cp-violet))' : 'transparent',
                 color: isActive ? 'white' : 'var(--cp-text-2)',
               }}
             >
-              <Icon size={16} />
+              <Icon size={14} />
               {tab.label}
             </button>
           );
@@ -144,7 +144,7 @@ export default function LeaderboardPage() {
         <>
           {/* ── Podium ── */}
           {topThree.length > 0 && (
-            <div className="flex items-end justify-center gap-4 md:gap-8 mb-20 px-4">
+            <div className="flex items-end justify-center gap-2 md:gap-8 mb-12 md:mb-20 px-2 md:px-4">
               {[1, 0, 2].map((podiumIndex) => {
                 const entry = topThree[podiumIndex];
                 if (!entry) return null;
@@ -153,7 +153,7 @@ export default function LeaderboardPage() {
                 return (
                   <motion.div
                     key={entry.id}
-                    className={`flex flex-col items-center ${isFirst ? 'w-32 md:w-48' : 'w-24 md:w-36'}`}
+                    className={`flex flex-col items-center ${isFirst ? 'w-24 md:w-48' : 'w-16 md:w-36'}`}
                     initial={{ opacity: 0, y: 60 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 + podiumIndex * 0.1, type: 'spring', stiffness: 100, damping: 20 }}
@@ -188,9 +188,9 @@ export default function LeaderboardPage() {
                       </div>
                     </div>
 
-                    <div className="text-center w-full mb-4 px-2">
-                      <p className={`${isFirst ? 'text-lg md:text-xl' : 'text-sm md:text-base'} font-black truncate`} style={{ color: 'var(--cp-text-1)' }}>{entry.displayName}</p>
-                      <p className="text-xs font-black uppercase tracking-widest opacity-60" style={{ color: pc.ringColor }}>{getStatValue(entry, activeTab)}</p>
+                    <div className="text-center w-full mb-3 md:mb-4 px-1 md:px-2">
+                      <p className={`${isFirst ? 'text-sm md:text-xl' : 'text-xs md:text-base'} font-black truncate`} style={{ color: 'var(--cp-text-1)' }}>{entry.displayName}</p>
+                      <p className="text-[9px] md:text-xs font-black uppercase tracking-widest opacity-60" style={{ color: pc.ringColor }}>{getStatValue(entry, activeTab)}</p>
                     </div>
 
                     {/* Podium block */}
@@ -242,14 +242,14 @@ export default function LeaderboardPage() {
                   return (
                     <motion.div
                       key={entry.id}
-                      className="flex items-center gap-4 px-6 py-4 transition-all hover:bg-primary/[0.02]"
+                      className="flex items-center gap-3 px-4 md:px-6 py-3 md:py-4 transition-all hover:bg-primary/[0.02]"
                       style={{ borderBottom: '1px solid var(--cp-border)' }}
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.05 * index, duration: 0.3 }}
                     >
                       {/* Rank Number */}
-                      <span className="w-10 h-10 flex items-center justify-center text-xs font-black rounded-xl shrink-0" style={{ background: 'var(--cp-surface-dim)', color: 'var(--cp-text-2)' }}>
+                      <span className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center text-xs font-black rounded-xl shrink-0" style={{ background: 'var(--cp-surface-dim)', color: 'var(--cp-text-2)' }}>
                         {index + 4}
                       </span>
 

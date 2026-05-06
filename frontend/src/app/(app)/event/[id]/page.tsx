@@ -171,7 +171,7 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full h-64 md:h-96 overflow-hidden mb-8 relative"
+            className="w-full h-44 md:h-96 overflow-hidden mb-5 md:mb-8 relative"
             style={{
               borderRadius: 'var(--r-2xl)',
               border: '1px solid var(--cp-border)',
@@ -221,7 +221,7 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
             </div>
 
             <h1
-              className="font-headline font-bold text-3xl md:text-5xl tracking-tight leading-tight mb-4"
+              className="font-headline font-bold text-2xl md:text-5xl tracking-tight leading-tight mb-3 md:mb-4"
               style={{ color: 'var(--cp-text-1)' }}
             >
               {event.title}
@@ -262,7 +262,7 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
 
 
 
-            <p className="text-lg leading-relaxed mb-6" style={{ color: 'var(--cp-text-2)' }}>
+            <p className="text-base leading-relaxed mb-5 md:mb-6" style={{ color: 'var(--cp-text-2)' }}>
               {event.description}
             </p>
 
@@ -319,7 +319,7 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="mb-10 p-6 rounded-2xl"
+              className="mb-6 md:mb-10 p-4 md:p-6 rounded-2xl"
               style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-md)' }}
             >
               <ProgressBar

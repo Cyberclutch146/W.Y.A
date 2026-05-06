@@ -477,13 +477,13 @@ function FeedContent() {
       <main className="flex-1 max-w-7xl mx-auto w-full px-3 py-4 pb-32 sm:px-4 md:p-10 md:pb-10">
 
         {/* Header */}
-        <div className="relative z-30 mb-8 flex flex-col gap-4 animate-fade-in-up lg:flex-row lg:items-start lg:justify-between">
+        <div className="relative z-30 mb-5 md:mb-8 flex flex-col gap-3 md:gap-4 animate-fade-in-up lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0">
             <div className="pill-tag mb-3" style={{ background: 'var(--cp-primary-light)', color: 'var(--cp-primary)', border: '1px solid hsl(from var(--cp-primary) h s l / 0.2)' }}>
               <Compass size={14} />
               Discovery Feed
             </div>
-            <h2 className="font-headline font-bold tracking-tight text-on-surface" style={{ fontSize: 'clamp(1.75rem, 5vw, 2.75rem)', lineHeight: 1.1 }}>
+            <h2 className="font-headline font-bold tracking-tight text-on-surface" style={{ fontSize: 'clamp(1.5rem, 5vw, 2.75rem)', lineHeight: 1.1 }}>
               Discover &{' '}
               <span className="premium-gradient-text">Support</span>
             </h2>
@@ -867,7 +867,7 @@ function FeedContent() {
 
         {/* Load More */}
         {hasMore && !loading && !searchQuery && (
-          <div className="mt-12 flex justify-center">
+          <div className="mt-8 md:mt-12 flex justify-center">
             <button
               onClick={loadMore}
               disabled={loadingMore}

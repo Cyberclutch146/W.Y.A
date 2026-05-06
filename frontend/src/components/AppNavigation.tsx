@@ -228,6 +228,14 @@ export default function AppNavigation() {
         .sm-toggle:hover {
           background: ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'} !important;
         }
+
+        /* Safe area support for notched devices */
+        .sm-panel {
+          padding-bottom: max(1.5rem, env(safe-area-inset-bottom)) !important;
+        }
+        .sm-fixed .sm-header {
+          padding-top: max(1.25em, calc(env(safe-area-inset-top) + 0.75rem)) !important;
+        }
       `}</style>
 
       {/* ── Desktop: PillNavbar (md+) ── */}
