@@ -396,7 +396,7 @@ export default function ProfilePage() {
 
   if (isEditing) {
     return (
-      <main className="flex-grow w-full relative min-h-screen overflow-hidden pb-28 md:pb-12" style={{ color: 'var(--cp-text-1)' }}>
+      <main className="flex-grow w-full relative min-h-screen pb-28 md:pb-12" style={{ color: 'var(--cp-text-1)' }}>
         {/* Ambient bg */}
         <div className="fixed inset-0 pointer-events-none -z-10">
           <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full opacity-[0.08] blur-[100px]" style={{ background: 'var(--cp-primary)' }} />
@@ -404,21 +404,21 @@ export default function ProfilePage() {
         </div>
 
         <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6 py-8 md:py-14">
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-10 items-start">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
-
-            {/* Header */}
-            <div className="flex items-center gap-4 mb-8">
-              <button onClick={() => setIsEditing(false)} className="w-11 h-11 rounded-2xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 group" style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-sm)' }} aria-label="Go back" type="button">
-                <ArrowLeft size={18} className="transition-transform group-hover:-translate-x-0.5" style={{ color: 'var(--cp-text-2)' }} />
-              </button>
-              <div>
-                <h1 className="font-headline font-bold text-2xl md:text-3xl tracking-tight">Edit Profile</h1>
-                <p className="text-sm font-medium mt-0.5" style={{ color: 'var(--cp-text-3)' }}>Personalize your campus presence</p>
-              </div>
+          
+          {/* Header */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }} className="flex items-center gap-4 mb-8">
+            <button onClick={() => setIsEditing(false)} className="w-11 h-11 rounded-2xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 group" style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-sm)' }} aria-label="Go back" type="button">
+              <ArrowLeft size={18} className="transition-transform group-hover:-translate-x-0.5" style={{ color: 'var(--cp-text-2)' }} />
+            </button>
+            <div>
+              <h1 className="font-headline font-bold text-2xl md:text-3xl tracking-tight">Edit Profile</h1>
+              <p className="text-sm font-medium mt-0.5" style={{ color: 'var(--cp-text-3)' }}>Personalize your campus presence</p>
             </div>
+          </motion.div>
 
-            <form onSubmit={handleSave} className="space-y-5">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-10 items-start">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}>
+              <form onSubmit={handleSave} className="space-y-5">
 
               {/* ═══ CARD 1: Photo ═══ */}
               <motion.div className="rounded-3xl p-6 md:p-8" style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: '0 4px 24px -4px rgba(0,0,0,0.06)' }} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
@@ -524,7 +524,7 @@ export default function ProfilePage() {
 
           {/* ── Live ID Card Preview ── */}
           <motion.div
-              className="flex flex-col items-center lg:sticky lg:top-24 mt-4 lg:mt-[72px]"
+              className="flex flex-col items-center self-start lg:sticky lg:top-[5.5rem] mt-4 lg:mt-0"
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
