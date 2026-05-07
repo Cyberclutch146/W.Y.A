@@ -36,6 +36,8 @@ const playfair = Playfair_Display({
   display: 'swap',
 });
 
+
+
 export const metadata: Metadata = {
   title: 'W.Y.A — Where You At',
   description: 'Find your people, find the vibe. Campus events, reimagined.',

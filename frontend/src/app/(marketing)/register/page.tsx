@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { createUserProfile } from "@/services/userService";
 import { motion, AnimatePresence } from "framer-motion";
-import LiquidEther from "@/components/LiquidEther";
+import LanyardBadge from "@/components/LanyardBadge";
 import {
   UserPlus,
   Loader2,
@@ -660,13 +660,6 @@ export default function RegisterPage() {
 
 // ── Optimized Preview Panel ──────────────────────────────────────────
 const RegisterPreview = React.memo(({ fullName, email, step }: { fullName: string; email: string; step: Step }) => {
-  // Memoize the barcode to prevent recalculation
-  const barcode = React.useMemo(() => [
-    2, 1, 3, 1, 2, 1, 1, 3, 1, 2, 1, 1, 2, 3, 1, 2, 1,
-    3, 1, 1, 2, 1, 2, 1, 3, 1, 2, 1, 1, 3, 1, 2, 1, 2,
-    3, 1, 1, 2, 1, 3, 1, 2,
-  ], []);
-
   return (
     <div
       className="relative hidden md:flex flex-col overflow-hidden"
@@ -677,8 +670,9 @@ const RegisterPreview = React.memo(({ fullName, email, step }: { fullName: strin
           className="absolute inset-0 w-full h-full opacity-60"
           style={{
             background: "radial-gradient(circle at 20% 0%, #5227FF 0%, transparent 50%), radial-gradient(circle at 80% 100%, #00E5FF 0%, transparent 50%), radial-gradient(circle at 50% 50%, #FF00CC 0%, transparent 60%)",
-            filter: "blur(60px)",
-            transform: "scale(1.2)"
+            filter: "blur(40px)",
+            transform: "scale(1.1)",
+            willChange: "filter"
           }}
         />
       </div>
@@ -701,105 +695,12 @@ const RegisterPreview = React.memo(({ fullName, email, step }: { fullName: strin
         {/* Lanyard Assembly */}
         <div className="absolute top-0 inset-x-0 flex flex-col items-center justify-start z-10 pointer-events-none">
           <div className="pointer-events-auto -translate-y-8">
-            <motion.div
-              className="flex flex-col items-center"
-              animate={{ rotate: [0, 3.5, 0, -3.5, 0] }}
-              transition={{
-                duration: 4,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-              style={{ transformOrigin: "top center" }}
-            >
-              {/* Lanyard Strap */}
-              <div className="relative flex flex-col items-center">
-                <div
-                  className="w-[26px] h-[80px] relative overflow-hidden rounded-[1px]"
-                  style={{
-                    background:
-                      "linear-gradient(90deg, #4a0e0e 0%, #7a2020 20%, #9b2c2c 40%, #a83434 50%, #9b2c2c 60%, #7a2020 80%, #4a0e0e 100%)",
-                  }}
-                >
-                  <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-[6px]" style={{ background: "linear-gradient(90deg, transparent, rgba(255,180,180,0.12), transparent)" }} />
-                  {Array.from({ length: 16 }).map((_, i) => (
-                    <div key={i} className="absolute left-0 right-0 h-[1px]" style={{ top: `${i * 6.25}%`, background: i % 2 === 0 ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.03)" }} />
-                  ))}
-                </div>
-                <div className="relative -mt-[4px] w-[20px] h-[20px] rounded-full z-10 flex items-center justify-center" style={{ background: "conic-gradient(from 0deg, #e8e8e8, #b0b0b0, #d0d0d0, #a0a0a0, #c8c8c8, #909090, #e8e8e8)", boxShadow: "0 2px 6px rgba(0,0,0,0.35), inset 0 0 3px rgba(255,255,255,0.4)" }}>
-                  <div className="w-[10px] h-[10px] rounded-full" style={{ background: "linear-gradient(135deg, rgba(0,0,0,0.15), rgba(0,0,0,0.05))" }} />
-                </div>
-              </div>
-
-              {/* Clip */}
-              <div className="relative -mt-[6px] flex flex-col items-center z-10">
-                <div className="w-[40px] h-[14px] rounded-t-[3px] relative" style={{ background: "linear-gradient(180deg, #e0e0e0 0%, #c8c8c8 40%, #b0b0b0 100%)" }} />
-                <div className="w-[38px] h-[12px] relative" style={{ background: "linear-gradient(180deg, #c0c0c0 0%, #a8a8a8 50%, #989898 100%)" }} />
-                <div className="w-[36px] h-[8px] rounded-b-[3px] relative" style={{ background: "linear-gradient(180deg, #a0a0a0 0%, #808080 100%)" }} />
-              </div>
-
-              {/* ID Card Holder */}
-              <motion.div
-                initial={{ rotate: 12, y: 60, opacity: 0, scale: 0.9 }}
-                animate={{ rotate: 0, y: 0, opacity: 1, scale: 1 }}
-                transition={{ type: "spring", damping: 10, stiffness: 60, delay: 0.15 }}
-                whileHover={{ rotate: -3, scale: 1.07, y: -8 }}
-                className="relative mt-[1px]"
-                style={{ transformOrigin: "top center" }}
-              >
-                <div className="relative rounded-2xl" style={{ padding: "7px 7px 10px 7px", background: "linear-gradient(180deg, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.22) 40%, rgba(255,255,255,0.12) 100%)", border: "1.5px solid rgba(255,255,255,0.45)" }}>
-                  {/* Card Content */}
-                  <div className="relative w-[260px] rounded-xl overflow-hidden bg-white shadow-sm">
-                    {/* Holographic shimmer */}
-                    <motion.div animate={{ x: ["-200%", "500%"] }} transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", repeatDelay: 3 }} className="absolute inset-y-0 w-1/3 z-30 pointer-events-none" style={{ background: "linear-gradient(100deg, transparent 10%, rgba(255,200,255,0.25) 30%, rgba(255,255,255,0.55) 45%, rgba(150,230,255,0.35) 55%, rgba(255,255,255,0.55) 60%, rgba(200,255,200,0.2) 75%, transparent 90%)" }} />
-                    
-                    <div className="bg-white pt-6 pb-0 text-center">
-                      <div className="w-[68px] h-[68px] rounded-full flex items-center justify-center mx-auto mb-2" style={{ background: "linear-gradient(135deg, var(--cp-primary), var(--cp-violet))", border: "3.5px solid #00d2ff" }}>
-                        <UserIcon size={28} className="text-white" />
-                      </div>
-                      <h3 className="text-[18px] font-black px-4" style={{ color: fullName ? "#0f172a" : "rgba(0,0,0,0.15)" }}>{fullName || "Your Name"}</h3>
-                      <p className="text-[11px] font-bold mt-0.5 mb-3" style={{ color: "var(--cp-primary)" }}>Member</p>
-                    </div>
-
-                    <div className="relative h-[32px]">
-                      <svg viewBox="0 0 260 32" className="w-full h-full" preserveAspectRatio="none">
-                        <path d="M0,16 C35,4 75,30 130,10 C185,-4 225,22 260,8 L260,32 L0,32 Z" fill="#00d2ff" opacity="0.35" />
-                        <path d="M0,20 C45,8 90,30 145,14 C195,2 235,24 260,12 L260,32 L0,32 Z" fill="var(--cp-violet)" opacity="0.5" />
-                        <path d="M0,24 C55,12 105,30 165,16 C215,6 245,24 260,16 L260,32 L0,32 Z" fill="#0f1629" />
-                      </svg>
-                    </div>
-
-                    <div className="relative px-5 pb-4 pt-3" style={{ background: "#0f1629" }}>
-                      <div className="grid grid-cols-2 gap-x-4 gap-y-3 mb-3.5">
-                        {[
-                          { label: "E-mail", value: email || "your@email.edu" },
-                          { label: "ID No.", value: "#WYA-0001" },
-                          { label: "Department", value: "Add me later" },
-                          { label: "Year", value: "Add me later" },
-                        ].map(({ label, value }) => (
-                          <div key={label}>
-                            <p className="text-[7px] font-bold uppercase tracking-widest mb-0.5 text-white/30">{label}</p>
-                            <p className="text-[10px] font-semibold text-white/80 truncate">{value}</p>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-[6px] h-[6px] rounded-full" style={{ background: step === "otp" ? "#22c55e" : "#00d2ff" }} />
-                          <p className="text-[8px] font-bold text-white/50 uppercase">{step === "otp" ? "Email Verified" : "Pending"}</p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-end gap-[1.5px] h-[24px] justify-center overflow-hidden">
-                        {barcode.map((w, i) => (
-                          <div key={i} className="shrink-0" style={{ width: `${w * 1.2}px`, height: `${65 + (i % 5) * 7}%`, background: `rgba(255,255,255,${i % 8 === 0 ? 0.15 : 0.4})` }} />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            </motion.div>
+             <LanyardBadge 
+                fullName={fullName}
+                email={email}
+                verified={step === 'otp'}
+                size="full"
+             />
           </div>
         </div>
 

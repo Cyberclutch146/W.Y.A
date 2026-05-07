@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import LiquidEther from '@/components/LiquidEther';
+import Link from 'next/link';
 import { Shield, Loader2, ArrowLeft, Mail, Lock, ChevronRight, RotateCcw } from 'lucide-react';
 
 type Tab = 'google' | 'email';
@@ -165,12 +165,14 @@ export default function LoginPage() {
   // ── Shared left panel ────────────────────────────────────
   const LeftPanel = (
     <div className="relative hidden md:flex flex-col overflow-hidden" style={{ background: '#0a0a0a' }}>
-      <div className="absolute inset-0 z-0 opacity-60 mix-blend-screen">
-        <LiquidEther
-          colors={['#5227FF', '#00E5FF', '#FF00CC']}
-          mouseForce={40} cursorSize={150} isViscous viscous={35}
-          iterationsViscous={32} iterationsPoisson={32} resolution={0.5}
-          autoDemo autoSpeed={0.8} autoIntensity={2.5}
+      <div className="absolute inset-0 z-0">
+        <div 
+          className="absolute inset-0 w-full h-full opacity-60"
+          style={{
+            background: "radial-gradient(circle at 20% 0%, #5227FF 0%, transparent 50%), radial-gradient(circle at 80% 100%, #00E5FF 0%, transparent 50%), radial-gradient(circle at 50% 50%, #FF00CC 0%, transparent 60%)",
+            filter: "blur(60px)",
+            transform: "scale(1.2)"
+          }}
         />
       </div>
       <div className="relative z-20 flex-1 p-10 flex flex-col justify-between pointer-events-none [&>*]:pointer-events-auto">

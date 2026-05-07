@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Bungee&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -212,6 +214,8 @@
   --font-headline: var(--font-playfair, 'Playfair Display'), serif;
   --font-body:     var(--font-inter, 'Inter'), sans-serif;
   --font-label:    var(--font-inter, 'Inter'), sans-serif;
+  --font-comical:  'Luckiest Guy', cursive;
+  --font-bungee:   'Bungee', cursive;
 
   /* Campus Energy color aliases for Tailwind */
   --color-background:       var(--cp-bg);
@@ -633,4 +637,45 @@ body {
 }
 .animate-marquee-x-reverse {
   animation: marquee-x-reverse 32s linear infinite;
+}
+
+/* ── Lanyard Animations ── */
+@keyframes lanyard-swing {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(3.5deg); }
+  75% { transform: rotate(-3.5deg); }
+}
+
+@keyframes lanyard-shimmer {
+  0% { transform: translateX(-200%); }
+  40%, 100% { transform: translateX(500%); }
+}
+
+@keyframes status-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.7; }
+}
+
+@keyframes photo-glow {
+  0%, 100% { box-shadow: 0 0 0px rgba(0, 210, 255, 0.3); }
+  50% { box-shadow: 0 0 15px rgba(0, 210, 255, 0.4); }
+}
+
+.animate-lanyard-swing {
+  animation: lanyard-swing 4s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-lanyard-shimmer {
+  animation: lanyard-shimmer 5s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-status-pulse {
+  animation: status-pulse 1.5s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.animate-photo-glow {
+  animation: photo-glow 2.5s ease-in-out infinite;
 }

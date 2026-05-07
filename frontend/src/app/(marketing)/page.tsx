@@ -184,10 +184,17 @@ export default function LandingPage() {
       <section className="relative z-20 py-6 overflow-hidden" style={{ borderTop: '1px solid var(--cp-border)', borderBottom: '1px solid var(--cp-border)', background: 'var(--cp-surface-dim)' }}>
         <div className="flex items-center gap-10 animate-marquee-x whitespace-nowrap">
           {[...MARQUEE, ...MARQUEE, ...MARQUEE].map((item, i) => (
-            <span key={i} className="font-headline font-bold text-2xl md:text-3xl shrink-0 uppercase tracking-tight"
-              style={{ color: i % 3 === 0 ? 'var(--cp-primary)' : i % 3 === 1 ? 'var(--cp-text-1)' : 'var(--cp-text-3)' }}>
+            <span key={i} className="text-4xl md:text-5xl shrink-0 uppercase tracking-tighter px-4 italic"
+              style={{ 
+                fontFamily: "'Bungee', 'Luckiest Guy', cursive",
+                color: i % 3 === 0 ? 'var(--cp-primary)' : i % 3 === 1 ? 'var(--cp-text-1)' : 'var(--cp-text-3)',
+                WebkitTextStroke: i % 3 === 2 ? '1.5px var(--cp-border)' : 'none',
+                filter: 'drop-shadow(4px 4px 0px rgba(0,0,0,0.2))',
+                transform: 'skewX(-12deg)',
+                display: 'inline-block'
+              }}>
               {item}
-              <span className="mx-5" style={{ color: 'var(--cp-border)' }}>·</span>
+              <span className="mx-8 opacity-20 not-italic" style={{ fontFamily: 'var(--font-sans)', transform: 'skewX(12deg)', display: 'inline-block' }}>·</span>
             </span>
           ))}
         </div>
