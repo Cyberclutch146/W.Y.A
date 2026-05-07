@@ -43,12 +43,21 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { register, loginWithGoogle, user } = useAuth();
+  const { register, loginWithGoogle, user, isOtpVerified, setOtpVerified } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (user) router.replace("/home");
-  }, [user, router]);
+    if (user && isOtpVerified) router.replace("/home");
+  }, [user, isOtpVerified, router]);
+
+  // If already logged in but not verified, skip to OTP step and send code
+  useEffect(() => {
+    if (user && !isOtpVerified && step !== "otp" && !loading) {
+      setStep("otp");
+      sendOtp(user.email || "").catch((err) => setError(err.message));
+      setResendCooldown(60);
+    }
+  }, [user, isOtpVerified, step, loading]);
 
   useEffect(() => {
     if (!error) return;
@@ -182,6 +191,7 @@ export default function RegisterPage() {
         setError(data.error || "Verification failed");
         return;
       }
+      setOtpVerified(true);
       router.replace("/home");
     } catch {
       setError("Something went wrong");
@@ -618,557 +628,11 @@ export default function RegisterPage() {
           </AnimatePresence>
         </div>
 
-        {/* Right — Animated Panel */}
-        <div
-          className="relative hidden md:flex flex-col overflow-hidden"
-          style={{ background: "#0a0a0a" }}
-        >
-          <div className="absolute inset-0 z-0 opacity-60 mix-blend-screen">
-            <LiquidEther
-              colors={["#5227FF", "#00E5FF", "#FF00CC"]}
-              mouseForce={40}
-              cursorSize={150}
-              isViscous
-              viscous={35}
-              iterationsViscous={32}
-              iterationsPoisson={32}
-              resolution={0.5}
-              autoDemo
-              autoSpeed={0.8}
-              autoIntensity={2.5}
-            />
-          </div>
-
-          <div className="relative z-20 flex-1 p-10 flex flex-col justify-between pointer-events-none [&>*]:pointer-events-auto overflow-hidden">
-            {/* Top Accent */}
-            <div className="relative z-30">
-              <motion.div
-                initial={{ x: -40, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                className="flex items-center gap-3"
-              >
-                <div className="w-10 h-[2px] rounded-full bg-white/40" />
-                <span className="text-white/50 text-[10px] font-bold uppercase tracking-[0.3em]">
-                  Campus Pulse
-                </span>
-              </motion.div>
-            </div>
-
-            {/* Absolutely positioned Lanyard hanging from the top */}
-            <div className="absolute top-0 inset-x-0 flex flex-col items-center justify-start z-10 pointer-events-none">
-              <div className="pointer-events-auto -translate-y-8">
-                {/* ── Lanyard Assembly ── */}
-                <motion.div
-                  className="flex flex-col items-center"
-                  animate={{ rotate: [0, 3.5, 0, -3.5, 0] }}
-                  transition={{
-                    duration: 4,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                  style={{ transformOrigin: "top center" }}
-                >
-                  {/* ── Realistic Lanyard Strap ── */}
-                  <div className="relative flex flex-col items-center">
-                    {/* Fabric ribbon - wider with woven texture */}
-                    <div
-                      className="w-[26px] h-[80px] relative overflow-hidden rounded-[1px]"
-                      style={{
-                        background:
-                          "linear-gradient(90deg, #4a0e0e 0%, #7a2020 20%, #9b2c2c 40%, #a83434 50%, #9b2c2c 60%, #7a2020 80%, #4a0e0e 100%)",
-                      }}
-                    >
-                      {/* Center satin stripe */}
-                      <div
-                        className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-[6px]"
-                        style={{
-                          background:
-                            "linear-gradient(90deg, transparent, rgba(255,180,180,0.12), transparent)",
-                        }}
-                      />
-                      {/* Edge stitching - left */}
-                      <div
-                        className="absolute inset-y-0 left-[3px] w-[1px]"
-                        style={{ background: "rgba(255,255,255,0.06)" }}
-                      />
-                      {/* Edge stitching - right */}
-                      <div
-                        className="absolute inset-y-0 right-[3px] w-[1px]"
-                        style={{ background: "rgba(255,255,255,0.06)" }}
-                      />
-                      {/* Woven crosshatch pattern */}
-                      {Array.from({ length: 16 }).map((_, i) => (
-                        <div
-                          key={i}
-                          className="absolute left-0 right-0 h-[1px]"
-                          style={{
-                            top: `${i * 6.25}%`,
-                            background:
-                              i % 2 === 0
-                                ? "rgba(0,0,0,0.08)"
-                                : "rgba(255,255,255,0.03)",
-                          }}
-                        />
-                      ))}
-                      {/* Fabric sheen highlight */}
-                      <div
-                        className="absolute top-0 left-0 right-0 h-[30%]"
-                        style={{
-                          background:
-                            "linear-gradient(180deg, rgba(255,255,255,0.1), transparent)",
-                        }}
-                      />
-                    </div>
-
-                    {/* Metal ring / grommet connecting strap to clip */}
-                    <div
-                      className="relative -mt-[4px] w-[20px] h-[20px] rounded-full z-10 flex items-center justify-center"
-                      style={{
-                        background:
-                          "conic-gradient(from 0deg, #e8e8e8, #b0b0b0, #d0d0d0, #a0a0a0, #c8c8c8, #909090, #e8e8e8)",
-                        boxShadow:
-                          "0 2px 6px rgba(0,0,0,0.35), inset 0 0 3px rgba(255,255,255,0.4)",
-                      }}
-                    >
-                      <div
-                        className="w-[10px] h-[10px] rounded-full"
-                        style={{
-                          background:
-                            "linear-gradient(135deg, rgba(0,0,0,0.15), rgba(0,0,0,0.05))",
-                          boxShadow: "inset 0 1px 3px rgba(0,0,0,0.3)",
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* ── Alligator Clip Assembly ── */}
-                  <div className="relative -mt-[6px] flex flex-col items-center z-10">
-                    {/* Clip top jaw (spring housing) */}
-                    <div
-                      className="w-[40px] h-[14px] rounded-t-[3px] relative"
-                      style={{
-                        background:
-                          "linear-gradient(180deg, #e0e0e0 0%, #c8c8c8 40%, #b0b0b0 100%)",
-                        boxShadow:
-                          "0 -1px 0 rgba(255,255,255,0.6), inset 0 -1px 2px rgba(0,0,0,0.1)",
-                      }}
-                    >
-                      {/* Top shine strip */}
-                      <div
-                        className="absolute top-[1px] left-[4px] right-[4px] h-[3px] rounded-[1px]"
-                        style={{
-                          background:
-                            "linear-gradient(90deg, transparent, rgba(255,255,255,0.8) 40%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.8) 60%, transparent)",
-                        }}
-                      />
-                      {/* Spring cylinder detail */}
-                      <div
-                        className="absolute bottom-[2px] left-1/2 -translate-x-1/2 w-[12px] h-[4px] rounded-[2px]"
-                        style={{
-                          background: "linear-gradient(180deg, #a0a0a0, #888)",
-                          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.3)",
-                        }}
-                      />
-                    </div>
-                    {/* Clip body */}
-                    <div
-                      className="w-[38px] h-[12px] relative"
-                      style={{
-                        background:
-                          "linear-gradient(180deg, #c0c0c0 0%, #a8a8a8 50%, #989898 100%)",
-                        boxShadow:
-                          "inset 0 1px 0 rgba(255,255,255,0.5), 0 2px 4px rgba(0,0,0,0.2)",
-                      }}
-                    >
-                      {/* Center crease line */}
-                      <div
-                        className="absolute top-1/2 -translate-y-1/2 left-[6px] right-[6px] h-[1px]"
-                        style={{ background: "rgba(0,0,0,0.12)" }}
-                      />
-                    </div>
-                    {/* Bottom jaw with teeth */}
-                    <div
-                      className="w-[36px] h-[8px] rounded-b-[3px] relative"
-                      style={{
-                        background:
-                          "linear-gradient(180deg, #a0a0a0 0%, #808080 100%)",
-                        boxShadow: "0 3px 8px rgba(0,0,0,0.3)",
-                      }}
-                    >
-                      {/* Teeth serration */}
-                      <div className="absolute bottom-0 left-[4px] right-[4px] h-[2px] flex justify-between">
-                        {Array.from({ length: 6 }).map((_, i) => (
-                          <div
-                            key={i}
-                            className="w-[3px] h-full rounded-b-[1px]"
-                            style={{
-                              background:
-                                "linear-gradient(180deg, #909090, #707070)",
-                            }}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* ── Card Holder Sleeve ── */}
-                  <motion.div
-                    initial={{ rotate: 12, y: 60, opacity: 0, scale: 0.9 }}
-                    animate={{ rotate: 0, y: 0, opacity: 1, scale: 1 }}
-                    transition={{
-                      type: "spring",
-                      damping: 10,
-                      stiffness: 60,
-                      delay: 0.15,
-                    }}
-                    whileHover={{ rotate: -3, scale: 1.07, y: -8 }}
-                    className="relative mt-[1px]"
-                    style={{ transformOrigin: "top center" }}
-                  >
-                    {/* Plastic sleeve */}
-                    <div
-                      className="relative rounded-2xl"
-                      style={{
-                        padding: "7px 7px 10px 7px",
-                        background:
-                          "linear-gradient(180deg, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.22) 40%, rgba(255,255,255,0.12) 100%)",
-                        border: "1.5px solid rgba(255,255,255,0.45)",
-                        boxShadow:
-                          "0 35px 70px -15px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08), inset 0 1px 0 rgba(255,255,255,0.3)",
-                        backdropFilter: "blur(3px)",
-                      }}
-                    >
-                      {/* Slot hole at top */}
-                      <div
-                        className="absolute -top-[5px] left-1/2 -translate-x-1/2 w-[44px] h-[10px] rounded-b-[5px] overflow-hidden"
-                        style={{
-                          background: "rgba(0,0,0,0.12)",
-                          boxShadow: "inset 0 2px 6px rgba(0,0,0,0.25)",
-                        }}
-                      >
-                        <div
-                          className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[30px] h-[3px] rounded-t-[2px]"
-                          style={{ background: "rgba(255,255,255,0.1)" }}
-                        />
-                      </div>
-
-                      {/* Corner reflections on sleeve */}
-                      <div
-                        className="absolute top-2 right-2 w-8 h-16 rounded-tr-xl pointer-events-none"
-                        style={{
-                          background:
-                            "linear-gradient(135deg, rgba(255,255,255,0.15), transparent)",
-                          borderRadius: "0 12px 0 0",
-                        }}
-                      />
-
-                      {/* ════ THE CARD ════ */}
-                      <div
-                        className="relative w-[260px] rounded-xl overflow-hidden"
-                        style={{
-                          background: "white",
-                          boxShadow: "0 2px 15px rgba(0,0,0,0.06)",
-                        }}
-                      >
-                        {/* Holographic shimmer */}
-                        <motion.div
-                          animate={{ x: ["-200%", "500%"] }}
-                          transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                            repeatDelay: 3,
-                          }}
-                          className="absolute inset-y-0 w-1/3 z-30 pointer-events-none"
-                          style={{
-                            background:
-                              "linear-gradient(100deg, transparent 10%, rgba(255,200,255,0.25) 30%, rgba(255,255,255,0.55) 45%, rgba(150,230,255,0.35) 55%, rgba(255,255,255,0.55) 60%, rgba(200,255,200,0.2) 75%, transparent 90%)",
-                          }}
-                        />
-
-                        {/* ── Top White Section ── */}
-                        <div className="relative bg-white pt-6 pb-0 text-center">
-                          {/* Photo circle */}
-                          <div className="relative inline-block mb-2">
-                            <motion.div
-                              animate={{
-                                boxShadow: [
-                                  "0 0 0px rgba(0,210,255,0.3)",
-                                  "0 0 20px rgba(0,210,255,0.5)",
-                                  "0 0 0px rgba(0,210,255,0.3)",
-                                ],
-                              }}
-                              transition={{
-                                duration: 2.5,
-                                repeat: Infinity,
-                                ease: "easeInOut",
-                              }}
-                              className="w-[68px] h-[68px] rounded-full flex items-center justify-center mx-auto"
-                              style={{
-                                background:
-                                  "linear-gradient(135deg, var(--cp-primary), var(--cp-violet))",
-                                border: "3.5px solid #00d2ff",
-                              }}
-                            >
-                              <UserIcon size={28} className="text-white" />
-                            </motion.div>
-                          </div>
-
-                          {/* Name */}
-                          <motion.h3
-                            layout
-                            className="text-[18px] font-black leading-tight px-4"
-                            style={{
-                              color: fullName ? "#0f172a" : "rgba(0,0,0,0.15)",
-                              fontStyle: fullName ? "normal" : "italic",
-                            }}
-                          >
-                            {fullName || "Your Name"}
-                          </motion.h3>
-                          {/* Role */}
-                          <p
-                            className="text-[11px] font-bold mt-0.5 mb-3"
-                            style={{ color: "var(--cp-primary)" }}
-                          >
-                            Member
-                          </p>
-                        </div>
-
-                        {/* ── Wave Swoosh Separator ── */}
-                        <div
-                          className="relative h-[32px]"
-                          style={{ background: "white" }}
-                        >
-                          <svg
-                            viewBox="0 0 260 32"
-                            className="absolute top-0 left-0 w-full h-full"
-                            preserveAspectRatio="none"
-                          >
-                            {/* Accent wave (cyan) */}
-                            <path
-                              d="M0,16 C35,4 75,30 130,10 C185,-4 225,22 260,8 L260,32 L0,32 Z"
-                              fill="#00d2ff"
-                              opacity="0.35"
-                            />
-                            {/* Violet wave */}
-                            <path
-                              d="M0,20 C45,8 90,30 145,14 C195,2 235,24 260,12 L260,32 L0,32 Z"
-                              fill="var(--cp-violet)"
-                              opacity="0.5"
-                            />
-                            {/* Dark wave on top */}
-                            <path
-                              d="M0,24 C55,12 105,30 165,16 C215,6 245,24 260,16 L260,32 L0,32 Z"
-                              fill="#0f1629"
-                            />
-                          </svg>
-                        </div>
-
-                        {/* ── Dark Bottom Section ── */}
-                        <div
-                          className="relative px-5 pb-4 pt-3"
-                          style={{ background: "#0f1629" }}
-                        >
-                          {/* Info grid */}
-                          <div className="grid grid-cols-2 gap-x-4 gap-y-3 mb-3.5">
-                            {[
-                              {
-                                label: "E-mail",
-                                value: email,
-                                placeholder: "your@email.edu",
-                              },
-                              {
-                                label: "ID No.",
-                                value: "#WYA-0001",
-                                placeholder: null,
-                              },
-                              {
-                                label: "Department",
-                                value: null,
-                                placeholder: "Add me later",
-                              },
-                              {
-                                label: "Year",
-                                value: null,
-                                placeholder: "Add me later",
-                              },
-                            ].map(({ label, value, placeholder }) => (
-                              <div key={label}>
-                                <p
-                                  className="text-[7px] font-bold uppercase tracking-[0.18em] mb-0.5"
-                                  style={{ color: "rgba(255,255,255,0.3)" }}
-                                >
-                                  {label}
-                                </p>
-                                <p
-                                  className="text-[10px] font-semibold truncate"
-                                  style={{
-                                    color: value
-                                      ? "rgba(255,255,255,0.85)"
-                                      : "rgba(255,255,255,0.25)",
-                                    fontStyle: value ? "normal" : "italic",
-                                  }}
-                                >
-                                  {value ?? placeholder}
-                                </p>
-                              </div>
-                            ))}
-                          </div>
-
-                          {/* Divider */}
-                          <div
-                            className="w-full h-[1px] mb-3"
-                            style={{ background: "rgba(255,255,255,0.08)" }}
-                          />
-
-                          {/* Status badge */}
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="flex items-center gap-2">
-                              <motion.div
-                                animate={{
-                                  scale: [1, 1.4, 1],
-                                  opacity: [1, 0.7, 1],
-                                }}
-                                transition={{
-                                  duration: 1.5,
-                                  repeat: Infinity,
-                                  ease: "easeInOut",
-                                }}
-                                className="w-[6px] h-[6px] rounded-full"
-                                style={{
-                                  background:
-                                    step === "otp" ? "#22c55e" : "#00d2ff",
-                                  boxShadow: `0 0 12px ${step === "otp" ? "rgba(34,197,94,0.6)" : "rgba(0,210,255,0.6)"}`,
-                                }}
-                              />
-                              <p
-                                className="text-[8px] font-bold uppercase tracking-[0.15em]"
-                                style={{ color: "rgba(255,255,255,0.5)" }}
-                              >
-                                {step === "otp"
-                                  ? "Email Verified"
-                                  : "Pending Verification"}
-                              </p>
-                            </div>
-                            <p
-                              className="text-[8px] font-mono"
-                              style={{ color: "rgba(255,255,255,0.2)" }}
-                            >
-                              2025
-                            </p>
-                          </div>
-
-                          {/* Barcode */}
-                          <div className="flex items-end gap-[1.5px] h-[24px] overflow-hidden justify-center">
-                            {[
-                              2, 1, 3, 1, 2, 1, 1, 3, 1, 2, 1, 1, 2, 3, 1, 2, 1,
-                              3, 1, 1, 2, 1, 2, 1, 3, 1, 2, 1, 1, 3, 1, 2, 1, 2,
-                              3, 1, 1, 2, 1, 3, 1, 2,
-                            ].map((w, i) => (
-                              <div
-                                key={i}
-                                className="shrink-0 rounded-[0.5px]"
-                                style={{
-                                  width: `${w * 1.2}px`,
-                                  height: `${65 + (i % 5) * 7}%`,
-                                  background: `rgba(255,255,255,${i % 8 === 0 ? 0.15 : 0.4})`,
-                                }}
-                              />
-                            ))}
-                          </div>
-                          <p
-                            className="text-[6px] font-mono text-center mt-1 tracking-[0.5em]"
-                            style={{ color: "rgba(255,255,255,0.15)" }}
-                          >
-                            WYA 2025 0001
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                </motion.div>
-              </div>
-            </div>
-
-            {/* Bottom Content Grouping */}
-            <div className="relative z-30 mt-auto flex flex-col w-full">
-              <div className="flex flex-col w-full max-w-sm self-end">
-                {/* Header Text (Moved to bottom right) */}
-                <div className="space-y-4 mb-8 text-right w-full">
-                  <h2 className="font-headline font-black text-5xl tracking-tight leading-[0.9] text-white">
-                    <motion.span
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.1 }}
-                      className="block"
-                      style={{
-                        WebkitTextStroke: "1px rgba(255,255,255,0.3)",
-                        color: "transparent",
-                      }}
-                    >
-                      Create
-                    </motion.span>
-                    <motion.span
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.2 }}
-                      className="block bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent"
-                    >
-                      Account.
-                    </motion.span>
-                  </h2>
-                </div>
-
-                {/* Dots */}
-                <div className="space-y-2 pb-6 flex flex-col items-end">
-                  {[
-                    { dot: "#00E5FF", text: "Live event tracking active" },
-                    { dot: "#FF00CC", text: "OTP-secured email access" },
-                    { dot: "#5227FF", text: "Google one-click login" },
-                  ].map((item, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 0, x: -16 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.3 + i * 0.1 }}
-                      className="flex items-center gap-3 p-3 rounded-xl w-max backdrop-blur-md"
-                      style={{
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.07)",
-                      }}
-                    >
-                      <div
-                        className="w-1.5 h-1.5 rounded-full shrink-0"
-                        style={{ background: item.dot }}
-                      />
-                      <span className="text-white/40 text-[10px] font-semibold uppercase tracking-widest">
-                        {item.text}
-                      </span>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Footer */}
-              <div className="pt-6 border-t border-white/10 flex justify-between relative z-30 shrink-0 w-full mt-4">
-                <div>
-                  <p className="text-white/20 text-[9px] uppercase tracking-[0.2em]">
-                    Platform
-                  </p>
-                  <p className="text-white text-sm font-bold">W.Y.A</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-white/20 text-[9px] uppercase tracking-[0.2em]">
-                    Security
-                  </p>
-                  <p className="text-sm font-bold" style={{ color: "#00E5FF" }}>
-                    OTP + OAuth
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <RegisterPreview 
+          fullName={React.useDeferredValue(fullName)} 
+          email={React.useDeferredValue(email)} 
+          step={step} 
+        />
       </motion.div>
 
       {/* Error toast */}
@@ -1193,3 +657,179 @@ export default function RegisterPage() {
     </div>
   );
 }
+
+// ── Optimized Preview Panel ──────────────────────────────────────────
+const RegisterPreview = React.memo(({ fullName, email, step }: { fullName: string; email: string; step: Step }) => {
+  // Memoize the barcode to prevent recalculation
+  const barcode = React.useMemo(() => [
+    2, 1, 3, 1, 2, 1, 1, 3, 1, 2, 1, 1, 2, 3, 1, 2, 1,
+    3, 1, 1, 2, 1, 2, 1, 3, 1, 2, 1, 1, 3, 1, 2, 1, 2,
+    3, 1, 1, 2, 1, 3, 1, 2,
+  ], []);
+
+  return (
+    <div
+      className="relative hidden md:flex flex-col overflow-hidden"
+      style={{ background: "#0a0a0a" }}
+    >
+      <div className="absolute inset-0 z-0">
+        <div 
+          className="absolute inset-0 w-full h-full opacity-60"
+          style={{
+            background: "radial-gradient(circle at 20% 0%, #5227FF 0%, transparent 50%), radial-gradient(circle at 80% 100%, #00E5FF 0%, transparent 50%), radial-gradient(circle at 50% 50%, #FF00CC 0%, transparent 60%)",
+            filter: "blur(60px)",
+            transform: "scale(1.2)"
+          }}
+        />
+      </div>
+
+      <div className="relative z-20 flex-1 p-10 flex flex-col justify-between pointer-events-none [&>*]:pointer-events-auto overflow-hidden">
+        {/* Top Accent */}
+        <div className="relative z-30">
+          <motion.div
+            initial={{ x: -40, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            className="flex items-center gap-3"
+          >
+            <div className="w-10 h-[2px] rounded-full bg-white/40" />
+            <span className="text-white/50 text-[10px] font-bold uppercase tracking-[0.3em]">
+              Campus Pulse
+            </span>
+          </motion.div>
+        </div>
+
+        {/* Lanyard Assembly */}
+        <div className="absolute top-0 inset-x-0 flex flex-col items-center justify-start z-10 pointer-events-none">
+          <div className="pointer-events-auto -translate-y-8">
+            <motion.div
+              className="flex flex-col items-center"
+              animate={{ rotate: [0, 3.5, 0, -3.5, 0] }}
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              style={{ transformOrigin: "top center" }}
+            >
+              {/* Lanyard Strap */}
+              <div className="relative flex flex-col items-center">
+                <div
+                  className="w-[26px] h-[80px] relative overflow-hidden rounded-[1px]"
+                  style={{
+                    background:
+                      "linear-gradient(90deg, #4a0e0e 0%, #7a2020 20%, #9b2c2c 40%, #a83434 50%, #9b2c2c 60%, #7a2020 80%, #4a0e0e 100%)",
+                  }}
+                >
+                  <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-[6px]" style={{ background: "linear-gradient(90deg, transparent, rgba(255,180,180,0.12), transparent)" }} />
+                  {Array.from({ length: 16 }).map((_, i) => (
+                    <div key={i} className="absolute left-0 right-0 h-[1px]" style={{ top: `${i * 6.25}%`, background: i % 2 === 0 ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.03)" }} />
+                  ))}
+                </div>
+                <div className="relative -mt-[4px] w-[20px] h-[20px] rounded-full z-10 flex items-center justify-center" style={{ background: "conic-gradient(from 0deg, #e8e8e8, #b0b0b0, #d0d0d0, #a0a0a0, #c8c8c8, #909090, #e8e8e8)", boxShadow: "0 2px 6px rgba(0,0,0,0.35), inset 0 0 3px rgba(255,255,255,0.4)" }}>
+                  <div className="w-[10px] h-[10px] rounded-full" style={{ background: "linear-gradient(135deg, rgba(0,0,0,0.15), rgba(0,0,0,0.05))" }} />
+                </div>
+              </div>
+
+              {/* Clip */}
+              <div className="relative -mt-[6px] flex flex-col items-center z-10">
+                <div className="w-[40px] h-[14px] rounded-t-[3px] relative" style={{ background: "linear-gradient(180deg, #e0e0e0 0%, #c8c8c8 40%, #b0b0b0 100%)" }} />
+                <div className="w-[38px] h-[12px] relative" style={{ background: "linear-gradient(180deg, #c0c0c0 0%, #a8a8a8 50%, #989898 100%)" }} />
+                <div className="w-[36px] h-[8px] rounded-b-[3px] relative" style={{ background: "linear-gradient(180deg, #a0a0a0 0%, #808080 100%)" }} />
+              </div>
+
+              {/* ID Card Holder */}
+              <motion.div
+                initial={{ rotate: 12, y: 60, opacity: 0, scale: 0.9 }}
+                animate={{ rotate: 0, y: 0, opacity: 1, scale: 1 }}
+                transition={{ type: "spring", damping: 10, stiffness: 60, delay: 0.15 }}
+                whileHover={{ rotate: -3, scale: 1.07, y: -8 }}
+                className="relative mt-[1px]"
+                style={{ transformOrigin: "top center" }}
+              >
+                <div className="relative rounded-2xl" style={{ padding: "7px 7px 10px 7px", background: "linear-gradient(180deg, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.22) 40%, rgba(255,255,255,0.12) 100%)", border: "1.5px solid rgba(255,255,255,0.45)" }}>
+                  {/* Card Content */}
+                  <div className="relative w-[260px] rounded-xl overflow-hidden bg-white shadow-sm">
+                    {/* Holographic shimmer */}
+                    <motion.div animate={{ x: ["-200%", "500%"] }} transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", repeatDelay: 3 }} className="absolute inset-y-0 w-1/3 z-30 pointer-events-none" style={{ background: "linear-gradient(100deg, transparent 10%, rgba(255,200,255,0.25) 30%, rgba(255,255,255,0.55) 45%, rgba(150,230,255,0.35) 55%, rgba(255,255,255,0.55) 60%, rgba(200,255,200,0.2) 75%, transparent 90%)" }} />
+                    
+                    <div className="bg-white pt-6 pb-0 text-center">
+                      <div className="w-[68px] h-[68px] rounded-full flex items-center justify-center mx-auto mb-2" style={{ background: "linear-gradient(135deg, var(--cp-primary), var(--cp-violet))", border: "3.5px solid #00d2ff" }}>
+                        <UserIcon size={28} className="text-white" />
+                      </div>
+                      <h3 className="text-[18px] font-black px-4" style={{ color: fullName ? "#0f172a" : "rgba(0,0,0,0.15)" }}>{fullName || "Your Name"}</h3>
+                      <p className="text-[11px] font-bold mt-0.5 mb-3" style={{ color: "var(--cp-primary)" }}>Member</p>
+                    </div>
+
+                    <div className="relative h-[32px]">
+                      <svg viewBox="0 0 260 32" className="w-full h-full" preserveAspectRatio="none">
+                        <path d="M0,16 C35,4 75,30 130,10 C185,-4 225,22 260,8 L260,32 L0,32 Z" fill="#00d2ff" opacity="0.35" />
+                        <path d="M0,20 C45,8 90,30 145,14 C195,2 235,24 260,12 L260,32 L0,32 Z" fill="var(--cp-violet)" opacity="0.5" />
+                        <path d="M0,24 C55,12 105,30 165,16 C215,6 245,24 260,16 L260,32 L0,32 Z" fill="#0f1629" />
+                      </svg>
+                    </div>
+
+                    <div className="relative px-5 pb-4 pt-3" style={{ background: "#0f1629" }}>
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-3 mb-3.5">
+                        {[
+                          { label: "E-mail", value: email || "your@email.edu" },
+                          { label: "ID No.", value: "#WYA-0001" },
+                          { label: "Department", value: "Add me later" },
+                          { label: "Year", value: "Add me later" },
+                        ].map(({ label, value }) => (
+                          <div key={label}>
+                            <p className="text-[7px] font-bold uppercase tracking-widest mb-0.5 text-white/30">{label}</p>
+                            <p className="text-[10px] font-semibold text-white/80 truncate">{value}</p>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-[6px] h-[6px] rounded-full" style={{ background: step === "otp" ? "#22c55e" : "#00d2ff" }} />
+                          <p className="text-[8px] font-bold text-white/50 uppercase">{step === "otp" ? "Email Verified" : "Pending"}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-end gap-[1.5px] h-[24px] justify-center overflow-hidden">
+                        {barcode.map((w, i) => (
+                          <div key={i} className="shrink-0" style={{ width: `${w * 1.2}px`, height: `${65 + (i % 5) * 7}%`, background: `rgba(255,255,255,${i % 8 === 0 ? 0.15 : 0.4})` }} />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Bottom Accents */}
+        <div className="relative z-30 mt-auto flex flex-col w-full">
+          <div className="flex flex-col w-full max-w-sm self-end">
+            <div className="space-y-4 mb-8 text-right w-full">
+              <h2 className="font-headline font-black text-5xl tracking-tight leading-[0.9] text-white">
+                <span className="block" style={{ WebkitTextStroke: "1px rgba(255,255,255,0.3)", color: "transparent" }}>Create</span>
+                <span className="block bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent">Account.</span>
+              </h2>
+            </div>
+            
+            <div className="space-y-2 pb-6 flex flex-col items-end">
+              {["Live tracking active", "OTP secured", "Google Auth ready"].map((text, i) => (
+                <div key={i} className="flex items-center gap-3 p-3 rounded-xl w-max backdrop-blur-md bg-white/5 border border-white/10">
+                  <span className="text-white/40 text-[10px] font-semibold uppercase tracking-widest">{text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="pt-6 border-t border-white/10 flex justify-between relative z-30 w-full mt-4">
+            <div><p className="text-white/20 text-[9px] uppercase tracking-widest">Platform</p><p className="text-white text-sm font-bold">W.Y.A</p></div>
+            <div className="text-right"><p className="text-white/20 text-[9px] uppercase tracking-widest">Security</p><p className="text-sm font-bold text-cyan-400">OTP + OAuth</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+RegisterPreview.displayName = "RegisterPreview";

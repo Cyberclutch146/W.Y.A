@@ -18,6 +18,8 @@ interface AuthContextType {
   user: FirebaseUser | null;
   profile: UserProfile | null;
   loading: boolean;
+  isOtpVerified: boolean;
+  setOtpVerified: (val: boolean) => void;
   login: (email: string, pass: string) => Promise<FirebaseUser>;
   register: (email: string, pass: string) => Promise<FirebaseUser>;
   loginWithGoogle: () => Promise<FirebaseUser>;
@@ -30,6 +32,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isOtpVerified, setIsOtpVerified] = useState(false);
 
   useEffect(() => {
     let unsubscribeProfile: (() => void) | undefined;
@@ -44,6 +47,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(firebaseUser);
 
       if (firebaseUser) {
+        // Check if verified via Google or sessionStorage
+        const isGoogle = firebaseUser.providerData.some(p => p.providerId === 'google.com');
+        const sessionVerified = sessionStorage.getItem(`wya_otp_verified_${firebaseUser.uid}`) === 'true';
+        
+        if (isGoogle || sessionVerified) {
+          setIsOtpVerified(true);
+        } else {
+          setIsOtpVerified(false);
+        }
+
         unsubscribeProfile = subscribeToUserProfile(firebaseUser.uid, async (userProfile) => {
           if (!userProfile) {
             const { createUserProfile } = await import('@/services/userService');
@@ -78,6 +91,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         });
       } else {
         setProfile(null);
+        setIsOtpVerified(false);
         if (unsubscribeProfile) unsubscribeProfile();
         setLoading(false);
       }
@@ -88,6 +102,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (unsubscribeProfile) unsubscribeProfile();
     };
   }, []);
+
+  const handleSetOtpVerified = (val: boolean) => {
+    setIsOtpVerified(val);
+    if (user) {
+      if (val) {
+        sessionStorage.setItem(`wya_otp_verified_${user.uid}`, 'true');
+      } else {
+        sessionStorage.removeItem(`wya_otp_verified_${user.uid}`);
+      }
+    }
+  };
 
   const login = async (email: string, pass: string) => {
     const cred = await signInWithEmailAndPassword(auth, email, pass);
@@ -103,15 +128,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
     const cred = await signInWithPopup(auth, provider);
+    handleSetOtpVerified(true);
     return cred.user;
   };
 
   const logout = async () => {
+    if (user) sessionStorage.removeItem(`wya_otp_verified_${user.uid}`);
     await firebaseSignOut(auth);
   };
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, login, register, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      profile, 
+      loading, 
+      isOtpVerified, 
+      setOtpVerified: handleSetOtpVerified, 
+      login, 
+      register, 
+      loginWithGoogle, 
+      logout 
+    }}>
       {children}
     </AuthContext.Provider>
   );

@@ -6,17 +6,22 @@ import { useAuth } from '@/context/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export default function AppAccessGate({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth()
+  const { user, loading, isOtpVerified } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
 
   const isPublicAppRoute = pathname === '/about'
 
   useEffect(() => {
-    if (!loading && !user && !isPublicAppRoute) {
-      router.replace('/login')
+    if (!loading) {
+      if (!user && !isPublicAppRoute) {
+        router.replace('/login')
+      } else if (user && !isOtpVerified) {
+        // Logged in but OTP not verified, force back to login/otp screen
+        router.replace('/login')
+      }
     }
-  }, [isPublicAppRoute, loading, router, user])
+  }, [isPublicAppRoute, loading, router, user, isOtpVerified])
 
   if (isPublicAppRoute) {
     return <>{children}</>

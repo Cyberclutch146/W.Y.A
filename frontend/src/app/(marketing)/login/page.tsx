@@ -28,10 +28,27 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { login, loginWithGoogle, user } = useAuth();
+  const { login, loginWithGoogle, user, isOtpVerified, setOtpVerified } = useAuth();
   const router = useRouter();
 
-  useEffect(() => { if (user) router.replace('/home'); }, [user, router]);
+  // Redirect to home only if user is logged in AND verified
+  useEffect(() => { 
+    if (user && isOtpVerified) {
+      router.replace('/home'); 
+    } 
+  }, [user, isOtpVerified, router]);
+
+  // If already logged in but not verified, skip to OTP step and send code
+  useEffect(() => {
+    if (user && !isOtpVerified && emailStep !== 'otp' && !loading) {
+      setEmail(user.email || '');
+      setEmailStep('otp');
+      setTab('email');
+      // Fire-and-forget: send the code immediately
+      sendOtp().catch(err => setError(err.message));
+      setResendCooldown(60);
+    }
+  }, [user, isOtpVerified, emailStep, loading]);
 
   useEffect(() => {
     if (!error) return;
@@ -136,7 +153,9 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || 'Verification failed'); return; }
-      // OTP verified — user is already signed in from step 1, proceed
+      
+      // Mark as verified in context
+      setOtpVerified(true);
       router.replace('/home');
     } catch {
       setError('Something went wrong');
