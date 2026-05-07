@@ -3,9 +3,8 @@
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { Plus, PlusCircle, Calendar, MapPin, Users, Mail, Loader2, Zap, ArrowRight } from 'lucide-react'
-import { getEvents } from '@/services/eventService'
 import { useAuth } from '@/context/AuthContext'
-import { CommunityEvent } from '@/types'
+import { useEventsCache } from '@/context/EventsCacheContext'
 
 import { EventCard } from '@/components/EventCard'
 import { getRecommendedEvents, getMatchPercentage } from '@/services/recommendationService'
@@ -37,11 +36,11 @@ const formatRelativeTime = (ts: any) => {
   return `${diffInDays} days ago`;
 };
 
+
 export default function HomePage() {
   const router = useRouter()
   const { profile } = useAuth()
-
-  const [events, setEvents] = useState<CommunityEvent[]>([])
+  const { events, loading: cacheLoading, fetchEvents } = useEventsCache()
 
   const [loading, setLoading] = useState(true)
   const [organizerEmail, setOrganizerEmail] = useState<string | null>(null)
@@ -50,8 +49,34 @@ export default function HomePage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const { events: data } = await getEvents()
-        setEvents(data)
+        const data = await fetchEvents()
+
+        // ── Fire secondary fetches in parallel ──
+        const featured = data.find(e => e.urgency === 'high' && e.status === 'active') ?? data[0] ?? null
+        const secondaryFetches: Promise<void>[] = []
+
+        if (featured?.organizerId) {
+          secondaryFetches.push(
+            getUserProfile(featured.organizerId)
+              .then(p => { if (p?.email) setOrganizerEmail(p.email) })
+              .catch(err => console.error('Failed to fetch organizer profile:', err))
+          )
+        }
+
+        if (profile && data.length > 0) {
+          secondaryFetches.push(
+            fetch('/api/recommendations/vibe-match', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ profile, events: data.slice(0, 10) })
+            })
+              .then(res => res.json())
+              .then(d => { if (d.success && d.results) setVibeMatches(d.results) })
+              .catch(e => console.error('Failed to fetch vibe matches:', e))
+          )
+        }
+
+        if (secondaryFetches.length > 0) Promise.allSettled(secondaryFetches)
       } catch (err) {
         console.error('Failed to load events:', err)
       } finally {
@@ -59,38 +84,7 @@ export default function HomePage() {
       }
     }
     load()
-  }, [])
-
-  useEffect(() => {
-    if (profile && events.length > 0) {
-      const fetchVibeMatches = async () => {
-        try {
-          const res = await fetch('/api/recommendations/vibe-match', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ profile, events: events.slice(0, 10) })
-          });
-          const data = await res.json();
-          if (data.success && data.results) {
-            setVibeMatches(data.results);
-          }
-        } catch (e) {
-          console.error('Failed to fetch vibe matches:', e);
-        }
-      };
-      fetchVibeMatches();
-    }
-  }, [profile, events]);
-
-  const featured = events.find(e => e.urgency === 'high' && e.status === 'active') ?? events[0] ?? null
-
-  useEffect(() => {
-    if (featured?.organizerId) {
-      getUserProfile(featured.organizerId)
-        .then(p => { if (p?.email) setOrganizerEmail(p.email) })
-        .catch(err => console.error('Failed to fetch organizer profile:', err))
-    }
-  }, [featured?.organizerId])
+  }, [profile])
 
   const recommendedEvents = profile ? getRecommendedEvents(profile, events, 6).map(item => {
     if (vibeMatches.includes(item.event.id)) {

@@ -212,12 +212,12 @@ export const addEventRSVP = async (eventId: string, userId: string, userName: st
       throw new Error(errorData.error || 'Failed to sign up for event');
     }
 
-    // ── Fire notifications (best-effort, don't block the flow) ──
-    try {
-      const event = await getEventById(eventId);
-        if (event) {
-          // Notify the attendee
-          await createNotification(userId, {
+    // ── Fire notifications in parallel (best-effort, don't block the flow) ──
+    getEventById(eventId)
+      .then(event => {
+        if (!event) return;
+        const notifs = [
+          createNotification(userId, {
             title: `You're registered for "${event.title}"!`,
             body: ticketId
               ? `Your ticket ID is ${ticketId}. See you there!`
@@ -225,22 +225,22 @@ export const addEventRSVP = async (eventId: string, userId: string, userName: st
             path: `/event/${eventId}`,
             type: 'event_join',
             tone: 'success',
-          });
-
-          // Notify the organizer
-          if (event.organizerId && event.organizerId !== userId) {
-            await createNotification(event.organizerId, {
+          }),
+        ];
+        if (event.organizerId && event.organizerId !== userId) {
+          notifs.push(
+            createNotification(event.organizerId, {
               title: `New attendee: ${userName}`,
               body: `${userName} just registered for "${event.title}".`,
               path: `/dashboard/event/${eventId}`,
               type: 'event_join',
               tone: 'info',
-            });
-          }
+            })
+          );
         }
-    } catch (notifError) {
-      console.warn('Non-critical: notification dispatch failed', notifError);
-    }
+        return Promise.allSettled(notifs);
+      })
+      .catch(notifError => console.warn('Non-critical: notification dispatch failed', notifError));
   } catch (error) {
     console.error('API /events/join Error:', error);
     throw error;
@@ -276,22 +276,27 @@ export const getRegisteredEvents = async (userId: string): Promise<CommunityEven
   const registrationsRef = collection(db, `users/${userId}/registrations`);
   const snapshot = await getDocs(registrationsRef);
   const eventIds = snapshot.docs.map(doc => doc.id);
-  
+
   if (eventIds.length === 0) return [];
-  
-  // Fetch in batches of 30 (Firestore 'in' query limit)
-  const events: CommunityEvent[] = [];
+
+  // Build chunks of 30 (Firestore 'in' query limit)
+  const chunks: string[][] = [];
   for (let i = 0; i < eventIds.length; i += 30) {
-    const chunk = eventIds.slice(i, i + 30);
-    const eventsRef = collection(db, EVENTS_COLLECTION);
-    const q = query(eventsRef, where(documentId(), 'in', chunk));
-    const eventsSnapshot = await getDocs(q);
-    eventsSnapshot.docs.forEach(doc => {
-      events.push({ id: doc.id, ...doc.data() } as CommunityEvent);
-    });
+    chunks.push(eventIds.slice(i, i + 30));
   }
-  
-  return events;
+
+  // Fetch ALL chunks in parallel instead of sequentially
+  const snapshots = await Promise.all(
+    chunks.map(chunk => {
+      const eventsRef = collection(db, EVENTS_COLLECTION);
+      const q = query(eventsRef, where(documentId(), 'in', chunk));
+      return getDocs(q);
+    })
+  );
+
+  return snapshots.flatMap(snap =>
+    snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as CommunityEvent))
+  );
 };
 
 // ─── Bulk Coordinate Backfill ────────────────────────────
@@ -340,36 +345,35 @@ export const pledgeGoods = async (
     throw new Error(errorData.error || 'Failed to pledge goods');
   }
 
-  // ── Fire notifications (best-effort) ──
-  try {
-    const event = await getEventById(eventId);
-    if (event) {
+  // ── Fire notifications in parallel (best-effort) ──
+  getEventById(eventId)
+    .then(event => {
+      if (!event) return;
       const allItems = [...items, ...(otherItems ? [otherItems] : [])];
       const itemSummary = allItems.slice(0, 3).join(', ') + (allItems.length > 3 ? ` +${allItems.length - 3} more` : '');
-
-      // Notify the attendee
-      await createNotification(userId, {
-        title: `Pledge confirmed for "${event.title}"`,
-        body: `You're bringing: ${itemSummary}. Thank you!`,
-        path: `/event/${eventId}`,
-        type: 'goods_pledge',
-        tone: 'success',
-      });
-
-      // Notify the organizer
-      if (event.organizerId && event.organizerId !== userId) {
-        await createNotification(event.organizerId, {
-          title: `New goods pledge from ${userName}`,
-          body: `${userName} is bringing: ${itemSummary} to "${event.title}".`,
-          path: `/dashboard/event/${eventId}`,
+      const notifs = [
+        createNotification(userId, {
+          title: `Pledge confirmed for "${event.title}"`,
+          body: `You're bringing: ${itemSummary}. Thank you!`,
+          path: `/event/${eventId}`,
           type: 'goods_pledge',
-          tone: 'info',
-        });
+          tone: 'success',
+        }),
+      ];
+      if (event.organizerId && event.organizerId !== userId) {
+        notifs.push(
+          createNotification(event.organizerId, {
+            title: `New goods pledge from ${userName}`,
+            body: `${userName} is bringing: ${itemSummary} to "${event.title}".`,
+            path: `/dashboard/event/${eventId}`,
+            type: 'goods_pledge',
+            tone: 'info',
+          })
+        );
       }
-    }
-  } catch (notifError) {
-    console.warn('Non-critical: notification dispatch failed', notifError);
-  }
+      return Promise.allSettled(notifs);
+    })
+    .catch(notifError => console.warn('Non-critical: notification dispatch failed', notifError));
 };
 
 export const getUserPledge = async (eventId: string, userId: string) => {

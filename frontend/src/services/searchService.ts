@@ -14,25 +14,46 @@ interface SearchableEvent {
   donatedAmount?: number;
 }
 
-// ─── Fetch all events for search ────────────────────────
+// ─── Server-side module-level cache (5-min TTL) ──────────────────────────────────
+// Prevents redundant full-collection reads when search/chatbot fires simultaneously.
+let _cachedEvents: SearchableEvent[] = [];
+let _cacheTimestamp = 0;
+let _inflight: Promise<SearchableEvent[]> | null = null;
+const SEARCH_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+// ─── Fetch all events for search ─────────────────────────────────────
 async function fetchSearchableEvents(): Promise<SearchableEvent[]> {
-  const eventsRef = collection(db, "events");
-  const snapshot = await getDocs(query(eventsRef, orderBy("createdAt", "desc")));
-  
-  return snapshot.docs.map((doc) => {
-    const data = doc.data();
-    return {
-      id: doc.id,
-      title: data.title || "",
-      description: data.description || "",
-      category: data.category || "",
-      location: data.location || "",
-      urgency: data.urgency || "normal",
-      attendeesNeeded: data.needs?.attendees?.goal,
-      goalAmount: data.needs?.funds?.goal,
-      donatedAmount: data.needs?.funds?.current,
-    };
-  });
+  // Return cached result if still fresh
+  if (_cachedEvents.length > 0 && Date.now() - _cacheTimestamp < SEARCH_CACHE_TTL_MS) {
+    return _cachedEvents;
+  }
+  // Deduplicate concurrent calls
+  if (_inflight) return _inflight;
+
+  _inflight = (async () => {
+    const eventsRef = collection(db, "events");
+    const snapshot = await getDocs(query(eventsRef, orderBy("createdAt", "desc")));
+    const result = snapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        title: data.title || "",
+        description: data.description || "",
+        category: data.category || "",
+        location: data.location || "",
+        urgency: data.urgency || "normal",
+        attendeesNeeded: data.needs?.attendees?.goal,
+        goalAmount: data.needs?.funds?.goal,
+        donatedAmount: data.needs?.funds?.current,
+      };
+    });
+    _cachedEvents = result;
+    _cacheTimestamp = Date.now();
+    _inflight = null;
+    return result;
+  })();
+
+  return _inflight;
 }
 
 // ─── Keyword fallback search ────────────────────────────

@@ -4,6 +4,7 @@ import DynamicBackground from '@/components/DynamicBackground';
 import AIChatWidget from '@/components/AIChatWidget';
 import AppAccessGate from '@/components/AppAccessGate';
 import AppNavigation from '@/components/AppNavigation';
+import { EventsCacheProvider } from '@/context/EventsCacheContext';
 
 export const metadata: Metadata = {
   title: 'Home — W.Y.A',
@@ -29,7 +30,9 @@ export default function AppLayout({
           so content isn't hidden behind the safe area.
         */}
         <div className="flex-1 flex flex-col min-w-0 pt-20 md:pt-[4.5rem]">
-          <AppAccessGate>{children}</AppAccessGate>
+          <EventsCacheProvider>
+            <AppAccessGate>{children}</AppAccessGate>
+          </EventsCacheProvider>
         </div>
 
         <AIChatWidget />

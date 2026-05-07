@@ -64,36 +64,59 @@ export interface LeaderboardEntry {
   impactScore: number; // Computed composite score
 }
 
-export const getGlobalLeaderboard = async (topN: number = 50): Promise<LeaderboardEntry[]> => {
+// ─── Merged Leaderboard Fetch (single collection read) ─
+export interface LeaderboardData {
+  entries: LeaderboardEntry[];
+  stats: { totalAttendees: number; totalHours: number; totalDonated: number };
+}
+
+export const getLeaderboardData = async (topN: number = 50): Promise<LeaderboardData> => {
   try {
     const usersRef = collection(db, USERS_COLLECTION);
-    const snapshot = await getDocs(usersRef);
+    const snapshot = await getDocs(usersRef); // ONE read instead of TWO
 
-    const entries: LeaderboardEntry[] = snapshot.docs
-      .map(doc => {
-        const data = doc.data() as UserProfile;
-        // Composite impact score: hours * 10 + donations * 1 + interests * 5
-        const impactScore = (data.eventHours || 0) * 10 + (data.totalDonated || 0) + (data.interests?.length || 0) * 5;
-        return {
-          id: doc.id,
-          displayName: data.displayName || 'Anonymous Hero',
-          avatarUrl: data.avatarUrl || '',
-          eventHours: data.eventHours || 0,
-          totalDonated: data.totalDonated || 0,
-          interests: data.interests || [],
-          location: data.location || '',
-          impactScore,
-        };
-      })
-      .filter(entry => entry.impactScore > 0) // Only include active users
+    let totalHours = 0;
+    let totalDonated = 0;
+
+    const allEntries: LeaderboardEntry[] = snapshot.docs.map(doc => {
+      const data = doc.data() as UserProfile;
+      totalHours += data.eventHours || 0;
+      totalDonated += data.totalDonated || 0;
+      const impactScore =
+        (data.eventHours || 0) * 10 +
+        (data.totalDonated || 0) +
+        (data.interests?.length || 0) * 5;
+      return {
+        id: doc.id,
+        displayName: data.displayName || 'Anonymous Hero',
+        avatarUrl: data.avatarUrl || '',
+        eventHours: data.eventHours || 0,
+        totalDonated: data.totalDonated || 0,
+        interests: data.interests || [],
+        location: data.location || '',
+        impactScore,
+      };
+    });
+
+    const entries = allEntries
+      .filter(e => e.impactScore > 0)
       .sort((a, b) => b.impactScore - a.impactScore)
       .slice(0, topN);
 
-    return entries;
+    return {
+      entries,
+      stats: { totalAttendees: snapshot.docs.length, totalHours, totalDonated },
+    };
   } catch (error) {
-    console.error('Failed to fetch global leaderboard:', error);
-    return [];
+    console.error('Failed to fetch leaderboard data:', error);
+    return { entries: [], stats: { totalAttendees: 0, totalHours: 0, totalDonated: 0 } };
   }
+};
+
+// ─── Legacy wrappers (kept for backward compat, use getLeaderboardData instead) ─
+export const getGlobalLeaderboard = async (topN: number = 50): Promise<LeaderboardEntry[]> => {
+  const { entries } = await getLeaderboardData(topN);
+  return entries;
 };
 
 export const getLeaderboardStats = async (): Promise<{
@@ -101,27 +124,7 @@ export const getLeaderboardStats = async (): Promise<{
   totalHours: number;
   totalDonated: number;
 }> => {
-  try {
-    const usersRef = collection(db, USERS_COLLECTION);
-    const snapshot = await getDocs(usersRef);
-
-    let totalHours = 0;
-    let totalDonated = 0;
-
-    snapshot.docs.forEach(doc => {
-      const data = doc.data();
-      totalHours += data.eventHours || 0;
-      totalDonated += data.totalDonated || 0;
-    });
-
-    return {
-      totalAttendees: snapshot.docs.length,
-      totalHours,
-      totalDonated,
-    };
-  } catch (error) {
-    console.error('Failed to fetch leaderboard stats:', error);
-    return { totalAttendees: 0, totalHours: 0, totalDonated: 0 };
-  }
+  const { stats } = await getLeaderboardData();
+  return stats;
 };
 
