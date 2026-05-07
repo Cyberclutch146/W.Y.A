@@ -1,7 +1,7 @@
 'use client'
 
+import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { useState, useEffect } from 'react'
 import { Plus, PlusCircle, Calendar, MapPin, Users, Mail, Loader2, Zap, ArrowRight } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useEventsCache } from '@/context/EventsCacheContext'
@@ -45,38 +45,22 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true)
   const [organizerEmail, setOrganizerEmail] = useState<string | null>(null)
   const [vibeMatches, setVibeMatches] = useState<string[]>([])
+  const vibeMatchFiredRef = useRef(false)
 
+  // ── 1. Fetch events immediately on mount — don't wait for profile ──
   useEffect(() => {
     const load = async () => {
       try {
         const data = await fetchEvents()
 
-        // ── Fire secondary fetches in parallel ──
-        const featured = data.find(e => e.urgency === 'high' && e.status === 'active') ?? data[0] ?? null
-        const secondaryFetches: Promise<void>[] = []
-
-        if (featured?.organizerId) {
-          secondaryFetches.push(
-            getUserProfile(featured.organizerId)
+        if (data.length > 0) {
+          const featuredEvent = data.find(e => e.urgency === 'high' && e.status === 'active') ?? data[0]
+          if (featuredEvent?.organizerId) {
+            getUserProfile(featuredEvent.organizerId)
               .then(p => { if (p?.email) setOrganizerEmail(p.email) })
-              .catch(err => console.error('Failed to fetch organizer profile:', err))
-          )
+              .catch(() => {})
+          }
         }
-
-        if (profile && data.length > 0) {
-          secondaryFetches.push(
-            fetch('/api/recommendations/vibe-match', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ profile, events: data.slice(0, 10) })
-            })
-              .then(res => res.json())
-              .then(d => { if (d.success && d.results) setVibeMatches(d.results) })
-              .catch(e => console.error('Failed to fetch vibe matches:', e))
-          )
-        }
-
-        if (secondaryFetches.length > 0) Promise.allSettled(secondaryFetches)
       } catch (err) {
         console.error('Failed to load events:', err)
       } finally {
@@ -84,7 +68,21 @@ export default function HomePage() {
       }
     }
     load()
-  }, [profile])
+  }, [])
+
+  // ── 2. Fire vibe-match once profile AND events are both ready (background, non-blocking) ──
+  useEffect(() => {
+    if (!profile || events.length === 0 || vibeMatchFiredRef.current) return
+    vibeMatchFiredRef.current = true
+    fetch('/api/recommendations/vibe-match', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ profile, events: events.slice(0, 10) })
+    })
+      .then(res => res.json())
+      .then(d => { if (d.success && d.results) setVibeMatches(d.results) })
+      .catch(() => {})
+  }, [profile, events])
 
   const recommendedEvents = profile ? getRecommendedEvents(profile, events, 6).map(item => {
     if (vibeMatches.includes(item.event.id)) {
@@ -124,6 +122,8 @@ export default function HomePage() {
       : new Date(ts as unknown as string)
     return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
   }
+
+  const featured = events.find(e => e.urgency === 'high' && e.status === 'active') ?? events[0] ?? null
 
   const volCurrent = featured?.needs?.attendees?.current ?? 0
   const volGoal = featured?.needs?.attendees?.goal ?? 1

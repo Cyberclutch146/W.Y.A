@@ -1,5 +1,5 @@
 import { db } from '@/lib/firebase';
-import { doc, getDoc, onSnapshot, collection, getDocs } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot, collection, getDocs, query, orderBy, limit, where } from 'firebase/firestore';
 import { UserProfile, UserProfileCreate } from '@/types';
 
 const USERS_COLLECTION = 'users';
@@ -73,19 +73,21 @@ export interface LeaderboardData {
 export const getLeaderboardData = async (topN: number = 50): Promise<LeaderboardData> => {
   try {
     const usersRef = collection(db, USERS_COLLECTION);
-    const snapshot = await getDocs(usersRef); // ONE read instead of TWO
+    
+    // 1. Fetch top users by impactScore (O(topN) instead of O(TotalUsers))
+    const topQuery = query(
+      usersRef,
+      orderBy('impactScore', 'desc'),
+      limit(topN)
+    );
+    
+    const [topSnapshot, statsSnapshot] = await Promise.all([
+      getDocs(topQuery),
+      getDoc(doc(db, 'meta', 'platformStats'))
+    ]);
 
-    let totalHours = 0;
-    let totalDonated = 0;
-
-    const allEntries: LeaderboardEntry[] = snapshot.docs.map(doc => {
+    const entries: LeaderboardEntry[] = topSnapshot.docs.map(doc => {
       const data = doc.data() as UserProfile;
-      totalHours += data.eventHours || 0;
-      totalDonated += data.totalDonated || 0;
-      const impactScore =
-        (data.eventHours || 0) * 10 +
-        (data.totalDonated || 0) +
-        (data.interests?.length || 0) * 5;
       return {
         id: doc.id,
         displayName: data.displayName || 'Anonymous Hero',
@@ -94,19 +96,23 @@ export const getLeaderboardData = async (topN: number = 50): Promise<Leaderboard
         totalDonated: data.totalDonated || 0,
         interests: data.interests || [],
         location: data.location || '',
-        impactScore,
+        impactScore: data.impactScore || 0,
       };
     });
 
-    const entries = allEntries
-      .filter(e => e.impactScore > 0)
-      .sort((a, b) => b.impactScore - a.impactScore)
-      .slice(0, topN);
+    // 2. Get stats from pre-computed doc or fallback
+    let stats = { totalAttendees: 0, totalHours: 0, totalDonated: 0 };
+    if (statsSnapshot.exists()) {
+      stats = statsSnapshot.data() as any;
+    } else {
+      stats = {
+        totalAttendees: entries.length,
+        totalHours: entries.reduce((sum, e) => sum + e.eventHours, 0),
+        totalDonated: entries.reduce((sum, e) => sum + e.totalDonated, 0),
+      };
+    }
 
-    return {
-      entries,
-      stats: { totalAttendees: snapshot.docs.length, totalHours, totalDonated },
-    };
+    return { entries, stats };
   } catch (error) {
     console.error('Failed to fetch leaderboard data:', error);
     return { entries: [], stats: { totalAttendees: 0, totalHours: 0, totalDonated: 0 } };

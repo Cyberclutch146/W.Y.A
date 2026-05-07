@@ -6,8 +6,8 @@
  * Provides a shared, TTL-based cache for the events list so that navigating
  * between Home, Feed, and Search pages doesn't trigger redundant Firestore reads.
  *
- * Cache TTL: 60 seconds (configurable via CACHE_TTL_MS).
- * Force-refresh available via fetchEvents(true).
+ * Pre-warms immediately on mount — events start loading before auth resolves.
+ * Cache TTL: 60 seconds. Force-refresh available via fetchEvents(true).
  */
 
 import {
@@ -16,6 +16,7 @@ import {
   useState,
   useCallback,
   useRef,
+  useEffect,
   ReactNode,
 } from 'react';
 import { getEvents } from '@/services/eventService';
@@ -78,6 +79,14 @@ export function EventsCacheProvider({ children }: { children: ReactNode }) {
     },
     [events]
   );
+
+  // ── Pre-warm: start fetching events immediately on mount ──
+  // Runs in parallel with Firebase auth resolution — events are ready (or nearly ready)
+  // by the time the page actually renders and calls fetchEvents().
+  useEffect(() => {
+    fetchEvents().catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const fetchNextPage = useCallback(async () => {
     if (!hasMore || !lastDoc || loading) return;

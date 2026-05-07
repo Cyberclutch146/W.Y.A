@@ -1,6 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { db } from "@/lib/firebase";
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
+import { adminDb } from "@/lib/firebase-admin";
 
 interface SearchableEvent {
   id: string;
@@ -31,8 +30,8 @@ async function fetchSearchableEvents(): Promise<SearchableEvent[]> {
   if (_inflight) return _inflight;
 
   _inflight = (async () => {
-    const eventsRef = collection(db, "events");
-    const snapshot = await getDocs(query(eventsRef, orderBy("createdAt", "desc")));
+    if (!adminDb) return [];
+    const snapshot = await adminDb.collection("events").orderBy("createdAt", "desc").get();
     const result = snapshot.docs.map((doc) => {
       const data = doc.data();
       return {

@@ -87,20 +87,38 @@ export const getEventsByOrganizer = async (userId: string): Promise<CommunityEve
   }
 };
 
-// ─── Geocoding Helper ────────────────────────────────────
+// ─── Geocoding Helper with Cache ────────────────────────────
 export const geocodeLocation = async (address: string): Promise<{lat: number, lng: number} | null> => {
+  const cacheKey = `geo_${address.toLowerCase().replace(/\s+/g, '_')}`;
+  
   try {
+    // 1. Check client-side cache
+    const cached = typeof window !== 'undefined' ? sessionStorage.getItem(cacheKey) : null;
+    if (cached) {
+      const { data, expires } = JSON.parse(cached);
+      if (Date.now() < expires) return data;
+    }
+
+    // 2. Fetch from Nominatim
     const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`, {
-      headers: {
-        'User-Agent': 'CommunityManagementApp/1.0'
-      }
+      headers: { 'User-Agent': 'CampusPulse/1.0' }
     });
     const data = await response.json();
+    
     if (data && data.length > 0) {
-      return {
+      const coords = {
         lat: parseFloat(data[0].lat),
-        lng: parseFloat(data[0].lon) // Nominatim returns 'lon' instead of 'lng'
+        lng: parseFloat(data[0].lon)
       };
+
+      // 3. Save to cache (30 min TTL)
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem(cacheKey, JSON.stringify({
+          data: coords,
+          expires: Date.now() + 1000 * 60 * 30
+        }));
+      }
+      return coords;
     }
   } catch (error) {
     console.error('Geocoding error:', error);
@@ -396,4 +414,36 @@ export const getEventGoodsPledges = async (eventId: string) => {
     otherItems: string;
     pledgedAt: any;
   }>;
+};
+
+// ─── Reverse Geocoding with Cache ─────────────────────────
+export const reverseGeocodeLocation = async (lat: number, lng: number): Promise<string | null> => {
+  const cacheKey = `rev_geo_${lat.toFixed(4)}_${lng.toFixed(4)}`;
+  
+  try {
+    const cached = typeof window !== 'undefined' ? sessionStorage.getItem(cacheKey) : null;
+    if (cached) {
+      const { data, expires } = JSON.parse(cached);
+      if (Date.now() < expires) return data;
+    }
+
+    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=en`, {
+      headers: { 'User-Agent': 'CampusPulse/1.0' }
+    });
+    const data = await response.json();
+    const city = data.address?.city || data.address?.town || data.address?.village || data.address?.county || 'Current Location';
+    const state = data.address?.state || '';
+    const locationStr = state ? `${city}, ${state}` : city;
+
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem(cacheKey, JSON.stringify({
+        data: locationStr,
+        expires: Date.now() + 1000 * 60 * 60 * 24 // 24h cache for cities
+      }));
+    }
+    return locationStr;
+  } catch (error) {
+    console.error('Reverse geocoding error:', error);
+  }
+  return null;
 };
