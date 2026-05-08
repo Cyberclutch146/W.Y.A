@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
@@ -589,7 +589,7 @@ export default function ProfilePage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div className="card-base p-6 md:p-8 flex flex-col items-center text-center sticky top-24" style={{ boxShadow: 'var(--shadow-lg)' }}>
+            <div className="card-base p-6 md:p-8 flex flex-col items-center text-center" style={{ boxShadow: 'var(--shadow-lg)' }}>
               {/* Avatar */}
               <div className="relative mb-8">
                 <div className="w-36 h-36 md:w-44 md:h-44 rounded-full p-1.5 bg-gradient-to-tr from-[var(--cp-primary)] to-[var(--cp-accent)] shadow-glow">
@@ -635,7 +635,6 @@ export default function ProfilePage() {
                 Edit Profile
               </button>
 
-              {/* Stats Mini Grid */}
               <div className="grid grid-cols-2 gap-4 w-full mt-8 pt-8 border-t border-border">
                 <div className="text-center">
                   <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: 'var(--cp-text-3)' }}>Impact</p>
@@ -647,6 +646,56 @@ export default function ProfilePage() {
                 </div>
               </div>
             </div>
+
+            {/* Persona Archetype Card (Side Column) */}
+            {profile && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="relative overflow-hidden rounded-[2rem] p-5 mt-6 w-full group"
+                style={{ 
+                  background: 'var(--cp-surface)',
+                  border: '1px solid var(--cp-border)',
+                  boxShadow: 'var(--shadow-md)'
+                }}
+              >
+                {/* Subtle colored glow based on archetype */}
+                <div 
+                  className="absolute -right-8 -top-8 w-24 h-24 rounded-full opacity-10 blur-2xl transition-opacity group-hover:opacity-20" 
+                  style={{ background: getInterestArchetype(profile).color }}
+                />
+                
+                <div className="relative z-10 flex items-center gap-5">
+                  {/* Icon Container */}
+                  <div 
+                    className="w-16 h-16 shrink-0 flex items-center justify-center text-3xl rounded-2xl border border-white/5 shadow-inner transition-transform group-hover:scale-105"
+                    style={{ 
+                      background: `linear-gradient(135deg, hsl(from ${getInterestArchetype(profile).color} h s l / 0.15), hsl(from ${getInterestArchetype(profile).color} h s l / 0.05))`,
+                    }}
+                  >
+                    {getInterestArchetype(profile).icon}
+                  </div>
+                  
+                  {/* Text Content */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[9px] font-black uppercase tracking-[0.2em] mb-0.5 opacity-50" style={{ color: 'var(--cp-text-1)' }}>Archetype</p>
+                    <h2 className="font-headline font-bold text-xl mb-1 tracking-tight truncate" style={{ color: getInterestArchetype(profile).color }}>
+                      {getInterestArchetype(profile).name}
+                    </h2>
+                    <p className="text-[10px] font-medium leading-relaxed line-clamp-2" style={{ color: 'var(--cp-text-3)' }}>
+                      {getInterestArchetype(profile).description}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Progress-like accent line at bottom */}
+                <div 
+                  className="absolute bottom-0 left-0 h-[2px] w-full opacity-30" 
+                  style={{ background: `linear-gradient(90deg, transparent, ${getInterestArchetype(profile).color}, transparent)` }}
+                />
+              </motion.div>
+            )}
           </motion.div>
 
           {/* ── Main Column: Content ── */}
@@ -656,38 +705,6 @@ export default function ProfilePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
           >
-            {/* Persona Archetype Card */}
-            {profile && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ type: 'spring', stiffness: 260, damping: 20 }}
-                className="relative overflow-hidden rounded-[2rem] p-8 md:p-10 mb-8"
-                style={{ 
-                  background: `linear-gradient(135deg, ${getInterestArchetype(profile).color}, hsl(from ${getInterestArchetype(profile).color} h s l / 0.8))`,
-                  boxShadow: `0 20px 40px -12px hsl(from ${getInterestArchetype(profile).color} h s l / 0.4)`
-                }}
-              >
-                {/* Decorative elements */}
-                <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full opacity-20 blur-3xl bg-white" />
-                <div className="absolute -bottom-12 -left-12 w-48 h-48 rounded-full opacity-10 blur-3xl bg-black" />
-                
-                <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 md:gap-10">
-                  <div className="w-24 h-24 md:w-32 md:h-32 flex items-center justify-center text-5xl md:text-6xl bg-white/20 backdrop-blur-md rounded-3xl border border-white/30 shadow-xl">
-                    {getInterestArchetype(profile).icon}
-                  </div>
-                  <div className="text-center md:text-left text-white">
-                    <p className="text-xs font-bold uppercase tracking-[0.3em] mb-2 opacity-90">Your Archetype</p>
-                    <h2 className="font-headline font-black text-3xl md:text-5xl mb-3 tracking-tighter">
-                      {getInterestArchetype(profile).name}
-                    </h2>
-                    <p className="text-sm md:text-base font-medium opacity-90 max-w-lg leading-relaxed">
-                      {getInterestArchetype(profile).description}
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
-            )}
 
             {/* Impact Dashboard */}
             <div className="space-y-6">
@@ -702,13 +719,13 @@ export default function ProfilePage() {
                 <motion.div 
                   whileHover={{ y: -5, scale: 1.02 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                  className="relative p-6 md:p-8 rounded-xl overflow-hidden group cursor-pointer transition-all duration-300"
-                  style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: '0 4px 20px -4px rgba(0,0,0,0.1)' }}
+                  className="relative p-6 md:p-8 rounded-[2rem] overflow-hidden group cursor-pointer transition-all duration-300"
+                  style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-lg)' }}
                 >
-                  <div className="absolute inset-0 border-2 border-transparent group-hover:border-[var(--cp-primary)] rounded-xl transition-colors duration-300 pointer-events-none" />
+                  <div className="absolute inset-0 border-2 border-transparent group-hover:border-[var(--cp-primary)] rounded-[2rem] transition-colors duration-300 pointer-events-none" />
                   <div className="relative z-10">
                     <div className="flex items-center justify-between mb-6">
-                      <div className="w-12 h-12 rounded-lg flex items-center justify-center shadow-lg transition-transform duration-300 group-hover:scale-110" style={{ background: 'linear-gradient(135deg, var(--cp-primary), var(--cp-violet))', color: '#fff' }}>
+                      <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-transform duration-300 group-hover:scale-110" style={{ background: 'linear-gradient(135deg, var(--cp-primary), var(--cp-violet))', color: '#fff' }}>
                         <Clock size={24} />
                       </div>
                       <span className="text-[10px] font-bold px-3 py-1.5 rounded-md uppercase tracking-wider flex items-center" style={{ background: 'hsl(from var(--cp-primary) h s l / 0.15)', color: 'var(--cp-primary)', border: '1px solid hsl(from var(--cp-primary) h s l / 0.2)' }}>
@@ -725,13 +742,13 @@ export default function ProfilePage() {
                 <motion.div 
                   whileHover={{ y: -5, scale: 1.02 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                  className="relative p-6 md:p-8 rounded-xl overflow-hidden group cursor-pointer transition-all duration-300"
-                  style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: '0 4px 20px -4px rgba(0,0,0,0.1)' }}
+                  className="relative p-6 md:p-8 rounded-[2rem] overflow-hidden group cursor-pointer transition-all duration-300"
+                  style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-lg)' }}
                 >
-                  <div className="absolute inset-0 border-2 border-transparent group-hover:border-[var(--cp-secondary)] rounded-xl transition-colors duration-300 pointer-events-none" />
+                  <div className="absolute inset-0 border-2 border-transparent group-hover:border-[var(--cp-secondary)] rounded-[2rem] transition-colors duration-300 pointer-events-none" />
                   <div className="relative z-10">
                     <div className="flex items-center justify-between mb-6">
-                      <div className="w-12 h-12 rounded-lg flex items-center justify-center shadow-lg transition-transform duration-300 group-hover:scale-110" style={{ background: 'linear-gradient(135deg, var(--cp-secondary), var(--cp-accent))', color: '#fff' }}>
+                      <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-transform duration-300 group-hover:scale-110" style={{ background: 'linear-gradient(135deg, var(--cp-secondary), var(--cp-accent))', color: '#fff' }}>
                         <Heart size={24} />
                       </div>
                       <span className="text-[10px] font-bold px-3 py-1.5 rounded-md uppercase tracking-wider flex items-center" style={{ background: 'hsl(from var(--cp-secondary) h s l / 0.15)', color: 'var(--cp-secondary)', border: '1px solid hsl(from var(--cp-secondary) h s l / 0.2)' }}>
@@ -747,19 +764,18 @@ export default function ProfilePage() {
               </div>
             </div>
   
-            {/* Expertise & Gear */}
-            {/* Expertise & Gear */}
+            {/* Skills & Academic Pulse Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Skills Card */}
+              {/* Expertise Card */}
               <motion.div 
                 whileHover={{ y: -5, scale: 1.02 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                className="relative p-6 md:p-8 rounded-xl overflow-hidden group cursor-pointer transition-all duration-300"
-                style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: '0 4px 20px -4px rgba(0,0,0,0.1)' }}
+                className="relative p-6 md:p-8 rounded-[2rem] overflow-hidden group cursor-pointer transition-all duration-300 h-full"
+                style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-lg)' }}
               >
-                <div className="absolute inset-0 border-2 border-transparent group-hover:border-[var(--cp-accent)] rounded-xl transition-colors duration-300 pointer-events-none" />
+                <div className="absolute inset-0 border-2 border-transparent group-hover:border-[var(--cp-accent)] rounded-[2rem] transition-colors duration-300 pointer-events-none" />
                 <div className="flex items-center gap-4 mb-6 relative z-10">
-                  <div className="w-12 h-12 rounded-lg flex items-center justify-center shadow-sm" style={{ background: 'hsl(from var(--cp-accent) h s l / 0.1)', color: 'var(--cp-accent)', border: '1px solid hsl(from var(--cp-accent) h s l / 0.2)' }}>
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm" style={{ background: 'hsl(from var(--cp-accent) h s l / 0.1)', color: 'var(--cp-accent)', border: '1px solid hsl(from var(--cp-accent) h s l / 0.2)' }}>
                     <Sparkles size={24} />
                   </div>
                   <div>
@@ -771,7 +787,7 @@ export default function ProfilePage() {
                   {profile.interests && profile.interests.length > 0 ? (
                     <div className="flex flex-wrap gap-2.5">
                       {profile.interests.map((skill, idx) => (
-                        <span key={idx} className="px-3 py-1.5 rounded-md text-xs font-bold transition-all hover:scale-105 hover:shadow-md cursor-default" 
+                        <span key={idx} className="px-3 py-1.5 rounded-xl text-xs font-bold transition-all hover:scale-105 hover:shadow-md cursor-default" 
                           style={{ 
                             background: SKILL_COLORS[idx % SKILL_COLORS.length], 
                             color: SKILL_TEXT_COLORS[idx % SKILL_TEXT_COLORS.length],
@@ -782,7 +798,7 @@ export default function ProfilePage() {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-6 px-4 rounded-lg border-2 border-dashed transition-colors hover:border-accent" style={{ borderColor: 'var(--cp-border)', background: 'var(--cp-surface-dim)' }}>
+                    <div className="text-center py-6 px-4 rounded-2xl border-2 border-dashed transition-colors hover:border-accent" style={{ borderColor: 'var(--cp-border)', background: 'var(--cp-surface-dim)' }}>
                       <p className="text-sm font-medium" style={{ color: 'var(--cp-text-3)' }}>No interests listed yet.</p>
                     </div>
                   )}
@@ -793,12 +809,12 @@ export default function ProfilePage() {
               <motion.div 
                 whileHover={{ y: -5, scale: 1.02 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                className="relative p-6 md:p-8 rounded-xl overflow-hidden group cursor-pointer transition-all duration-300"
-                style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: '0 4px 20px -4px rgba(0,0,0,0.1)' }}
+                className="relative p-6 md:p-8 rounded-[2rem] overflow-hidden group cursor-pointer transition-all duration-300 h-full"
+                style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-lg)' }}
               >
-                <div className="absolute inset-0 border-2 border-transparent group-hover:border-[var(--cp-cyan)] rounded-xl transition-colors duration-300 pointer-events-none" />
+                <div className="absolute inset-0 border-2 border-transparent group-hover:border-[var(--cp-cyan)] rounded-[2rem] transition-colors duration-300 pointer-events-none" />
                 <div className="flex items-center gap-4 mb-6 relative z-10">
-                  <div className="w-12 h-12 rounded-lg flex items-center justify-center shadow-sm" style={{ background: 'hsl(from var(--cp-cyan) h s l / 0.1)', color: 'var(--cp-cyan)', border: '1px solid hsl(from var(--cp-cyan) h s l / 0.2)' }}>
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm" style={{ background: 'hsl(from var(--cp-cyan) h s l / 0.1)', color: 'var(--cp-cyan)', border: '1px solid hsl(from var(--cp-cyan) h s l / 0.2)' }}>
                     <BarChart3 size={24} />
                   </div>
                   <div>
@@ -807,8 +823,8 @@ export default function ProfilePage() {
                   </div>
                 </div>
                 <div className="space-y-3 relative z-10">
-                  <div className="flex items-center p-3 rounded-lg transition-all hover:scale-[1.02]" style={{ background: 'var(--cp-surface-dim)', border: '1px solid var(--cp-border)' }}>
-                    <div className="w-10 h-10 rounded-md mr-4 flex items-center justify-center" style={{ background: 'hsl(from var(--cp-cyan) h s l / 0.1)', color: 'var(--cp-cyan)' }}>
+                  <div className="flex items-center p-3 rounded-2xl transition-all hover:scale-[1.02]" style={{ background: 'var(--cp-surface-dim)', border: '1px solid var(--cp-border)' }}>
+                    <div className="w-10 h-10 rounded-xl mr-4 flex items-center justify-center" style={{ background: 'hsl(from var(--cp-cyan) h s l / 0.1)', color: 'var(--cp-cyan)' }}>
                       <Compass size={18} />
                     </div>
                     <div>
@@ -816,8 +832,8 @@ export default function ProfilePage() {
                       <p className="font-bold text-sm text-white">{profile.department || 'Not specified'}</p>
                     </div>
                   </div>
-                  <div className="flex items-center p-3 rounded-lg transition-all hover:scale-[1.02]" style={{ background: 'var(--cp-surface-dim)', border: '1px solid var(--cp-border)' }}>
-                    <div className="w-10 h-10 rounded-md mr-4 flex items-center justify-center" style={{ background: 'hsl(from var(--cp-primary) h s l / 0.1)', color: 'var(--cp-primary)' }}>
+                  <div className="flex items-center p-3 rounded-2xl transition-all hover:scale-[1.02]" style={{ background: 'var(--cp-surface-dim)', border: '1px solid var(--cp-border)' }}>
+                    <div className="w-10 h-10 rounded-xl mr-4 flex items-center justify-center" style={{ background: 'hsl(from var(--cp-primary) h s l / 0.1)', color: 'var(--cp-primary)' }}>
                       <Award size={18} />
                     </div>
                     <div>
@@ -889,19 +905,19 @@ export default function ProfilePage() {
 
             {/* Logistics Card */}
             {(profile.campusZone && profile.campusZone !== 'anytime') && (
-              <div className="card-base p-6 md:p-8">
+              <div className="card-base p-6 md:p-8 rounded-[2rem]">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-gold-light text-gold shadow-sm" style={{ border: '1px solid hsl(from var(--cp-gold) h s l / 0.1)' }}>
                     <Compass size={20} />
                   </div>
                   <h3 className="font-headline font-bold text-xl">Availability</h3>
                 </div>
-                <div className="flex items-center gap-5 p-5 rounded-2xl bg-surface-dim border border-border transition-all hover:bg-surface group">
-                  <div className="w-12 h-12 rounded-2xl bg-surface flex items-center justify-center shadow-sm text-secondary transition-transform group-hover:scale-110">
+                <div className="flex items-center gap-5 p-5 rounded-[1.5rem] bg-surface-dim border border-border transition-all hover:bg-surface group">
+                  <div className="w-12 h-12 rounded-xl bg-surface flex items-center justify-center shadow-sm text-secondary transition-transform group-hover:scale-110">
                     <Clock size={24} />
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--cp-text-3)' }}>Availability</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--cp-text-3)' }}>Current Zone</p>
                     <p className="font-bold text-lg capitalize">{profile.campusZone}</p>
                   </div>
                 </div>
