@@ -166,7 +166,7 @@ export default function CreateEventPage() {
     <div className="flex flex-col" style={{ minHeight: 'calc(100dvh - 64px)', color: 'var(--cp-text-1)', background: 'var(--cp-background)' }}>
 
       {/* ── Top Navigation (Desktop) ── */}
-      <div className="hidden md:flex justify-center px-8 py-5 sticky md:top-[4.5rem] z-30"
+      <div className="hidden md:flex justify-center px-8 py-5 relative z-30"
         style={{ background: 'var(--cp-background)' }}
       >
         <div className="w-full max-w-6xl flex items-center justify-center">
@@ -225,7 +225,7 @@ export default function CreateEventPage() {
 
         {/* ── Mobile top nav (hidden on md+) ── */}
         <div
-          className="md:hidden sticky top-0 z-20"
+          className="md:hidden relative z-20"
           style={{ background: 'var(--cp-background)' }}
         >
           {/* Row 1: label + counter */}
@@ -363,7 +363,7 @@ export default function CreateEventPage() {
 
         {/* ── Sticky bottom bar ── */}
         <div
-          className="sticky bottom-0 flex justify-center w-full"
+          className="relative flex justify-center w-full"
           style={{ background: 'var(--cp-background)' }}
         >
           <div className="w-full max-w-4xl px-5 md:px-8 py-4 flex items-center justify-between gap-4">

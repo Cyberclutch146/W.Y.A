@@ -589,7 +589,7 @@ export default function ProfilePage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div className="card-base p-6 md:p-8 flex flex-col items-center text-center" style={{ boxShadow: 'var(--shadow-lg)' }}>
+            <div className="p-6 md:p-8 flex flex-col items-center text-center rounded-[2rem]" style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-lg)' }}>
               {/* Avatar */}
               <div className="relative mb-8">
                 <div className="w-36 h-36 md:w-44 md:h-44 rounded-full p-1.5 bg-gradient-to-tr from-[var(--cp-primary)] to-[var(--cp-accent)] shadow-glow">
@@ -610,7 +610,7 @@ export default function ProfilePage() {
               <p className="text-sm font-medium mb-4" style={{ color: 'var(--cp-text-3)' }}>@{user.email?.split('@')[0]}</p>
 
               <div className="flex flex-wrap justify-center gap-2 mb-6">
-                <span className="pill-tag px-4 py-1.5 font-bold" style={{ background: 'linear-gradient(135deg, var(--cp-primary), hsl(280, 80%, 60%))', color: '#fff', border: 'none', boxShadow: '0 4px 12px -2px hsl(from var(--cp-primary) h s l / 0.3)' }}>
+                <span className="pill-tag px-4 py-1.5 font-bold" style={{ background: 'linear-gradient(135deg, var(--cp-primary), var(--cp-violet))', color: '#fff', border: 'none', boxShadow: '0 4px 12px -2px hsl(from var(--cp-primary) h s l / 0.3)' }}>
                   <Heart size={12} className="mr-1.5" />
                   {profile.role === 'organizer' ? 'Organizer' : 'Participant'}
                 </span>
@@ -657,7 +657,7 @@ export default function ProfilePage() {
                 style={{ 
                   background: 'var(--cp-surface)',
                   border: '1px solid var(--cp-border)',
-                  boxShadow: 'var(--shadow-md)'
+                  boxShadow: 'var(--shadow-lg)'
                 }}
               >
                 {/* Subtle colored glow based on archetype */}
@@ -700,26 +700,19 @@ export default function ProfilePage() {
 
           {/* ── Main Column: Content ── */}
           <motion.div 
-            className="lg:col-span-8 space-y-8"
+            className="lg:col-span-8 space-y-12"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
           >
-
-            {/* Impact Dashboard */}
+            {/* Impact Dashboard - Now at the top */}
             <div className="space-y-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-primary-light text-primary shadow-sm" style={{ border: '1px solid hsl(from var(--cp-primary) h s l / 0.1)' }}>
-                  <BarChart3 size={20} />
-                </div>
-                <h2 className="font-headline font-bold text-2xl" style={{ color: 'var(--cp-text-1)' }}>Impact Dashboard</h2>
-              </div>
   
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
                 <motion.div 
                   whileHover={{ y: -5, scale: 1.02 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                  className="relative p-6 md:p-8 rounded-[2rem] overflow-hidden group cursor-pointer transition-all duration-300"
+                  className="relative p-6 md:p-8 rounded-[2rem] overflow-hidden group cursor-pointer transition-all duration-300 h-full flex flex-col justify-between"
                   style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-lg)' }}
                 >
                   <div className="absolute inset-0 border-2 border-transparent group-hover:border-[var(--cp-primary)] rounded-[2rem] transition-colors duration-300 pointer-events-none" />
@@ -742,7 +735,7 @@ export default function ProfilePage() {
                 <motion.div 
                   whileHover={{ y: -5, scale: 1.02 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                  className="relative p-6 md:p-8 rounded-[2rem] overflow-hidden group cursor-pointer transition-all duration-300"
+                  className="relative p-6 md:p-8 rounded-[2rem] overflow-hidden group cursor-pointer transition-all duration-300 flex flex-col h-full justify-between"
                   style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-lg)' }}
                 >
                   <div className="absolute inset-0 border-2 border-transparent group-hover:border-[var(--cp-secondary)] rounded-[2rem] transition-colors duration-300 pointer-events-none" />
@@ -763,14 +756,22 @@ export default function ProfilePage() {
                 </motion.div>
               </div>
             </div>
-  
+
             {/* Skills & Academic Pulse Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-accent-light text-accent shadow-sm" style={{ border: '1px solid hsl(from var(--cp-accent) h s l / 0.1)' }}>
+                  <AlignLeft size={20} />
+                </div>
+                <h2 className="font-headline font-bold text-2xl" style={{ color: 'var(--cp-text-1)' }}>Academic Profile</h2>
+              </div>
+  
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
               {/* Expertise Card */}
               <motion.div 
                 whileHover={{ y: -5, scale: 1.02 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                className="relative p-6 md:p-8 rounded-[2rem] overflow-hidden group cursor-pointer transition-all duration-300 h-full"
+                className="relative p-6 md:p-8 rounded-[2rem] overflow-hidden group cursor-pointer transition-all duration-300 h-full flex flex-col"
                 style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-lg)' }}
               >
                 <div className="absolute inset-0 border-2 border-transparent group-hover:border-[var(--cp-accent)] rounded-[2rem] transition-colors duration-300 pointer-events-none" />
@@ -809,7 +810,7 @@ export default function ProfilePage() {
               <motion.div 
                 whileHover={{ y: -5, scale: 1.02 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                className="relative p-6 md:p-8 rounded-[2rem] overflow-hidden group cursor-pointer transition-all duration-300 h-full"
+                className="relative p-6 md:p-8 rounded-[2rem] overflow-hidden group cursor-pointer transition-all duration-300 h-full flex flex-col"
                 style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-lg)' }}
               >
                 <div className="absolute inset-0 border-2 border-transparent group-hover:border-[var(--cp-cyan)] rounded-[2rem] transition-colors duration-300 pointer-events-none" />
@@ -844,18 +845,22 @@ export default function ProfilePage() {
                 </div>
               </motion.div>
             </div>
-  
-            {/* Digital Tickets (Offline Capable) */}
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-primary/10 text-primary shadow-sm" style={{ border: '1px solid hsl(from var(--cp-primary) h s l / 0.1)' }}>
-                    <Ticket size={20} />
+          </div>
+
+          {/* Digital Tickets (Offline Capable) */}
+          <div className="relative p-6 md:p-8 rounded-[2rem] overflow-hidden" style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-lg)' }}>
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm" style={{ background: 'hsl(from var(--cp-primary) h s l / 0.1)', color: 'var(--cp-primary)', border: '1px solid hsl(from var(--cp-primary) h s l / 0.2)' }}>
+                    <Ticket size={24} />
                   </div>
-                  <h3 className="font-headline font-bold text-xl">Digital Wallet</h3>
+                  <div>
+                    <h3 className="font-headline font-bold text-2xl" style={{ color: 'var(--cp-text-1)' }}>Digital Wallet</h3>
+                    <p className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--cp-text-2)' }}>Entry Tickets</p>
+                  </div>
                 </div>
                 {cachedTickets.length > 0 && (
-                  <span className="text-[10px] font-black px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                  <span className="text-[10px] font-black px-3 py-1.5 rounded-md uppercase tracking-wider" style={{ background: 'hsl(160, 70%, 44%, 0.12)', color: 'var(--cp-secondary)', border: '1px solid hsl(160, 70%, 44%, 0.2)' }}>
                     Offline Ready
                   </span>
                 )}
@@ -866,18 +871,18 @@ export default function ProfilePage() {
                   {cachedTickets.map((ticket, idx) => (
                     <motion.div
                       key={ticket.eventId || idx}
-                      whileHover={{ y: -4 }}
+                      whileHover={{ scale: 1.02 }}
                       onClick={() => setSelectedTicket(ticket)}
-                      className="group relative overflow-hidden rounded-3xl p-6 cursor-pointer"
-                      style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)' }}
+                      className="group relative overflow-hidden rounded-2xl p-5 cursor-pointer flex flex-col justify-between"
+                      style={{ background: 'var(--cp-surface-dim)', border: '1px solid var(--cp-border)' }}
                     >
                       <div className="relative z-10 flex items-start justify-between mb-4">
                         <div className="flex flex-col gap-1">
                           <p className="text-[10px] font-black uppercase tracking-widest text-primary">Entry Ticket</p>
                           <h4 className="font-bold text-lg leading-tight line-clamp-1">{ticket.eventTitle || 'Campus Event'}</h4>
                         </div>
-                        <div className="p-3 rounded-2xl bg-white text-black shadow-xl group-hover:scale-110 transition-transform">
-                          <QrCode size={32} />
+                        <div className="p-3 rounded-2xl bg-white text-black shadow-lg group-hover:scale-110 transition-transform">
+                          <QrCode size={28} />
                         </div>
                       </div>
                       <div className="flex items-center gap-4 text-xs font-medium opacity-60">
@@ -887,25 +892,25 @@ export default function ProfilePage() {
                       </div>
                       
                       {/* Decorative ticket notch */}
-                      <div className="absolute top-1/2 -left-3 w-6 h-6 rounded-full bg-background border border-border" />
-                      <div className="absolute top-1/2 -right-3 w-6 h-6 rounded-full bg-background border border-border" />
+                      <div className="absolute top-1/2 -left-3 w-6 h-6 rounded-full" style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)' }} />
+                      <div className="absolute top-1/2 -right-3 w-6 h-6 rounded-full" style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)' }} />
                     </motion.div>
                   ))}
                 </div>
               ) : (
-                <div className="p-10 rounded-[2rem] border-2 border-dashed border-border flex flex-col items-center justify-center text-center bg-surface-dim/50">
-                  <div className="w-16 h-16 rounded-full bg-surface border border-border flex items-center justify-center mb-4 text-muted-foreground/30">
+                <div className="p-10 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center text-center" style={{ borderColor: 'var(--cp-border)', background: 'var(--cp-surface-dim)' }}>
+                  <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', color: 'var(--cp-text-3)' }}>
                     <Ticket size={32} />
                   </div>
-                  <p className="text-sm font-bold text-muted-foreground">No active tickets.</p>
-                  <p className="text-xs text-muted-foreground/60 mt-1">RSVP to an event to see your entry QR here.</p>
+                  <p className="text-sm font-bold" style={{ color: 'var(--cp-text-3)' }}>No active tickets.</p>
+                  <p className="text-xs mt-1" style={{ color: 'var(--cp-text-3)', opacity: 0.6 }}>RSVP to an event to see your entry QR here.</p>
                 </div>
               )}
             </div>
 
             {/* Logistics Card */}
             {(profile.campusZone && profile.campusZone !== 'anytime') && (
-              <div className="card-base p-6 md:p-8 rounded-[2rem]">
+              <div className="p-6 md:p-8 rounded-[2rem]" style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-lg)' }}>
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-gold-light text-gold shadow-sm" style={{ border: '1px solid hsl(from var(--cp-gold) h s l / 0.1)' }}>
                     <Compass size={20} />
@@ -924,7 +929,6 @@ export default function ProfilePage() {
               </div>
             )}
           </motion.div>
-
         </div>
       </div>
 

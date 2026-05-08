@@ -234,12 +234,11 @@ export default function PillNavbar() {
     router.push(href)
   }
 
-  // Theme-aware colors pulled from the design general
-  const isDark = mounted && resolvedTheme === 'dark'
-  const pillColor = isDark ? 'hsl(240, 20%, 18%)' : 'hsl(240, 30%, 8%)' // Deep dark pills in light mode
-  const baseColor = isDark ? 'hsl(240, 25%, 8%)'  : 'hsl(45, 100%, 96%)' // Match the new cp-bg exactly
-  const pillText  = isDark ? 'hsl(0, 0%, 88%)'    : 'hsl(0, 0%, 100%)'
-  const hoverText = isDark ? 'hsl(0, 0%, 92%)'    : 'hsl(45, 100%, 96%)' // Use background color for hover text contrast
+  // Sync with global theme variables
+  const baseColor = 'var(--cp-bg)'
+  const pillColor = 'var(--cp-surface)'
+  const pillText  = 'var(--cp-text-1)'
+  const hoverText = 'var(--cp-bg)' // Use background color for hover text contrast
 
   const cssVars = {
     ['--base']: baseColor,
@@ -309,13 +308,12 @@ export default function PillNavbar() {
             })}
           </ul>
         </div>
+      </nav>
 
-        </nav>
-
-        {/* Right actions cluster */}
-        <div className="hidden md:flex absolute right-0 top-0 items-center gap-1 rounded-full px-1 pointer-events-auto border-2 border-black" style={{ height: 'var(--nav-h)', background: 'var(--base)', boxShadow: '3px 3px 0px rgba(0,0,0,1)' }}>
+      {/* Right actions cluster */}
+      <div className="hidden md:flex absolute right-0 top-0 items-center gap-1 rounded-full px-1 pointer-events-auto border border-black dark:border-white/10" style={{ height: 'var(--nav-h)', background: 'var(--base)', boxShadow: 'var(--shadow-sm)' }}>
           {/* Notifications */}
-          <div className="relative" ref={notificationRef}>
+          <div className="relative flex items-center" ref={notificationRef}>
             <button
               onClick={() => {
                 setNotificationMenuOpen(!notificationMenuOpen)
@@ -329,7 +327,7 @@ export default function PillNavbar() {
                 <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-white">{unreadCount > 9 ? '9+' : unreadCount}</span>
               )}
             </button>
-
+ 
             <AnimatePresence>
               {notificationMenuOpen && (
                 <motion.div
@@ -337,9 +335,9 @@ export default function PillNavbar() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 350, damping: 25 }}
-                  className="absolute right-0 mt-3 w-80 sm:w-96 rounded-[20px] border border-white/10 dark:border-white/5 bg-white/70 dark:bg-black/60 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)] overflow-hidden z-[100] origin-top-right p-2 ring-1 ring-black/5 dark:ring-white/10"
+                  className="absolute right-0 top-full mt-3 w-80 sm:w-96 rounded-[20px] border border-white/10 dark:border-white/10 bg-white/70 dark:bg-[var(--glass-bg)] backdrop-blur-2xl shadow-xl dark:shadow-[var(--shadow-glow)] overflow-hidden z-[100] origin-top-right p-2 ring-1 ring-black/5 dark:ring-white/10"
                 >
-                  <div className="p-3 mb-2 rounded-[16px] bg-gradient-to-br from-primary/10 to-transparent flex items-center justify-between border border-primary/10">
+                  <div className="p-3 mb-2 rounded-[16px] bg-gradient-to-br from-primary/10 to-transparent flex items-center justify-between border border-primary/10" style={{ borderColor: 'var(--cp-primary-light)' }}>
                     <div>
                       <h3 className="font-bold text-foreground text-sm leading-tight">Notifications</h3>
                       <p className="text-[12px] font-medium text-muted-foreground opacity-80">You have {unreadCount} unread</p>
@@ -423,10 +421,10 @@ export default function PillNavbar() {
           </button>
 
           {/* Profile */}
-          <div className="relative" ref={profileMenuRef}>
+          <div className="relative flex items-center" ref={profileMenuRef}>
             <button
               onClick={() => setProfileOpen(!profileOpen)}
-              className="rounded-full overflow-hidden w-9 h-9 border-2"
+              className="relative rounded-full overflow-hidden flex items-center justify-center w-9 h-9 border-2 transition-transform hover:scale-105"
               style={{ borderColor: 'var(--pill-bg)' }}
             >
               <img src={getUserAvatar(profile?.avatarUrl, profile?.displayName)} alt="Profile" className="h-full w-full object-cover" />
@@ -439,9 +437,9 @@ export default function PillNavbar() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 350, damping: 25 }}
-                  className="absolute right-0 mt-3 w-64 rounded-[20px] border border-white/10 dark:border-white/5 bg-white/70 dark:bg-black/60 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)] overflow-hidden z-[100] origin-top-right p-2 ring-1 ring-black/5 dark:ring-white/10"
+                  className="absolute right-0 top-full mt-3 w-64 rounded-[20px] border border-white/10 dark:border-white/10 bg-white/70 dark:bg-[var(--glass-bg)] backdrop-blur-2xl shadow-xl dark:shadow-[var(--shadow-glow)] overflow-hidden z-[100] origin-top-right p-2 ring-1 ring-black/5 dark:ring-white/10"
                 >
-                  <div className="p-3 mb-2 rounded-[16px] bg-gradient-to-br from-primary/10 to-transparent flex items-center gap-3 border border-primary/10">
+                  <div className="p-3 mb-2 rounded-[16px] bg-gradient-to-br from-primary/10 to-transparent flex items-center gap-3 border border-primary/10" style={{ borderColor: 'var(--cp-primary-light)' }}>
                     <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-background shadow-md">
                       <img src={getUserAvatar(profile?.avatarUrl, profile?.displayName)} alt="" className="h-full w-full object-cover" />
                     </div>
