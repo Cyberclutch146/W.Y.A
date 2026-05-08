@@ -26,10 +26,8 @@ export async function POST(req: NextRequest) {
     const userDocRef = adminDb.collection("users").doc(userId);
 
     if (action === "create") {
-      const impactScore = (data.eventHours || 0) * 10 + (data.totalDonated || 0) + (data.interests?.length || 0) * 5;
       await userDocRef.set({
         ...data,
-        impactScore,
         createdAt: new Date(),
         updatedAt: new Date(),
       });
@@ -37,32 +35,10 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === "update") {
-      // For accurate impactScore, we merge with existing data
-      const existingDoc = await userDocRef.get();
-      const existingData = existingDoc.exists ? existingDoc.data() : {};
-      const merged = { ...existingData, ...data };
-      const impactScore = (merged.eventHours || 0) * 10 + (merged.totalDonated || 0) + (merged.interests?.length || 0) * 5;
-
       await userDocRef.update({
         ...data,
-        impactScore,
         updatedAt: new Date(),
       });
-
-      // Update global stats (placeholder for high-concurrency atomic counter)
-      if (data.eventHours || data.totalDonated) {
-        const statsRef = adminDb.collection("meta").doc("platformStats");
-        await adminDb.runTransaction(async (t) => {
-          const s = await t.get(statsRef);
-          const current = s.exists ? s.data() : { totalAttendees: 0, totalHours: 0, totalDonated: 0 };
-          t.set(statsRef, {
-            totalAttendees: current.totalAttendees + (data.eventHours ? 1 : 0), // naive
-            totalHours: (current.totalHours || 0) + (data.eventHours || 0),
-            totalDonated: (current.totalDonated || 0) + (data.totalDonated || 0),
-          }, { merge: true });
-        });
-      }
-
       return NextResponse.json({ success: true, message: "Profile updated." });
     }
 

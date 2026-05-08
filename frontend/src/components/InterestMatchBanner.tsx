@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { getEvents } from '@/services/eventService';
 import { getRecommendedEvents } from '@/services/recommendationService';
-import { useEventsCache } from '@/context/EventsCacheContext';
 import { motion } from 'framer-motion';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
@@ -15,31 +14,29 @@ interface InterestMatchBannerProps {
 
 export default function InterestMatchBanner({ condensed = false }: InterestMatchBannerProps) {
   const { user, profile } = useAuth();
-  const { events: cachedEvents, loading: cacheLoading } = useEventsCache();
   const [hasRecommendations, setHasRecommendations] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchRecommendations = () => {
+    const fetchRecommendations = async () => {
       if (!profile?.interests || profile.interests.length === 0) {
         setLoading(false);
         return;
       }
 
-      if (cacheLoading) return;
-
       try {
-        const recommended = getRecommendedEvents(profile as any, cachedEvents, 3);
+        const result = await getEvents(50);
+        const recommended = getRecommendedEvents(profile as any, result.events, 3);
         setHasRecommendations(recommended.length > 0);
       } catch (error) {
-        console.error('Failed to calculate recommendations:', error);
+        console.error('Failed to fetch recommendations:', error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchRecommendations();
-  }, [profile?.interests, profile?.campusZone, cachedEvents, cacheLoading]);
+  }, [profile?.interests, profile?.campusZone]);
 
   if (loading || !user) return null;
 

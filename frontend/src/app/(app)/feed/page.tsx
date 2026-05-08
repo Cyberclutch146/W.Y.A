@@ -4,15 +4,15 @@ import { useState, useEffect, Suspense, useRef, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { EventCard, CATEGORY_COLORS } from '@/components/EventCard';
+import { getEvents } from '@/services/eventService';
 import MapWrapper from '@/components/MapWrapper';
 import InterestMatchBanner from '@/components/InterestMatchBanner';
 import { useAuth } from '@/context/AuthContext';
-import { useEventsCache } from '@/context/EventsCacheContext';
 import { CommunityEvent } from '@/types';
+import { QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 import { ArrowUpDown, ChevronDown, SlidersHorizontal, Sparkles, X, Compass, MapPin, CalendarOff, Search } from 'lucide-react';
 import { isPointInPolygon, getDistanceMiles } from '@/utils/geo';
 import { getRecommendedEvents } from '@/services/recommendationService';
-import { reverseGeocodeLocation } from '@/services/eventService';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 const PAGE_SIZE = 12;
@@ -75,6 +75,8 @@ function FeedContent() {
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const [sortChanged, setSortChanged] = useState(false); // Animation trigger for sort change
   const [bannerHiding, setBannerHiding] = useState(false); // Track banner disappear animation
+  const prevSortRef = useRef<SortOption>('recommended');
+  const prevSearchRef = useRef<string>('');
   const filterMenuRef = useRef<HTMLDivElement | null>(null);
   const sortMenuRef = useRef<HTMLDivElement | null>(null);
 
@@ -96,10 +98,11 @@ function FeedContent() {
     return () => window.cancelAnimationFrame(frame);
   }, [urlQuery]);
 
-  const [loading, setLoading] = useState(false);
+  const [events, setEvents] = useState<CommunityEvent[]>([]);
+  const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-
-  const { events: cachedEvents, fetchEvents, fetchNextPage, hasMore } = useEventsCache();
+  const [hasMore, setHasMore] = useState(false);
+  const lastDocRef = useRef<QueryDocumentSnapshot<DocumentData> | null>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -121,9 +124,16 @@ function FeedContent() {
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
-          const { latitude, longitude } = position.coords;
-          const locationStr = await reverseGeocodeLocation(latitude, longitude);
-          if (locationStr) setUserLocation(locationStr);
+          try {
+            const { latitude, longitude } = position.coords;
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=en`);
+            const data = await response.json();
+            const city = data.address?.city || data.address?.town || data.address?.village || data.address?.county || 'Current Location';
+            const state = data.address?.state || '';
+            setUserLocation(state ? `${city}, ${state}` : city);
+          } catch {
+            setUserLocation('Location unavailable');
+          }
         },
         (error) => {
           console.error('Geolocation error:', error);
@@ -131,14 +141,45 @@ function FeedContent() {
         }
       );
     } else {
-      setUserLocation('Location not supported');
+      const frame = window.requestAnimationFrame(() => {
+        setUserLocation('Location not supported');
+      });
+
+      return () => window.cancelAnimationFrame(frame);
     }
   }, []);
 
   useEffect(() => {
-    fetchEvents();
-  }, [fetchEvents]);
+    const fetchEventsAndAlerts = async () => {
+      try {
+        const eventsResult = await getEvents(PAGE_SIZE);
+        setEvents(eventsResult.events);
+        lastDocRef.current = eventsResult.lastDoc;
+        setHasMore(eventsResult.hasMore);
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEventsAndAlerts();
+  }, []);
 
+  // Track banner visibility changes with animation
+  useEffect(() => {
+    const shouldShowBanner = sortBy === 'recommended' && !searchQuery;
+    const wasBannerVisible = prevSortRef.current === 'recommended' && !prevSearchRef.current;
+
+    if (wasBannerVisible && !shouldShowBanner) {
+      // Banner is hiding - trigger disappear animation
+      setBannerHiding(true);
+      const timeout = setTimeout(() => setBannerHiding(false), 350);
+      return () => clearTimeout(timeout);
+    }
+
+    prevSortRef.current = sortBy;
+    prevSearchRef.current = searchQuery;
+  }, [sortBy, searchQuery]);
 
   // Semantic search effect with debounce
   const performSemanticSearch = useCallback(async (query: string) => {
@@ -251,27 +292,36 @@ function FeedContent() {
   const loadMore = async () => {
     if (loadingMore || !hasMore) return;
     setLoadingMore(true);
-    await fetchNextPage();
-    setLoadingMore(false);
+    try {
+      const result = await getEvents(PAGE_SIZE, lastDocRef.current);
+      setEvents(prev => [...prev, ...result.events]);
+      lastDocRef.current = result.lastDoc;
+      setHasMore(result.hasMore);
+    } catch (error) {
+      console.error("Failed to load more events:", error);
+    } finally {
+      setLoadingMore(false);
+    }
   };
 
-  const categoryOptions = useMemo(() => {
-    return Array.from(
-      new Set(cachedEvents.map((event) => event.category).filter(Boolean))
-    ).sort((a, b) => a.localeCompare(b));
-  }, [cachedEvents]);
+  const categoryOptions = Array.from(
+    new Set(events.map((event) => event.category).filter(Boolean))
+  ).sort((a, b) => a.localeCompare(b));
 
-  const filteredEvents = useMemo(() => {
-    let result = cachedEvents;
+  // Smart filtering: use semantic results if available, otherwise fallback to client-side
+  const filteredEvents = (() => {
+    let result = events;
 
+    // If semantic search returned results, reorder by those IDs
     if (semanticResults && searchQuery.trim()) {
       const idOrder = new Map(semanticResults.map((id, index) => [id, index]));
-      result = cachedEvents
+      result = events
         .filter(e => idOrder.has(e.id))
         .sort((a, b) => (idOrder.get(a.id) ?? 999) - (idOrder.get(b.id) ?? 999));
     } else if (searchQuery.trim() && !semanticResults) {
+      // Fallback to client-side keyword search
       const q = searchQuery.toLowerCase();
-      result = cachedEvents.filter(e =>
+      result = events.filter(e =>
         e.title.toLowerCase().includes(q) || e.description.toLowerCase().includes(q)
       );
     }
@@ -290,7 +340,12 @@ function FeedContent() {
     }
 
     if (filters.distance !== 'all') {
-      const maxDistance = filters.distance === 'within-5' ? 5 : filters.distance === 'within-15' ? 15 : 30;
+      const maxDistance = filters.distance === 'within-5'
+        ? 5
+        : filters.distance === 'within-15'
+          ? 15
+          : 30;
+
       result = result.filter((event) => {
         const distanceMiles = parseDistanceMiles(event.distance);
         return distanceMiles !== null && distanceMiles <= maxDistance;
@@ -302,9 +357,9 @@ function FeedContent() {
     }
 
     return result;
-  }, [cachedEvents, semanticResults, searchQuery, filters]);
+  })();
 
-  const sortedEvents = useMemo(() => {
+  const sortedEvents = (() => {
     const result = [...filteredEvents];
 
     if (sortBy === 'recommended') {
@@ -315,10 +370,14 @@ function FeedContent() {
       return result.sort((a, b) => {
         const aRank = recommendedOrder.get(a.id);
         const bRank = recommendedOrder.get(b.id);
+
         if (aRank !== undefined && bRank !== undefined) return aRank - bRank;
         if (aRank !== undefined) return -1;
         if (bRank !== undefined) return 1;
-        return getEventTimestamp(b) - getEventTimestamp(a);
+
+        const aTime = getEventTimestamp(a);
+        const bTime = getEventTimestamp(b);
+        return bTime - aTime;
       });
     }
 
@@ -336,12 +395,14 @@ function FeedContent() {
     return result.sort((a, b) => {
       const aDistance = parseDistanceMiles(a.distance);
       const bDistance = parseDistanceMiles(b.distance);
+
       if (aDistance === null && bDistance === null) return getEventTimestamp(b) - getEventTimestamp(a);
       if (aDistance === null) return 1;
       if (bDistance === null) return -1;
+
       return aDistance - bDistance;
     });
-  }, [filteredEvents, sortBy, profile]);
+  })();
 
   const activeFilters = [
     filters.urgency !== 'all' ? {
@@ -386,27 +447,30 @@ function FeedContent() {
     { value: 'nearest', label: 'Nearest', description: 'Events with the shortest listed distance first.' },
   ];
 
-  const recommendationData = useMemo(() => {
-    if (sortBy !== 'recommended' || !profile?.interests || cachedEvents.length === 0) {
+  const recommendationData = (() => {
+    if (sortBy !== 'recommended' || (!profile?.interests && !profile?.interests) || events.length === 0) {
       return {};
     }
 
-    const recommendedEvents = getRecommendedEvents(profile as any, cachedEvents, cachedEvents.length);
-    if (recommendedEvents.length === 0) return {};
+    const recommendedEvents = getRecommendedEvents(profile as any, events, events.length);
 
-    const maxScore = Math.max(...recommendedEvents.map((r) => r.score), 1);
+    if (recommendedEvents.length === 0) {
+      return {};
+    }
+
+    const maxScore = Math.max(...recommendedEvents.map((recommendation) => recommendation.score), 1);
     const data: Record<string, { score: number; matchedInterests: string[]; percentage: number }> = {};
 
-    recommendedEvents.forEach((r) => {
-      data[r.event.id] = {
-        score: r.score,
-        matchedInterests: r.matchedInterests,
-        percentage: Math.round((r.score / maxScore) * 100),
+    recommendedEvents.forEach((recommendation) => {
+      data[recommendation.event.id] = {
+        score: recommendation.score,
+        matchedInterests: recommendation.matchedInterests,
+        percentage: Math.round((recommendation.score / maxScore) * 100),
       };
     });
 
     return data;
-  }, [sortBy, profile, cachedEvents]);
+  })();
 
   return (
     <div className="flex-1 flex flex-col w-full" style={{ color: 'var(--cp-text-1)' }}>

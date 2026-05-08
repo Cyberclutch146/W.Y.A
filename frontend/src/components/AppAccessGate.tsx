@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -9,25 +9,15 @@ export default function AppAccessGate({ children }: { children: React.ReactNode 
   const { user, loading, isOtpVerified } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
-  // Only show the overlay if auth takes longer than 150ms (avoids flash on warm loads)
-  const [showOverlay, setShowOverlay] = useState(false)
 
   const isPublicAppRoute = pathname === '/about'
-
-  useEffect(() => {
-    if (loading) {
-      const t = setTimeout(() => setShowOverlay(true), 150)
-      return () => clearTimeout(t)
-    } else {
-      setShowOverlay(false)
-    }
-  }, [loading])
 
   useEffect(() => {
     if (!loading) {
       if (!user && !isPublicAppRoute) {
         router.replace('/login')
       } else if (user && !isOtpVerified) {
+        // Logged in but OTP not verified, force back to login/otp screen
         router.replace('/login')
       }
     }
@@ -39,17 +29,13 @@ export default function AppAccessGate({ children }: { children: React.ReactNode 
 
   return (
     <>
-      {/* Render children immediately — don't block on auth */}
-      {children}
-
-      {/* Overlay only while auth is still resolving */}
-      <AnimatePresence>
-        {showOverlay && loading && (
+      <AnimatePresence mode="wait">
+        {(loading || !user) && (
           <motion.div
             key="access-gate-loader"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0, transition: { duration: 0.3, ease: 'easeOut' } }}
+            exit={{ opacity: 0, transition: { duration: 0.5, ease: 'easeOut' } }}
             className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background/80 backdrop-blur-md"
           >
             <motion.div
@@ -70,6 +56,7 @@ export default function AppAccessGate({ children }: { children: React.ReactNode 
           </motion.div>
         )}
       </AnimatePresence>
+      {!loading && user && <>{children}</>}
     </>
   )
 }

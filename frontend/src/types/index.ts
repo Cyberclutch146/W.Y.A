@@ -65,7 +65,6 @@ export interface UserProfile {
   role: string;                // 'student' | 'club_admin' | 'faculty' | 'admin'
   eventHours: number;          // repurposed from eventHours
   totalDonated: number;
-  impactScore?: number;        // Pre-computed composite score for leaderboard
   profileComplete: boolean;
   createdAt: Timestamp | null;
   updatedAt: Timestamp | null;

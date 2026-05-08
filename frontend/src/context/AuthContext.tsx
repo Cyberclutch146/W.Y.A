@@ -57,10 +57,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setIsOtpVerified(false);
         }
 
-        // ✅ Unblock the UI immediately — pages can render as soon as we know who the user is.
-        // Profile will stream in shortly after via the subscription below.
-        setLoading(false);
-
         unsubscribeProfile = subscribeToUserProfile(firebaseUser.uid, async (userProfile) => {
           if (!userProfile) {
             const { createUserProfile } = await import('@/services/userService');
@@ -90,6 +86,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             });
           } else {
             setProfile(userProfile);
+            setLoading(false);
           }
         });
       } else {

@@ -87,38 +87,20 @@ export const getEventsByOrganizer = async (userId: string): Promise<CommunityEve
   }
 };
 
-// ─── Geocoding Helper with Cache ────────────────────────────
+// ─── Geocoding Helper ────────────────────────────────────
 export const geocodeLocation = async (address: string): Promise<{lat: number, lng: number} | null> => {
-  const cacheKey = `geo_${address.toLowerCase().replace(/\s+/g, '_')}`;
-  
   try {
-    // 1. Check client-side cache
-    const cached = typeof window !== 'undefined' ? sessionStorage.getItem(cacheKey) : null;
-    if (cached) {
-      const { data, expires } = JSON.parse(cached);
-      if (Date.now() < expires) return data;
-    }
-
-    // 2. Fetch from Nominatim
     const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`, {
-      headers: { 'User-Agent': 'CampusPulse/1.0' }
+      headers: {
+        'User-Agent': 'CommunityManagementApp/1.0'
+      }
     });
     const data = await response.json();
-    
     if (data && data.length > 0) {
-      const coords = {
+      return {
         lat: parseFloat(data[0].lat),
-        lng: parseFloat(data[0].lon)
+        lng: parseFloat(data[0].lon) // Nominatim returns 'lon' instead of 'lng'
       };
-
-      // 3. Save to cache (30 min TTL)
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem(cacheKey, JSON.stringify({
-          data: coords,
-          expires: Date.now() + 1000 * 60 * 30
-        }));
-      }
-      return coords;
     }
   } catch (error) {
     console.error('Geocoding error:', error);
@@ -230,12 +212,12 @@ export const addEventRSVP = async (eventId: string, userId: string, userName: st
       throw new Error(errorData.error || 'Failed to sign up for event');
     }
 
-    // ── Fire notifications in parallel (best-effort, don't block the flow) ──
-    getEventById(eventId)
-      .then(event => {
-        if (!event) return;
-        const notifs = [
-          createNotification(userId, {
+    // ── Fire notifications (best-effort, don't block the flow) ──
+    try {
+      const event = await getEventById(eventId);
+        if (event) {
+          // Notify the attendee
+          await createNotification(userId, {
             title: `You're registered for "${event.title}"!`,
             body: ticketId
               ? `Your ticket ID is ${ticketId}. See you there!`
@@ -243,22 +225,22 @@ export const addEventRSVP = async (eventId: string, userId: string, userName: st
             path: `/event/${eventId}`,
             type: 'event_join',
             tone: 'success',
-          }),
-        ];
-        if (event.organizerId && event.organizerId !== userId) {
-          notifs.push(
-            createNotification(event.organizerId, {
+          });
+
+          // Notify the organizer
+          if (event.organizerId && event.organizerId !== userId) {
+            await createNotification(event.organizerId, {
               title: `New attendee: ${userName}`,
               body: `${userName} just registered for "${event.title}".`,
               path: `/dashboard/event/${eventId}`,
               type: 'event_join',
               tone: 'info',
-            })
-          );
+            });
+          }
         }
-        return Promise.allSettled(notifs);
-      })
-      .catch(notifError => console.warn('Non-critical: notification dispatch failed', notifError));
+    } catch (notifError) {
+      console.warn('Non-critical: notification dispatch failed', notifError);
+    }
   } catch (error) {
     console.error('API /events/join Error:', error);
     throw error;
@@ -294,27 +276,22 @@ export const getRegisteredEvents = async (userId: string): Promise<CommunityEven
   const registrationsRef = collection(db, `users/${userId}/registrations`);
   const snapshot = await getDocs(registrationsRef);
   const eventIds = snapshot.docs.map(doc => doc.id);
-
+  
   if (eventIds.length === 0) return [];
-
-  // Build chunks of 30 (Firestore 'in' query limit)
-  const chunks: string[][] = [];
+  
+  // Fetch in batches of 30 (Firestore 'in' query limit)
+  const events: CommunityEvent[] = [];
   for (let i = 0; i < eventIds.length; i += 30) {
-    chunks.push(eventIds.slice(i, i + 30));
+    const chunk = eventIds.slice(i, i + 30);
+    const eventsRef = collection(db, EVENTS_COLLECTION);
+    const q = query(eventsRef, where(documentId(), 'in', chunk));
+    const eventsSnapshot = await getDocs(q);
+    eventsSnapshot.docs.forEach(doc => {
+      events.push({ id: doc.id, ...doc.data() } as CommunityEvent);
+    });
   }
-
-  // Fetch ALL chunks in parallel instead of sequentially
-  const snapshots = await Promise.all(
-    chunks.map(chunk => {
-      const eventsRef = collection(db, EVENTS_COLLECTION);
-      const q = query(eventsRef, where(documentId(), 'in', chunk));
-      return getDocs(q);
-    })
-  );
-
-  return snapshots.flatMap(snap =>
-    snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as CommunityEvent))
-  );
+  
+  return events;
 };
 
 // ─── Bulk Coordinate Backfill ────────────────────────────
@@ -363,35 +340,36 @@ export const pledgeGoods = async (
     throw new Error(errorData.error || 'Failed to pledge goods');
   }
 
-  // ── Fire notifications in parallel (best-effort) ──
-  getEventById(eventId)
-    .then(event => {
-      if (!event) return;
+  // ── Fire notifications (best-effort) ──
+  try {
+    const event = await getEventById(eventId);
+    if (event) {
       const allItems = [...items, ...(otherItems ? [otherItems] : [])];
       const itemSummary = allItems.slice(0, 3).join(', ') + (allItems.length > 3 ? ` +${allItems.length - 3} more` : '');
-      const notifs = [
-        createNotification(userId, {
-          title: `Pledge confirmed for "${event.title}"`,
-          body: `You're bringing: ${itemSummary}. Thank you!`,
-          path: `/event/${eventId}`,
-          type: 'goods_pledge',
-          tone: 'success',
-        }),
-      ];
+
+      // Notify the attendee
+      await createNotification(userId, {
+        title: `Pledge confirmed for "${event.title}"`,
+        body: `You're bringing: ${itemSummary}. Thank you!`,
+        path: `/event/${eventId}`,
+        type: 'goods_pledge',
+        tone: 'success',
+      });
+
+      // Notify the organizer
       if (event.organizerId && event.organizerId !== userId) {
-        notifs.push(
-          createNotification(event.organizerId, {
-            title: `New goods pledge from ${userName}`,
-            body: `${userName} is bringing: ${itemSummary} to "${event.title}".`,
-            path: `/dashboard/event/${eventId}`,
-            type: 'goods_pledge',
-            tone: 'info',
-          })
-        );
+        await createNotification(event.organizerId, {
+          title: `New goods pledge from ${userName}`,
+          body: `${userName} is bringing: ${itemSummary} to "${event.title}".`,
+          path: `/dashboard/event/${eventId}`,
+          type: 'goods_pledge',
+          tone: 'info',
+        });
       }
-      return Promise.allSettled(notifs);
-    })
-    .catch(notifError => console.warn('Non-critical: notification dispatch failed', notifError));
+    }
+  } catch (notifError) {
+    console.warn('Non-critical: notification dispatch failed', notifError);
+  }
 };
 
 export const getUserPledge = async (eventId: string, userId: string) => {
@@ -414,36 +392,4 @@ export const getEventGoodsPledges = async (eventId: string) => {
     otherItems: string;
     pledgedAt: any;
   }>;
-};
-
-// ─── Reverse Geocoding with Cache ─────────────────────────
-export const reverseGeocodeLocation = async (lat: number, lng: number): Promise<string | null> => {
-  const cacheKey = `rev_geo_${lat.toFixed(4)}_${lng.toFixed(4)}`;
-  
-  try {
-    const cached = typeof window !== 'undefined' ? sessionStorage.getItem(cacheKey) : null;
-    if (cached) {
-      const { data, expires } = JSON.parse(cached);
-      if (Date.now() < expires) return data;
-    }
-
-    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=en`, {
-      headers: { 'User-Agent': 'CampusPulse/1.0' }
-    });
-    const data = await response.json();
-    const city = data.address?.city || data.address?.town || data.address?.village || data.address?.county || 'Current Location';
-    const state = data.address?.state || '';
-    const locationStr = state ? `${city}, ${state}` : city;
-
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem(cacheKey, JSON.stringify({
-        data: locationStr,
-        expires: Date.now() + 1000 * 60 * 60 * 24 // 24h cache for cities
-      }));
-    }
-    return locationStr;
-  } catch (error) {
-    console.error('Reverse geocoding error:', error);
-  }
-  return null;
 };
