@@ -236,10 +236,10 @@ export default function PillNavbar() {
 
   // Theme-aware colors pulled from the design general
   const isDark = mounted && resolvedTheme === 'dark'
-  const pillColor = isDark ? 'hsl(240, 20%, 18%)' : 'hsl(258, 30%, 22%)'
-  const baseColor = isDark ? 'hsl(240, 20%, 10%)' : 'hsl(258, 20%, 95%)'
+  const pillColor = isDark ? 'hsl(240, 20%, 18%)' : 'hsl(240, 30%, 8%)' // Deep dark pills in light mode
+  const baseColor = isDark ? 'hsl(240, 25%, 8%)'  : 'hsl(45, 100%, 96%)' // Match the new cp-bg exactly
   const pillText  = isDark ? 'hsl(0, 0%, 88%)'    : 'hsl(0, 0%, 100%)'
-  const hoverText = isDark ? 'hsl(0, 0%, 92%)'    : 'hsl(258, 30%, 22%)'
+  const hoverText = isDark ? 'hsl(0, 0%, 92%)'    : 'hsl(45, 100%, 96%)' // Use background color for hover text contrast
 
   const cssVars = {
     ['--base']: baseColor,
@@ -273,8 +273,8 @@ export default function PillNavbar() {
         {/* Desktop pill items */}
         <div
           ref={navItemsRef}
-          className="relative items-center rounded-full hidden md:flex ml-1"
-          style={{ height: 'var(--nav-h)', background: 'var(--base)' }}
+          className="relative items-center rounded-full hidden md:flex ml-1 border-2 border-black"
+          style={{ height: 'var(--nav-h)', background: 'var(--base)', boxShadow: '3px 3px 0px rgba(0,0,0,1)' }}
         >
           <ul role="menubar" className="list-none flex items-stretch m-0 p-[3px] h-full" style={{ gap: 'var(--pill-gap)' }}>
             {items.map((item, i) => {
@@ -313,7 +313,7 @@ export default function PillNavbar() {
         </nav>
 
         {/* Right actions cluster */}
-        <div className="hidden md:flex absolute right-0 top-0 items-center gap-1 rounded-full px-1 pointer-events-auto" style={{ height: 'var(--nav-h)', background: 'var(--base)' }}>
+        <div className="hidden md:flex absolute right-0 top-0 items-center gap-1 rounded-full px-1 pointer-events-auto border-2 border-black" style={{ height: 'var(--nav-h)', background: 'var(--base)', boxShadow: '3px 3px 0px rgba(0,0,0,1)' }}>
           {/* Notifications */}
           <div className="relative" ref={notificationRef}>
             <button
@@ -479,8 +479,8 @@ export default function PillNavbar() {
           onClick={toggleMobileMenu}
           aria-label="Toggle menu"
           aria-expanded={isMobileMenuOpen}
-          className="md:hidden rounded-full border-0 flex flex-col items-center justify-center gap-1 cursor-pointer p-0 shrink-0 pointer-events-auto"
-          style={{ width: 'var(--nav-h)', height: 'var(--nav-h)', background: 'var(--base)' }}
+          className="md:hidden rounded-full border-2 border-black flex flex-col items-center justify-center gap-1 cursor-pointer p-0 shrink-0 pointer-events-auto"
+          style={{ width: 'var(--nav-h)', height: 'var(--nav-h)', background: 'var(--base)', boxShadow: '3px 3px 0px rgba(0,0,0,1)' }}
         >
           <span className="hamburger-line w-4 h-0.5 rounded origin-center" style={{ background: 'var(--pill-bg)' }} />
           <span className="hamburger-line w-4 h-0.5 rounded origin-center" style={{ background: 'var(--pill-bg)' }} />

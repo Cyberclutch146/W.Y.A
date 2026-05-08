@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
@@ -8,10 +8,9 @@ import { uploadImage } from '@/services/storageService';
 import { toast } from 'sonner';
 import { getUserAvatar } from '@/lib/avatar';
 import { Department, AcademicYear, StudentInterest } from '@/types';
-import { Camera, Loader2, MapPin, Clock, ArrowLeft, CheckCircle, Wrench, BarChart3, Heart, Sparkles, Compass, ChevronDown, Check, GraduationCap, BookOpen, User, AlignLeft, Award, X, Plus, Ticket, QrCode } from 'lucide-react';
+import { Camera, Loader2, MapPin, Clock, ArrowLeft, CheckCircle, Wrench, BarChart3, Heart, Sparkles, Compass, ChevronDown, Check, GraduationCap, BookOpen, User, AlignLeft, Award, X, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import LanyardBadge from '@/components/LanyardBadge';
-import { getInterestArchetype, Archetype } from '@/utils/personaUtils';
 
 const SKILL_COLORS = [
   'hsl(from var(--cp-primary) h s l / 0.12)', 'hsl(from var(--cp-secondary) h s l / 0.12)',
@@ -286,8 +285,6 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [cachedTickets, setCachedTickets] = useState<any[]>([]);
-  const [selectedTicket, setSelectedTicket] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [displayName, setDisplayName] = useState('');
@@ -308,32 +305,6 @@ export default function ProfilePage() {
       setYear(profile.year || '');
       setAvailability(profile.campusZone || 'anytime');
     }
-
-    const loadCachedTickets = () => {
-      try {
-        const stored = localStorage.getItem('wya_tickets');
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          const now = new Date();
-          // Filter tickets older than 48 hours
-          const validTickets = parsed.filter((t: any) => {
-            const ticketDate = new Date(t.timestamp);
-            return now.getTime() - ticketDate.getTime() < 48 * 60 * 60 * 1000;
-          });
-          
-          if (validTickets.length !== parsed.length) {
-            localStorage.setItem('wya_tickets', JSON.stringify(validTickets));
-          }
-          setCachedTickets(validTickets);
-        }
-      } catch (e) {
-        console.error('Failed to load tickets:', e);
-      }
-    };
-
-    loadCachedTickets();
-    window.addEventListener('storage', loadCachedTickets);
-    return () => window.removeEventListener('storage', loadCachedTickets);
   }, [profile, isEditing]);
 
   if (!user || !profile) {
@@ -409,10 +380,10 @@ export default function ProfilePage() {
   const currentAvatar = getUserAvatar(profile?.avatarUrl, profile?.displayName);
 
   const AVAIL_OPTIONS = [
-    { key: 'weekdays', label: '📅 Weekdays' },
-    { key: 'weekends', label: '🌴 Weekends' },
-    { key: 'evenings', label: '🌙 Evenings' },
-    { key: 'anytime', label: '🕐 Anytime' },
+    { key: 'weekdays', label: '?? Weekdays' },
+    { key: 'weekends', label: '?? Weekends' },
+    { key: 'evenings', label: '?? Evenings' },
+    { key: 'anytime', label: '?? Anytime' },
   ] as const;
 
   const DEPARTMENTS = [
@@ -449,7 +420,7 @@ export default function ProfilePage() {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}>
               <form onSubmit={handleSave} className="space-y-5">
 
-              {/* ═══ CARD 1: Photo ═══ */}
+              {/* --- CARD 1: Photo --- */}
               <motion.div className="rounded-3xl p-6 md:p-8" style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: '0 4px 24px -4px rgba(0,0,0,0.06)' }} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
                 <div className="flex flex-col items-center sm:flex-row sm:items-center gap-6">
                   <div className="relative group shrink-0">
@@ -474,7 +445,7 @@ export default function ProfilePage() {
                 </div>
               </motion.div>
 
-              {/* ═══ CARD 2: Personal Info ═══ */}
+              {/* --- CARD 2: Personal Info --- */}
               <motion.div className="rounded-3xl p-6 md:p-8 space-y-5" style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: '0 4px 24px -4px rgba(0,0,0,0.06)' }} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
                 <div className="flex items-center gap-3 pb-4" style={{ borderBottom: '1px solid var(--cp-border)' }}>
                   <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'var(--cp-primary-light)', color: 'var(--cp-primary)' }}><User size={18} /></div>
@@ -500,7 +471,7 @@ export default function ProfilePage() {
                 </div>
               </motion.div>
 
-              {/* ═══ CARD 3: Academic ═══ */}
+              {/* --- CARD 3: Academic --- */}
               <motion.div className="rounded-3xl p-6 md:p-8 space-y-5" style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: '0 4px 24px -4px rgba(0,0,0,0.06)' }} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
                 <div className="flex items-center gap-3 pb-4" style={{ borderBottom: '1px solid var(--cp-border)' }}>
                   <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'var(--cp-secondary-light)', color: 'var(--cp-secondary)' }}><GraduationCap size={18} /></div>
@@ -516,7 +487,7 @@ export default function ProfilePage() {
                 </div>
               </motion.div>
 
-              {/* ═══ CARD 4: Availability ═══ */}
+              {/* --- CARD 4: Availability --- */}
               <motion.div className="rounded-3xl p-6 md:p-8 space-y-4" style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: '0 4px 24px -4px rgba(0,0,0,0.06)' }} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
                 <div className="flex items-center gap-3 pb-4" style={{ borderBottom: '1px solid var(--cp-border)' }}>
                   <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'var(--cp-accent-light)', color: 'var(--cp-accent)' }}><Clock size={18} /></div>
@@ -551,7 +522,7 @@ export default function ProfilePage() {
             </motion.div>
           </motion.div>
 
-          {/* ── Live ID Card Preview ── */}
+          {/* -- Live ID Card Preview -- */}
           <motion.div
               className="flex flex-col items-center self-start lg:sticky lg:top-[5.5rem] mt-4 lg:mt-0"
               initial={{ opacity: 0, x: 30 }}
@@ -582,7 +553,7 @@ export default function ProfilePage() {
       <div className="max-w-7xl mx-auto w-full px-4 pt-12 md:pt-16 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
-          {/* ── Side Column: Profile Card ── */}
+          {/* -- Side Column: Profile Card -- */}
           <motion.div 
             className="lg:col-span-4"
             initial={{ opacity: 0, x: -20 }}
@@ -649,46 +620,13 @@ export default function ProfilePage() {
             </div>
           </motion.div>
 
-          {/* ── Main Column: Content ── */}
+          {/* -- Main Column: Content -- */}
           <motion.div 
             className="lg:col-span-8 space-y-8"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
           >
-            {/* Persona Archetype Card */}
-            {profile && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ type: 'spring', stiffness: 260, damping: 20 }}
-                className="relative overflow-hidden rounded-[2rem] p-8 md:p-10 mb-8"
-                style={{ 
-                  background: `linear-gradient(135deg, ${getInterestArchetype(profile).color}, hsl(from ${getInterestArchetype(profile).color} h s l / 0.8))`,
-                  boxShadow: `0 20px 40px -12px hsl(from ${getInterestArchetype(profile).color} h s l / 0.4)`
-                }}
-              >
-                {/* Decorative elements */}
-                <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full opacity-20 blur-3xl bg-white" />
-                <div className="absolute -bottom-12 -left-12 w-48 h-48 rounded-full opacity-10 blur-3xl bg-black" />
-                
-                <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 md:gap-10">
-                  <div className="w-24 h-24 md:w-32 md:h-32 flex items-center justify-center text-5xl md:text-6xl bg-white/20 backdrop-blur-md rounded-3xl border border-white/30 shadow-xl">
-                    {getInterestArchetype(profile).icon}
-                  </div>
-                  <div className="text-center md:text-left text-white">
-                    <p className="text-xs font-bold uppercase tracking-[0.3em] mb-2 opacity-90">Your Archetype</p>
-                    <h2 className="font-headline font-black text-3xl md:text-5xl mb-3 tracking-tighter">
-                      {getInterestArchetype(profile).name}
-                    </h2>
-                    <p className="text-sm md:text-base font-medium opacity-90 max-w-lg leading-relaxed">
-                      {getInterestArchetype(profile).description}
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
             {/* Impact Dashboard */}
             <div className="space-y-6">
               <div className="flex items-center gap-3">
@@ -829,64 +767,6 @@ export default function ProfilePage() {
               </motion.div>
             </div>
   
-            {/* Digital Tickets (Offline Capable) */}
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-primary/10 text-primary shadow-sm" style={{ border: '1px solid hsl(from var(--cp-primary) h s l / 0.1)' }}>
-                    <Ticket size={20} />
-                  </div>
-                  <h3 className="font-headline font-bold text-xl">Digital Wallet</h3>
-                </div>
-                {cachedTickets.length > 0 && (
-                  <span className="text-[10px] font-black px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                    Offline Ready
-                  </span>
-                )}
-              </div>
-
-              {cachedTickets.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {cachedTickets.map((ticket, idx) => (
-                    <motion.div
-                      key={ticket.eventId || idx}
-                      whileHover={{ y: -4 }}
-                      onClick={() => setSelectedTicket(ticket)}
-                      className="group relative overflow-hidden rounded-3xl p-6 cursor-pointer"
-                      style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)' }}
-                    >
-                      <div className="relative z-10 flex items-start justify-between mb-4">
-                        <div className="flex flex-col gap-1">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-primary">Entry Ticket</p>
-                          <h4 className="font-bold text-lg leading-tight line-clamp-1">{ticket.eventTitle || 'Campus Event'}</h4>
-                        </div>
-                        <div className="p-3 rounded-2xl bg-white text-black shadow-xl group-hover:scale-110 transition-transform">
-                          <QrCode size={32} />
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-4 text-xs font-medium opacity-60">
-                        <span className="flex items-center gap-1.5">
-                          <Clock size={14} /> {new Date(ticket.timestamp).toLocaleDateString()}
-                        </span>
-                      </div>
-                      
-                      {/* Decorative ticket notch */}
-                      <div className="absolute top-1/2 -left-3 w-6 h-6 rounded-full bg-background border border-border" />
-                      <div className="absolute top-1/2 -right-3 w-6 h-6 rounded-full bg-background border border-border" />
-                    </motion.div>
-                  ))}
-                </div>
-              ) : (
-                <div className="p-10 rounded-[2rem] border-2 border-dashed border-border flex flex-col items-center justify-center text-center bg-surface-dim/50">
-                  <div className="w-16 h-16 rounded-full bg-surface border border-border flex items-center justify-center mb-4 text-muted-foreground/30">
-                    <Ticket size={32} />
-                  </div>
-                  <p className="text-sm font-bold text-muted-foreground">No active tickets.</p>
-                  <p className="text-xs text-muted-foreground/60 mt-1">RSVP to an event to see your entry QR here.</p>
-                </div>
-              )}
-            </div>
-
             {/* Logistics Card */}
             {(profile.campusZone && profile.campusZone !== 'anytime') && (
               <div className="card-base p-6 md:p-8">
@@ -911,57 +791,6 @@ export default function ProfilePage() {
 
         </div>
       </div>
-
-      {/* Ticket Modal */}
-      <AnimatePresence>
-        {selectedTicket && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-              onClick={() => setSelectedTicket(null)}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-sm rounded-[2rem] overflow-hidden p-8 text-center"
-              style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-xl)' }}
-            >
-              <button 
-                onClick={() => setSelectedTicket(null)}
-                className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full transition-colors"
-                style={{ background: 'var(--cp-surface-dim)', color: 'var(--cp-text-2)' }}
-              >
-                <X size={16} />
-              </button>
-              
-              <div className="mb-6">
-                <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-2">Admit One</p>
-                <h3 className="font-headline font-bold text-2xl leading-tight">{selectedTicket.eventTitle}</h3>
-                <p className="text-sm mt-2 opacity-80" style={{ color: 'var(--cp-text-2)' }}>
-                  {selectedTicket.eventTime}<br />
-                  {selectedTicket.eventLocation}
-                </p>
-              </div>
-
-              <div className="bg-white p-4 rounded-2xl inline-block shadow-lg mb-6 border border-gray-100">
-                <img 
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(selectedTicket.id)}`} 
-                  alt="Ticket QR Code"
-                  className="w-48 h-48 rounded-xl"
-                />
-              </div>
-
-              <div className="rounded-xl p-3 inline-flex items-center gap-3" style={{ background: 'var(--cp-surface-dim)' }}>
-                <code className="font-mono text-sm tracking-widest font-bold text-primary">{selectedTicket.id}</code>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
     </main>
   );
 }

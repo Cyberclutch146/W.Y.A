@@ -161,41 +161,52 @@ export function DonationPanel({
   return (
     <>
       <div
-        className="sticky top-24 overflow-hidden"
+        className="overflow-hidden relative group"
         style={{
           background: 'var(--cp-surface)',
-          border: '1px solid var(--cp-border)',
-          borderRadius: 'var(--r-2xl)',
-          boxShadow: 'var(--shadow-lg)',
+          border: '4px solid var(--cp-border)',
+          borderRadius: '24px',
+          boxShadow: '8px 8px 0px var(--cp-primary)',
         }}
       >
         {/* Header */}
         <div
-          className="px-6 py-4 flex items-center gap-3"
-          style={{ borderBottom: '1px solid var(--cp-border)' }}
+          className="px-6 py-5 flex items-center gap-3 relative overflow-hidden"
+          style={{ borderBottom: '4px solid var(--cp-border)', background: 'hsl(from var(--cp-primary) h s l / 0.1)' }}
         >
+          {/* Marquee Background in header */}
+          <div className="absolute inset-0 flex items-center whitespace-nowrap opacity-20 pointer-events-none">
+            <div className="animate-marquee font-black uppercase tracking-widest text-[10px] text-primary">
+              TICKETS AVAILABLE • TICKETS AVAILABLE • TICKETS AVAILABLE • TICKETS AVAILABLE • 
+            </div>
+          </div>
+          
           <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center"
+            className="w-10 h-10 rounded-xl flex items-center justify-center relative z-10 border-2 border-primary"
             style={{ background: 'linear-gradient(135deg, var(--cp-accent), var(--cp-pink))' }}
           >
-            <Heart size={16} className="text-white fill-current" />
+            <Heart size={20} className="text-white fill-current" />
           </div>
-          <h3 className="font-headline font-bold text-base" style={{ color: 'var(--cp-text-1)' }}>
-            How You Can Help
+          <h3 className="font-headline font-black text-xl uppercase tracking-tight relative z-10" style={{ color: 'var(--cp-text-1)' }}>
+            Get Involved
           </h3>
         </div>
 
         {/* Tabs */}
-        <div className="flex px-2 pt-2 gap-1" style={{ borderBottom: '1px solid var(--cp-border)' }}>
+        <div className="flex px-2 pt-2 gap-1 bg-surface-dim" style={{ borderBottom: '4px solid var(--cp-border)' }}>
           {TABS.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className="flex-1 py-2.5 text-xs font-bold rounded-t-xl transition-all relative"
+              className="flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-t-xl transition-all relative"
               style={{
-                background: activeTab === tab.key ? 'var(--cp-surface-dim)' : 'transparent',
+                background: activeTab === tab.key ? 'var(--cp-surface)' : 'transparent',
                 color: activeTab === tab.key ? tab.color : 'var(--cp-text-3)',
-                borderBottom: activeTab === tab.key ? `2px solid ${tab.color}` : '2px solid transparent',
+                borderTop: activeTab === tab.key ? `3px solid ${tab.color}` : '3px solid transparent',
+                borderLeft: activeTab === tab.key ? '3px solid var(--cp-border)' : '3px solid transparent',
+                borderRight: activeTab === tab.key ? '3px solid var(--cp-border)' : '3px solid transparent',
+                borderBottom: activeTab === tab.key ? '4px solid var(--cp-surface)' : '4px solid transparent',
+                marginBottom: '-4px' // overlaps the bottom border
               }}
             >
               {tab.label}
@@ -248,7 +259,8 @@ export function DonationPanel({
                 <button 
                   onClick={handleDonate}
                   disabled={loading || !user}
-                  className="btn-primary w-full justify-center py-4 text-sm disabled:opacity-50"
+                  className="w-full py-4 rounded-2xl font-bold font-headline text-lg uppercase tracking-tight transition-all active:scale-95 flex items-center justify-center gap-2 text-white disabled:opacity-50 disabled:active:scale-100"
+                  style={{ background: 'var(--cp-primary)', border: '2px solid var(--cp-border)', boxShadow: '4px 4px 0px hsl(from var(--cp-primary) h s l / 0.5)' }}
                 >
                   {loading ? (
                     <><Loader2 size={16} className="animate-spin" /> Processing...</>
@@ -283,8 +295,8 @@ export function DonationPanel({
                 <button 
                   onClick={handleRSVPClick}
                   disabled={loading || !user}
-                  className="btn-primary w-full justify-center py-4 text-sm disabled:opacity-50"
-                  style={{ background: 'linear-gradient(135deg, var(--cp-secondary), var(--cp-lime))' }}
+                  className="w-full py-4 rounded-2xl font-bold font-headline text-lg uppercase tracking-tight transition-all active:scale-95 flex items-center justify-center gap-2 text-white disabled:opacity-50 disabled:active:scale-100"
+                  style={{ background: 'var(--cp-secondary)', border: '2px solid var(--cp-border)', boxShadow: '4px 4px 0px hsl(from var(--cp-secondary) h s l / 0.5)' }}
                 >
                   {user ? '🙋 RSVP Now →' : 'Sign in to RSVP'}
                 </button>

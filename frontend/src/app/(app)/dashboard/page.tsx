@@ -144,7 +144,7 @@ export default function DashboardPage() {
                     <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--cp-text-2)' }}>{zone}</span>
                     <span className="text-sm font-black" style={{ color: 'var(--cp-text-1)' }}>{zoneRSVPs} <span className="text-[10px] opacity-40 font-bold uppercase">RSVPs</span></span>
                   </div>
-                  <div className="w-full h-3 rounded-full bg-surface-dim overflow-hidden border border-border">
+                  <div className="w-full h-3 rounded-full overflow-hidden border" style={{ background: 'var(--cp-surface-dim)', borderColor: 'var(--cp-border)' }}>
                     <div 
                       className="h-full transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]"
                       style={{ 
@@ -282,7 +282,7 @@ function EventCard({ event, onClick }: { event: CommunityEvent, onClick: () => v
               <span style={{ color: 'var(--cp-text-1)' }}>{volPercent}%</span>
             </div>
             <div className="w-full h-2 overflow-hidden" style={{ background: 'var(--cp-surface-dim)', borderRadius: 'var(--r-full)' }}>
-              <div className="h-full transition-all duration-700" style={{ width: `${volPercent}%`, background: 'hsl(140, 80%, 40%)', borderRadius: 'var(--r-full)' }} />
+              <div className="h-full transition-all duration-700" style={{ width: `${volPercent}%`, background: 'var(--cp-secondary)', borderRadius: 'var(--r-full)' }} />
             </div>
           </div>
         )}

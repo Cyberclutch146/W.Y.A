@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, User, Mail, Lock, ShieldCheck, Download, CalendarPlus, Copy, Loader2, Heart } from 'lucide-react';
+import { X, User, Mail, Lock, ShieldCheck, Download, CalendarPlus, Copy, Loader2, Heart, Ticket } from 'lucide-react';
 
 interface RSVPModalProps {
   isOpen: boolean;
@@ -30,6 +30,8 @@ export function RSVPModal({
   enrolledCount,
   eventId
 }: RSVPModalProps) {
+  // Move all hooks to the absolute top
+  const [mounted, setMounted] = useState(false);
   const { profile } = useAuth();
   const [step, setStep] = useState<'form' | 'success'>('form');
   const [loading, setLoading] = useState(false);
@@ -43,6 +45,10 @@ export function RSVPModal({
   });
   const [ticketId, setTicketId] = useState('');
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Pre-fill user data
   useEffect(() => {
     if (profile && isOpen) {
@@ -53,6 +59,8 @@ export function RSVPModal({
       }));
     }
   }, [profile, isOpen]);
+
+  if (!mounted) return null;
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,7 +77,6 @@ export function RSVPModal({
 
     setLoading(true);
     try {
-      // Verify OTP on the server
       const verifyRes = await fetch('/api/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -90,7 +97,6 @@ export function RSVPModal({
       const newTicketId = formData.status === 'going' ? Math.random().toString(36).substring(2, 12).toUpperCase() : '';
       await onRegister(formData.name, formData.email, newTicketId, formData.status);
       
-      // Send confirmation email with QR code if going
       if (formData.status === 'going') {
         try {
           await fetch('/api/auth/confirm-registration', {
@@ -104,13 +110,11 @@ export function RSVPModal({
           });
         } catch (emailErr) {
           console.error("Failed to send confirmation email:", emailErr);
-          // We don't block the success UI if just the email fails
         }
       }
 
       setTicketId(newTicketId);
       
-      // Cache ticket for offline access
       if (formData.status === 'going') {
         const cachedTickets = JSON.parse(localStorage.getItem('wya_tickets') || '[]');
         cachedTickets.push({
@@ -122,7 +126,7 @@ export function RSVPModal({
           userName: formData.name,
           timestamp: new Date().toISOString()
         });
-        localStorage.setItem('wya_tickets', JSON.stringify(cachedTickets.slice(-10))); // Keep last 10
+        localStorage.setItem('wya_tickets', JSON.stringify(cachedTickets.slice(-10)));
       }
 
       setStep('success');
@@ -149,7 +153,6 @@ export function RSVPModal({
 
     setSendingOtp(true);
     try {
-      // OTP is now generated entirely on the server
       const response = await fetch('/api/auth/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -188,7 +191,6 @@ export function RSVPModal({
     const text = encodeURIComponent(`Event RSVP: ${eventTitle}`);
     const details = encodeURIComponent(eventDescription);
     const location = encodeURIComponent(eventLocation);
-    // Use a real date if possible, fallback to tomorrow
     const date = new Date();
     date.setDate(date.getDate() + 1);
     const startDate = date.toISOString().replace(/-|:|\.\d\d\d/g, "");
@@ -197,305 +199,237 @@ export function RSVPModal({
     return `${baseUrl}&text=${text}&details=${details}&location=${location}&dates=${dates}`;
   })();
 
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null;
-
   return createPortal(
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-        >
-          {/* Backdrop */}
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0"
-            style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={onClose}
           />
 
-          {/* Modal */}
           <motion.div
-            initial={{ opacity: 0, y: 24, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 24, scale: 0.96 }}
-            transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-            className="relative w-full max-w-md overflow-hidden"
+            initial={{ opacity: 0, y: 50, scale: 0.9, rotate: -2 }}
+            animate={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
+            exit={{ opacity: 0, y: 50, scale: 0.9, rotate: 2 }}
+            transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+            className="relative w-full max-w-md overflow-hidden z-10"
             style={{
               background: 'var(--cp-surface)',
-              border: '1px solid var(--cp-border)',
-              borderRadius: 'var(--r-2xl)',
-              boxShadow: 'var(--shadow-xl)',
+              border: '4px solid var(--cp-border)',
+              borderRadius: '32px',
+              boxShadow: '12px 12px 0px var(--cp-secondary)',
             }}
           >
             {/* Header */}
-            <div
-              className="flex items-center justify-between px-6 py-4"
-              style={{ borderBottom: '1px solid var(--cp-border)' }}
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-9 h-9 rounded-xl flex items-center justify-center"
-                  style={{ background: 'linear-gradient(135deg, var(--cp-secondary), var(--cp-lime))' }}
-                >
+            <div className="px-8 py-6 flex items-center justify-between border-b-4 border-[var(--cp-border)] bg-[var(--cp-secondary)]/10">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-white border-2 border-[var(--cp-border)] shadow-[3px 3px 0px_var(--cp-border)]">
                   {step === 'form' ? (
-                    <Heart size={16} className="text-white" />
+                    <Heart size={24} className="text-[var(--cp-secondary)] fill-current" />
                   ) : (
-                    <ShieldCheck size={16} className="text-white" />
+                    <ShieldCheck size={24} className="text-[var(--cp-secondary)]" />
                   )}
                 </div>
                 <div>
-                  <h2 className="font-headline font-bold text-base" style={{ color: 'var(--cp-text-1)' }}>
-                    {step === 'form' ? 'RSVP for Event' : "You're All Set!"}
+                  <h2 className="font-headline font-black text-2xl uppercase tracking-tight" style={{ color: 'var(--cp-text-1)' }}>
+                    {step === 'form' ? 'Count Me In' : 'Confirmed!'}
                   </h2>
-                  <p className="text-xs" style={{ color: 'var(--cp-text-3)' }}>
-                    {step === 'form' ? 'Choose how you want to participate' : 'RSVP confirmed'}
+                  <p className="text-[10px] font-black uppercase tracking-widest opacity-60" style={{ color: 'var(--cp-text-1)' }}>
+                    {step === 'form' ? 'Join the community event' : 'You are on the list'}
                   </p>
                 </div>
               </div>
               <button
                 onClick={onClose}
-                className="w-8 h-8 rounded-xl flex items-center justify-center transition-all"
-                style={{ color: 'var(--cp-text-2)' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--cp-surface-dim)'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+                className="w-10 h-10 rounded-xl flex items-center justify-center transition-all hover:bg-white/20 border-2 border-transparent hover:border-[var(--cp-border)]"
+                style={{ color: 'var(--cp-text-1)' }}
               >
-                <X size={16} />
+                <X size={20} />
               </button>
             </div>
 
-            <div className="p-6">
+            <div className="p-8">
               {step === 'form' ? (
-                <form onSubmit={handleRegister} className="space-y-5">
-                  {/* RSVP Status */}
-                  <div>
-                    <label className="block text-xs font-semibold mb-2" style={{ color: 'var(--cp-text-2)' }}>
-                      Participation Level
-                    </label>
-                    <div className="grid grid-cols-2 gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setFormData({ ...formData, status: 'interested' })}
-                        className={`py-3 px-4 rounded-xl border text-sm font-bold transition-all flex flex-col items-center justify-center gap-1 ${
-                          formData.status === 'interested'
-                            ? 'border-[var(--cp-secondary)] bg-[hsl(from_var(--cp-secondary)_h_s_l_/_0.1)] text-[var(--cp-secondary)]'
-                            : 'border-[var(--cp-border)] text-[var(--cp-text-2)] hover:bg-[var(--cp-surface-dim)]'
-                        }`}
-                      >
-                        <Heart size={18} />
-                        <span>Interested</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setFormData({ ...formData, status: 'going' })}
-                        className={`py-3 px-4 rounded-xl border text-sm font-bold transition-all flex flex-col items-center justify-center gap-1 ${
-                          formData.status === 'going'
-                            ? 'border-[var(--cp-primary)] bg-[hsl(from_var(--cp-primary)_h_s_l_/_0.1)] text-[var(--cp-primary)]'
-                            : 'border-[var(--cp-border)] text-[var(--cp-text-2)] hover:bg-[var(--cp-surface-dim)]'
-                        }`}
-                      >
-                        <ShieldCheck size={18} />
-                        <span>Going</span>
-                      </button>
-                    </div>
+                <form onSubmit={handleRegister} className="space-y-6">
+                  {/* Participation Level */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, status: 'interested' })}
+                      className={`py-4 rounded-2xl border-4 font-black uppercase tracking-widest text-xs transition-all flex flex-col items-center gap-2 ${
+                        formData.status === 'interested'
+                          ? 'bg-[var(--cp-secondary)] text-white border-[var(--cp-border)] shadow-[4px 4px 0px_rgba(0,0,0,0.2)] scale-105'
+                          : 'bg-white text-[var(--cp-text-2)] border-[var(--cp-border)] opacity-60 hover:opacity-100'
+                      }`}
+                    >
+                      <Heart size={20} className={formData.status === 'interested' ? 'fill-current' : ''} />
+                      Interested
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, status: 'going' })}
+                      className={`py-4 rounded-2xl border-4 font-black uppercase tracking-widest text-xs transition-all flex flex-col items-center gap-2 ${
+                        formData.status === 'going'
+                          ? 'bg-[var(--cp-primary)] text-white border-[var(--cp-border)] shadow-[4px 4px 0px_rgba(0,0,0,0.2)] scale-105'
+                          : 'bg-white text-[var(--cp-text-2)] border-[var(--cp-border)] opacity-60 hover:opacity-100'
+                      }`}
+                    >
+                      <ShieldCheck size={20} />
+                      Going
+                    </button>
                   </div>
 
-                  {/* Name */}
-                  <div>
-                    <label className="block text-xs font-semibold mb-2" style={{ color: 'var(--cp-text-2)' }} htmlFor="vol-name">
-                      Full Name
-                    </label>
+                  <div className="space-y-4">
                     <div className="relative">
-                      <User size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'var(--cp-text-3)' }} />
+                      <label className="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-60 ml-1">Full Name</label>
                       <input
-                        id="vol-name"
                         type="text"
                         required
-                        className="input-base pl-10"
-                        placeholder="John Doe"
+                        className="w-full px-5 py-4 bg-white border-4 border-[var(--cp-border)] rounded-2xl font-bold text-sm focus:outline-none focus:ring-0 focus:border-[var(--cp-secondary)] transition-colors placeholder:opacity-30"
+                        placeholder="Type your name..."
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       />
                     </div>
-                  </div>
 
-                  {/* Email */}
-                  <div>
-                    <label className="block text-xs font-semibold mb-2" style={{ color: 'var(--cp-text-2)' }} htmlFor="vol-email">
-                      Email Address
-                    </label>
-                    <div className="flex gap-2">
-                      <div className="relative flex-1">
-                        <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'var(--cp-text-3)' }} />
+                    <div className="relative">
+                      <label className="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-60 ml-1">Email Address</label>
+                      <div className="flex gap-2">
                         <input
-                          id="vol-email"
                           type="email"
                           required
-                          className="input-base pl-10"
-                          placeholder="john@example.com"
+                          className="flex-1 px-5 py-4 bg-white border-4 border-[var(--cp-border)] rounded-2xl font-bold text-sm focus:outline-none focus:ring-0 focus:border-[var(--cp-secondary)] transition-colors placeholder:opacity-30"
+                          placeholder="your@email.com"
                           value={formData.email}
                           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         />
+                        <button
+                          type="button"
+                          onClick={handleSendOtp}
+                          disabled={sendingOtp || !formData.email}
+                          className="px-6 rounded-2xl font-black uppercase tracking-widest text-[10px] bg-[var(--cp-secondary)] text-white border-4 border-[var(--cp-border)] shadow-[4px 4px 0px_rgba(0,0,0,0.1)] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all disabled:opacity-50"
+                        >
+                          {sendingOtp ? <Loader2 size={16} className="animate-spin" /> : 'Verify'}
+                        </button>
                       </div>
-                      <button
-                        type="button"
-                        onClick={handleSendOtp}
-                        disabled={sendingOtp || !formData.email}
-                        className="px-4 py-2.5 rounded-xl text-xs font-bold transition-all disabled:opacity-50 whitespace-nowrap"
-                        style={{
-                          background: 'hsl(from var(--cp-secondary) h s l / 0.12)',
-                          color: 'var(--cp-secondary)',
-                          border: '1px solid hsl(from var(--cp-secondary) h s l / 0.3)',
-                        }}
-                      >
-                        {sendingOtp ? <Loader2 size={14} className="animate-spin" /> : 'Verify'}
-                      </button>
                     </div>
-                  </div>
 
-                  {/* OTP */}
-                  <div>
-                    <label className="block text-xs font-semibold mb-2" style={{ color: 'var(--cp-text-2)' }} htmlFor="vol-otp">
-                      Verification Code
-                    </label>
                     <div className="relative">
-                      <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'var(--cp-text-3)' }} />
+                      <label className="block text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-60 ml-1">Verification Code</label>
                       <input
-                        id="vol-otp"
                         type="text"
                         required
                         maxLength={6}
-                        className="input-base pl-10 font-mono tracking-[0.4em] text-center text-lg"
+                        className="w-full px-5 py-4 bg-white border-4 border-[var(--cp-border)] rounded-2xl font-mono text-2xl font-black text-center tracking-[0.5em] focus:outline-none focus:ring-0 focus:border-[var(--cp-secondary)] transition-colors placeholder:opacity-10"
                         placeholder="000000"
                         value={formData.otp}
                         onChange={(e) => setFormData({ ...formData, otp: e.target.value.replace(/\D/g, '') })}
                       />
                     </div>
-                    {otpSent && (
-                      <div
-                        className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 rounded-lg text-xs font-semibold"
-                        style={{ background: 'hsl(from var(--cp-secondary) h s l / 0.1)', color: 'var(--cp-secondary)' }}
-                      >
-                        <ShieldCheck size={12} /> Code sent! Check inbox.
-                      </div>
-                    )}
                   </div>
 
                   <button
                     type="submit"
                     disabled={loading || !otpSent}
-                    className="btn-primary w-full justify-center py-4 text-sm mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full py-5 rounded-3xl font-black font-headline text-xl uppercase tracking-tight text-white transition-all enabled:hover:scale-[1.02] enabled:active:scale-95 disabled:opacity-50 border-4 border-[var(--cp-border)] shadow-[6px 6px 0px_rgba(0,0,0,0.1)]"
+                    style={{ background: 'var(--cp-primary)' }}
                   >
                     {loading ? (
-                      <><Loader2 size={16} className="animate-spin" /> Processing...</>
+                      <div className="flex items-center justify-center gap-3">
+                        <Loader2 size={24} className="animate-spin" />
+                        <span>Processing...</span>
+                      </div>
                     ) : (
-                      <><Heart size={16} /> {formData.status === 'going' ? 'Confirm RSVP & Get Ticket →' : 'Confirm Interest →'}</>
+                      <span>{formData.status === 'going' ? 'Secure My Ticket →' : 'Log My Interest →'}</span>
                     )}
                   </button>
                 </form>
               ) : (
-                <div className="text-center">
-                  {/* Success icon */}
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1, rotate: [0, -10, 10, 0] }}
-                    transition={{ type: 'spring', damping: 12, stiffness: 200 }}
-                    className="mb-6 inline-flex items-center justify-center w-16 h-16 rounded-2xl"
-                    style={{ background: 'linear-gradient(135deg, var(--cp-secondary), var(--cp-lime))', boxShadow: '0 12px 32px -6px hsl(from var(--cp-secondary) h s l / 0.5)' }}
-                  >
-                    <ShieldCheck size={28} className="text-white" />
-                  </motion.div>
+                <div className="text-center space-y-8">
+                  <div className="relative inline-block">
+                    <motion.div
+                      animate={{ rotate: [0, -10, 10, 0], scale: [1, 1.1, 1] }}
+                      transition={{ repeat: Infinity, duration: 4 }}
+                      className="w-24 h-24 rounded-3xl bg-[var(--cp-secondary)] border-4 border-[var(--cp-border)] flex items-center justify-center shadow-[8px 8px 0px_var(--cp-border)]"
+                    >
+                      <ShieldCheck size={48} className="text-white" />
+                    </motion.div>
+                    <div className="absolute -top-3 -right-3 w-10 h-10 rounded-full bg-[var(--cp-primary)] border-4 border-[var(--cp-border)] flex items-center justify-center animate-bounce">
+                      <Ticket size={20} className="text-white" />
+                    </div>
+                  </div>
                   
-                  <h3 className="font-headline font-bold text-xl mb-2" style={{ color: 'var(--cp-text-1)' }}>
-                    {formData.status === 'going' ? 'RSVP Confirmed' : 'Interest Logged!'}
-                  </h3>
-                  <p className="text-sm mb-6" style={{ color: 'var(--cp-text-2)' }}>
-                    {formData.status === 'going' ? 'Thank you for joining' : "We'll keep you updated on"}<br />
-                    <span className="font-headline font-bold" style={{ color: 'var(--cp-text-1)' }}>{eventTitle}</span>
-                  </p>
+                  <div>
+                    <h3 className="font-headline font-black text-3xl uppercase tracking-tighter mb-2" style={{ color: 'var(--cp-text-1)' }}>
+                      Awesome choice!
+                    </h3>
+                    <p className="text-sm font-medium opacity-70 px-4" style={{ color: 'var(--cp-text-1)' }}>
+                      {formData.status === 'going' 
+                        ? "You're officially on the guest list. Your digital ticket is ready below." 
+                        : "Thanks for your interest! We'll keep you posted on updates for this event."}
+                    </p>
+                  </div>
 
-                  {/* Ticket Card for 'going' */}
                   {formData.status === 'going' && (
-                    <>
-                      <div
-                        className="rounded-2xl p-5 mb-6 text-left"
-                        style={{ background: 'var(--cp-surface-dim)', border: '1px solid var(--cp-border)' }}
-                      >
-                        <div className="grid grid-cols-2 gap-4 mb-5">
-                          <div>
-                            <span className="block text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--cp-text-3)' }}>Queue Pos</span>
-                            <span className="text-xl font-headline font-bold" style={{ color: 'var(--cp-text-1)' }}>#{enrolledCount + 1}</span>
-                          </div>
-                          <div className="text-right">
-                            <span className="block text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--cp-text-3)' }}>Time</span>
-                            <span className="text-sm font-bold leading-tight block" style={{ color: 'var(--cp-text-1)' }}>{eventTime}</span>
-                          </div>
+                    <motion.div
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      className="p-6 bg-white border-4 border-[var(--cp-border)] rounded-[32px] shadow-[8px 8px 0px_rgba(0,0,0,0.05)] relative overflow-hidden"
+                    >
+                      {/* Ticket Cutout Effect */}
+                      <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-[var(--cp-surface)] border-4 border-[var(--cp-border)]" />
+                      <div className="absolute -right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-[var(--cp-surface)] border-4 border-[var(--cp-border)]" />
+                      
+                      <div className="flex justify-between items-start mb-6 border-b-2 border-dashed border-[var(--cp-border)] pb-4 px-2">
+                        <div className="text-left">
+                          <p className="text-[8px] font-black uppercase tracking-widest opacity-40">Ticket ID</p>
+                          <p className="font-mono font-black text-lg">{ticketId}</p>
                         </div>
-
-                        <div className="flex justify-center mb-4">
-                          <div
-                            className="p-3 rounded-xl inline-block"
-                            style={{ background: 'white', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-md)' }}
-                          >
-                            <img src={qrUrl} alt="Ticket QR Code" className="w-32 h-32 rounded-lg" />
-                          </div>
-                        </div>
-
-                        <div className="flex items-center justify-center gap-2">
-                          <code
-                            className="px-4 py-2 text-sm font-mono font-bold tracking-widest rounded-lg"
-                            style={{ background: 'hsl(from var(--cp-primary) h s l / 0.1)', color: 'var(--cp-primary)', border: '1px solid hsl(from var(--cp-primary) h s l / 0.2)' }}
-                          >
-                            {ticketId}
-                          </code>
-                          <button
-                            onClick={copyTicketId}
-                            className="w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110"
-                            style={{ background: 'hsl(from var(--cp-secondary) h s l / 0.12)', color: 'var(--cp-secondary)' }}
-                            title="Copy ID"
-                          >
-                            <Copy size={14} />
-                          </button>
+                        <div className="text-right">
+                          <p className="text-[8px] font-black uppercase tracking-widest opacity-40">Entry No.</p>
+                          <p className="font-headline font-black text-xl">#{enrolledCount + 1}</p>
                         </div>
                       </div>
 
-                      <div className="space-y-3">
+                      <div className="bg-white p-4 rounded-2xl border-2 border-[var(--cp-border)] inline-block mb-6">
+                        <img src={qrUrl} alt="QR Code" className="w-32 h-32" />
+                      </div>
+
+                      <div className="flex gap-2">
+                        <button
+                          onClick={copyTicketId}
+                          className="flex-1 py-3 px-4 rounded-xl border-2 border-[var(--cp-border)] font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors"
+                        >
+                          <Copy size={14} /> Copy ID
+                        </button>
                         <a
                           href={qrUrl}
-                          download={`rsvp-ticket-${ticketId}.png`}
-                          className="btn-primary w-full justify-center py-3.5 text-sm"
+                          download={`ticket-${ticketId}.png`}
+                          className="flex-1 py-3 px-4 rounded-xl bg-black text-white font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors"
                         >
-                          <Download size={16} /> Save Digital Ticket
-                        </a>
-
-                        <a
-                          href={calendarUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn-secondary w-full justify-center py-3.5 text-sm"
-                        >
-                          <CalendarPlus size={16} /> Sync to Calendar
+                          <Download size={14} /> Save
                         </a>
                       </div>
-                    </>
+                    </motion.div>
                   )}
+
+                  <button
+                    onClick={onClose}
+                    className="w-full py-4 rounded-2xl border-4 border-[var(--cp-border)] font-black uppercase tracking-widest text-sm hover:bg-[var(--cp-surface-dim)] transition-colors"
+                  >
+                    Close Window
+                  </button>
                 </div>
               )}
             </div>
           </motion.div>
-        </motion.div>
+        </div>
       )}
     </AnimatePresence>,
     document.body
   );
 }
-
