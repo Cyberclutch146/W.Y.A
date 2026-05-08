@@ -4,11 +4,12 @@ import { useState, useEffect, Suspense, useRef, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { EventCard, CATEGORY_COLORS } from '@/components/EventCard';
+import { getEvents } from '@/services/eventService';
 import MapWrapper from '@/components/MapWrapper';
 import InterestMatchBanner from '@/components/InterestMatchBanner';
 import { useAuth } from '@/context/AuthContext';
-import { useEventsCache } from '@/context/EventsCacheContext';
 import { CommunityEvent } from '@/types';
+import { QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 import { ArrowUpDown, ChevronDown, SlidersHorizontal, Sparkles, X, Compass, MapPin, CalendarOff, Search } from 'lucide-react';
 import { isPointInPolygon, getDistanceMiles } from '@/utils/geo';
 import { getRecommendedEvents } from '@/services/recommendationService';
@@ -101,8 +102,7 @@ function FeedContent() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
-
-  const { fetchEvents, fetchNextPage, hasMore: cacheHasMore } = useEventsCache();
+  const lastDocRef = useRef<QueryDocumentSnapshot<DocumentData> | null>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -121,18 +121,6 @@ function FeedContent() {
   }, []);
 
   useEffect(() => {
-    // Check sessionStorage cache first (30-min TTL) to skip the external Nominatim call
-    try {
-      const cached = sessionStorage.getItem('cp_user_location');
-      if (cached) {
-        const { location, ts } = JSON.parse(cached) as { location: string; ts: number };
-        if (Date.now() - ts < 30 * 60 * 1000) {
-          setUserLocation(location);
-          return;
-        }
-      }
-    } catch { /* sessionStorage unavailable (e.g. private mode) — fall through */ }
-
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
@@ -142,11 +130,7 @@ function FeedContent() {
             const data = await response.json();
             const city = data.address?.city || data.address?.town || data.address?.village || data.address?.county || 'Current Location';
             const state = data.address?.state || '';
-            const locationStr = state ? `${city}, ${state}` : city;
-            setUserLocation(locationStr);
-            try {
-              sessionStorage.setItem('cp_user_location', JSON.stringify({ location: locationStr, ts: Date.now() }));
-            } catch { /* ignore write failures */ }
+            setUserLocation(state ? `${city}, ${state}` : city);
           } catch {
             setUserLocation('Location unavailable');
           }
@@ -168,9 +152,10 @@ function FeedContent() {
   useEffect(() => {
     const fetchEventsAndAlerts = async () => {
       try {
-        const data = await fetchEvents();
-        setEvents(data);
-        setHasMore(cacheHasMore);
+        const eventsResult = await getEvents(PAGE_SIZE);
+        setEvents(eventsResult.events);
+        lastDocRef.current = eventsResult.lastDoc;
+        setHasMore(eventsResult.hasMore);
       } catch (error) {
         console.error("Failed to fetch data:", error);
       } finally {

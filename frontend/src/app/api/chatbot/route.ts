@@ -24,17 +24,16 @@ function isRetryableModelError(error: unknown) {
 async function sendMessageWithRetry(chat: any, payload: string | any[]) {
   let lastError: unknown = null;
 
-  // Max 2 attempts per model (not 3) to reduce worst-case retry latency
-  for (let attempt = 0; attempt < 2; attempt++) {
+  for (let attempt = 0; attempt < 3; attempt++) {
     try {
       return await chat.sendMessage(payload);
     } catch (error) {
       lastError = error;
-      if (!isRetryableModelError(error) || attempt === 1) {
+      if (!isRetryableModelError(error) || attempt === 2) {
         throw error;
       }
 
-      await sleep(500 * (attempt + 1)); // 500ms, 1000ms (down from 600ms × 3)
+      await sleep(600 * (attempt + 1));
     }
   }
 
@@ -137,10 +136,11 @@ IMPORTANT CONTEXT: The user was just asked to confirm signing up for the event t
 
     const latestMessage = messages[messages.length - 1].content;
 
-    // Try models in priority order — fastest first, flash as fallback
+    // Try models with function calling support
     const modelsToTry = [
       "gemini-2.5-flash-lite",
       "gemini-2.5-flash",
+      "gemini-2.0-flash-lite",
     ];
 
     let text = "";

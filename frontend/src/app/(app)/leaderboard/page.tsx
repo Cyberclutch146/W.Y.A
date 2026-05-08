@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getLeaderboardData, LeaderboardEntry } from '@/services/userService';
+import { getGlobalLeaderboard, getLeaderboardStats, LeaderboardEntry } from '@/services/userService';
 import { getUserAvatar } from '@/lib/avatar';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -29,9 +29,9 @@ export default function LeaderboardPage() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const { entries, stats } = await getLeaderboardData(50);
-        setEntries(entries);
-        setStats(stats);
+        const [leaderboard, globalStats] = await Promise.all([getGlobalLeaderboard(50), getLeaderboardStats()]);
+        setEntries(leaderboard);
+        setStats(globalStats);
       } catch (err) {
         console.error('Failed to load leaderboard:', err);
       } finally {

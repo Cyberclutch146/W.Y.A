@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import Link from 'next/link';
 import { Shield, Loader2, ArrowLeft, Mail, Lock, ChevronRight, RotateCcw } from 'lucide-react';
 
 type Tab = 'google' | 'email';
