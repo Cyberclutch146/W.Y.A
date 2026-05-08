@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -15,6 +16,7 @@ interface RSVPModalProps {
   eventLocation: string;
   eventTime: string;
   enrolledCount: number;
+  eventId: string;
 }
 
 export function RSVPModal({ 
@@ -25,7 +27,8 @@ export function RSVPModal({
   eventDescription,
   eventLocation,
   eventTime,
-  enrolledCount
+  enrolledCount,
+  eventId
 }: RSVPModalProps) {
   const { profile } = useAuth();
   const [step, setStep] = useState<'form' | 'success'>('form');
@@ -50,8 +53,6 @@ export function RSVPModal({
       }));
     }
   }, [profile, isOpen]);
-
-  if (!isOpen) return null;
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,6 +109,22 @@ export function RSVPModal({
       }
 
       setTicketId(newTicketId);
+      
+      // Cache ticket for offline access
+      if (formData.status === 'going') {
+        const cachedTickets = JSON.parse(localStorage.getItem('wya_tickets') || '[]');
+        cachedTickets.push({
+          id: newTicketId,
+          eventId,
+          eventTitle,
+          eventTime,
+          eventLocation,
+          userName: formData.name,
+          timestamp: new Date().toISOString()
+        });
+        localStorage.setItem('wya_tickets', JSON.stringify(cachedTickets.slice(-10))); // Keep last 10
+      }
+
       setStep('success');
       toast.success('Successfully registered! Digital ticket sent to your email.');
     } catch (err) {
@@ -180,7 +197,14 @@ export function RSVPModal({
     return `${baseUrl}&text=${text}&details=${details}&location=${location}&dates=${dates}`;
   })();
 
-  return (
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <motion.div
@@ -470,6 +494,8 @@ export function RSVPModal({
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
+

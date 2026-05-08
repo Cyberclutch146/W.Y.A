@@ -164,112 +164,130 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
         </Link>
       </motion.div>
 
-      <div className="flex flex-col lg:flex-row gap-8">
-        <div className="flex-1">
+      <div className="flex flex-col lg:flex-row gap-8 relative">
+        {/* Background Ambient Glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[800px] h-[400px] bg-gradient-to-b from-[var(--cp-secondary)] to-transparent opacity-[0.05] blur-[100px] pointer-events-none rounded-full" />
+
+        <div className="flex-1 min-w-0 z-10">
           {/* Hero Image */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full h-44 md:h-96 overflow-hidden mb-5 md:mb-8 relative"
+            className="w-full h-64 md:h-[450px] overflow-hidden mb-8 md:mb-12 relative group"
             style={{
-              borderRadius: 'var(--r-2xl)',
+              borderRadius: 'var(--r-3xl)',
               border: '1px solid var(--cp-border)',
-              boxShadow: 'var(--shadow-lg)',
+              boxShadow: 'var(--shadow-xl)',
             }}
           >
             <Image
               src={event.imageUrl || event.image || '/logo.svg'}
               alt={event.title || 'Event'}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               fill
             />
-            {/* Gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+            {/* Gradient overlay for text readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+            
+            {/* Floating Glassmorphic Info Badge */}
+            <div className="absolute bottom-4 md:bottom-8 left-4 md:left-8 right-4 md:right-8 flex flex-col md:flex-row gap-4 justify-between items-end md:items-center">
+              <div>
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                  <span
+                    className="pill-tag"
+                    style={{
+                      background: 'hsl(from var(--cp-secondary) h s l / 0.8)',
+                      color: '#000',
+                      border: '1px solid hsl(from var(--cp-secondary) h s l / 0.5)',
+                      backdropFilter: 'blur(8px)'
+                    }}
+                  >
+                    <Verified size={12} />
+                    {event.organizer}
+                  </span>
+                  <span
+                    className="pill-tag"
+                    style={{
+                      background: 'rgba(0,0,0,0.4)',
+                      color: '#fff',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      backdropFilter: 'blur(8px)'
+                    }}
+                  >
+                    <MapPin size={12} />
+                    {event.distance || 'Local'}
+                  </span>
+                </div>
+                <h1
+                  className="font-headline font-bold text-3xl md:text-5xl lg:text-6xl tracking-tight leading-tight text-white drop-shadow-md"
+                >
+                  {event.title}
+                </h1>
+              </div>
+            </div>
           </motion.div>
 
           {/* Event Info */}
           <motion.div
-            className="mb-8"
+            className="mb-10"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div className="flex items-center gap-2 mb-4 flex-wrap">
-              <span
-                className="pill-tag"
-                style={{
-                  background: 'hsl(from var(--cp-secondary) h s l / 0.12)',
-                  color: 'var(--cp-secondary)',
-                  border: '1px solid hsl(from var(--cp-secondary) h s l / 0.3)',
-                }}
-              >
-                <Verified size={12} />
-                {event.organizer}
-              </span>
-              <span
-                className="pill-tag"
-                style={{
-                  background: 'var(--cp-surface-dim)',
-                  color: 'var(--cp-text-2)',
-                  border: '1px solid var(--cp-border)',
-                }}
-              >
-                <MapPin size={12} />
-                {event.distance}
-              </span>
+            <div className="flex items-center gap-4 py-4 mb-8 border-y" style={{ borderColor: 'var(--cp-border)' }}>
+              <div className="flex-1">
+                <p className="text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: 'var(--cp-text-3)' }}>Date & Time</p>
+                <p className="text-sm font-medium" style={{ color: 'var(--cp-text-1)' }}>
+                  {event.eventDate ? new Date(event.eventDate).toLocaleString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'TBD'}
+                </p>
+              </div>
+              <div className="w-px h-10" style={{ background: 'var(--cp-border)' }} />
+              <div className="flex-1 pl-4">
+                <p className="text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: 'var(--cp-text-3)' }}>Location</p>
+                <p className="text-sm font-medium" style={{ color: 'var(--cp-text-1)' }}>{event.location}</p>
+              </div>
             </div>
 
-            <h1
-              className="font-headline font-bold text-2xl md:text-5xl tracking-tight leading-tight mb-3 md:mb-4"
-              style={{ color: 'var(--cp-text-1)' }}
-            >
-              {event.title}
-            </h1>
-
-            <p className="text-base leading-relaxed max-w-2xl mb-6" style={{ color: 'var(--cp-text-2)' }}>
-              Join your campus in supporting this initiative and stay informed about any nearby safety alerts.
+            <h2 className="text-xl md:text-2xl font-bold mb-4 font-headline" style={{ color: 'var(--cp-text-1)' }}>About this Event</h2>
+            <p className="text-base md:text-lg leading-relaxed max-w-3xl mb-8" style={{ color: 'var(--cp-text-2)' }}>
+              {event.description || "Join your campus in supporting this initiative and stay informed about any nearby safety alerts."}
             </p>
 
             {/* Admin Controls */}
             {isAdmin && (
               <div
-                className="mb-6 p-4 flex items-center justify-between rounded-xl"
+                className="mb-8 p-5 flex flex-col md:flex-row items-start md:items-center justify-between rounded-2xl gap-4"
                 style={{
-                  background: 'hsl(from var(--cp-accent) h s l / 0.08)',
-                  border: '1px solid hsl(from var(--cp-accent) h s l / 0.25)',
+                  background: 'hsl(from var(--cp-accent) h s l / 0.05)',
+                  border: '1px solid hsl(from var(--cp-accent) h s l / 0.2)',
+                  backdropFilter: 'blur(10px)'
                 }}
               >
                 <div>
-                  <p className="text-sm font-bold" style={{ color: 'var(--cp-accent)' }}>
-                    Admin Controls
+                  <p className="text-sm font-bold flex items-center gap-2 mb-1" style={{ color: 'var(--cp-accent)' }}>
+                    <AlertTriangle size={16} /> Admin Controls
                   </p>
-                  <p className="text-xs" style={{ color: 'var(--cp-text-3)' }}>
-                    You have administrative privileges.
+                  <p className="text-sm" style={{ color: 'var(--cp-text-3)' }}>
+                    You have administrative privileges to manage this event.
                   </p>
                 </div>
 
                 <button
                   onClick={handleDeleteEvent}
-                  className="px-4 py-2 rounded-xl text-sm font-bold transition-all hover:scale-105 active:scale-95 flex items-center gap-2 text-white"
-                  style={{ background: 'var(--cp-accent)', boxShadow: '0 4px 12px -3px hsl(from var(--cp-accent) h s l / 0.5)' }}
+                  className="px-5 py-2.5 rounded-xl text-sm font-bold transition-all hover:scale-105 active:scale-95 flex items-center gap-2 text-white shadow-lg"
+                  style={{ background: 'var(--cp-accent)', boxShadow: '0 4px 12px -3px hsl(from var(--cp-accent) h s l / 0.4)' }}
                 >
-                  <Trash2 size={15} />
-                  Delete
+                  <Trash2 size={16} />
+                  Delete Event
                 </button>
               </div>
             )}
 
-
-
-            <p className="text-base leading-relaxed mb-5 md:mb-6" style={{ color: 'var(--cp-text-2)' }}>
-              {event.description}
-            </p>
-
             {/* Social Sharing */}
             <div className="flex flex-wrap items-center gap-3 mb-6">
               <span className="text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5" style={{ color: 'var(--cp-text-3)' }}>
-                <Share2 size={13} /> Share:
+                <Share2 size={14} /> Share:
               </span>
 
               <a
@@ -319,7 +337,7 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="mb-6 md:mb-10 p-4 md:p-6 rounded-2xl"
+              className="mb-8 p-5 md:p-8 rounded-3xl"
               style={{ background: 'var(--cp-surface)', border: '1px solid var(--cp-border)', boxShadow: 'var(--shadow-md)' }}
             >
               <ProgressBar
@@ -331,8 +349,8 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
           )}
 
           {/* Chat & Leaderboard */}
-          <div className="mt-10">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="mt-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
               <ChatBox eventId={event.id} />
               <EngagementLeaderboard eventId={event.id} />
             </div>
@@ -340,7 +358,7 @@ export default function EventDetails({ params }: { params: Promise<{ id: string 
         </div>
 
         {/* Sidebar — Donation Panel */}
-        <div className="w-full lg:w-[400px] flex-shrink-0">
+        <div className="w-full lg:w-[420px] flex-shrink-0 sticky top-24 self-start">
           <DonationPanel
             eventId={event.id}
             eventTitle={event.title}

@@ -110,6 +110,57 @@ export default function DashboardPage() {
         ))}
       </div>
 
+      {/* ── RSVP Heatmap ── */}
+      <div 
+        className="mb-10 p-6 md:p-8 overflow-hidden relative group"
+        style={{ borderRadius: 'var(--r-2xl)', background: 'var(--cp-surface)', border: '1.5px solid var(--cp-border)', boxShadow: 'var(--shadow-md)' }}
+      >
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h3 className="text-xl font-bold tracking-tight" style={{ color: 'var(--cp-text-1)' }}>Campus RSVP Heatmap</h3>
+            <p className="text-xs mt-1 font-medium" style={{ color: 'var(--cp-text-3)' }}>Real-time event density across zones</p>
+          </div>
+          <div className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+            Live Sync
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          {(() => {
+            const zones = ['North Zone', 'Central Hub', 'South Campus', 'East Wing', 'West Village'];
+            const zoneStats = zones.map(zone => {
+              const prefix = zone.split(' ')[0].toLowerCase();
+              const zoneEvents = events.filter(e => e.location?.toLowerCase().includes(prefix));
+              const zoneRSVPs = zoneEvents.reduce((sum, e) => sum + (e.needs?.attendees?.current ?? 0), 0);
+              return { zone, zoneRSVPs };
+            });
+            const maxRSVPs = Math.max(...zoneStats.map(z => z.zoneRSVPs), 1);
+
+            return zoneStats.map(({ zone, zoneRSVPs }) => {
+              const percentage = Math.round((zoneRSVPs / maxRSVPs) * 100);
+              return (
+                <div key={zone} className="relative">
+                  <div className="flex justify-between items-end mb-2">
+                    <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--cp-text-2)' }}>{zone}</span>
+                    <span className="text-sm font-black" style={{ color: 'var(--cp-text-1)' }}>{zoneRSVPs} <span className="text-[10px] opacity-40 font-bold uppercase">RSVPs</span></span>
+                  </div>
+                  <div className="w-full h-3 rounded-full bg-surface-dim overflow-hidden border border-border">
+                    <div 
+                      className="h-full transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                      style={{ 
+                        width: `${percentage}%`, 
+                        background: `linear-gradient(90deg, var(--cp-primary), var(--cp-secondary))`,
+                        boxShadow: '0 0 12px hsl(from var(--cp-primary) h s l / 0.3)'
+                      }} 
+                    />
+                  </div>
+                </div>
+              );
+            });
+          })()}
+        </div>
+      </div>
+
       {/* ── Events Grid ── */}
       <div className="mb-6 flex flex-col gap-3 min-[560px]:flex-row min-[560px]:items-center min-[560px]:justify-between">
         <h3 className="text-xl font-bold tracking-tight" style={{ color: 'var(--cp-text-1)' }}>Your Events</h3>

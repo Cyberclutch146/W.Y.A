@@ -3,7 +3,7 @@
 import { EventNeeds } from '@/types';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { updateDonation, addEventRSVP, getUserPledge } from '@/services/eventService';
+import { updateDonation, addEventRSVP, getUserPledge, getUserRSVP } from '@/services/eventService';
 import { toast } from 'sonner';
 import { RSVPModal } from './RSVPModal';
 import { GoodsPledgeModal } from './GoodsPledgeModal';
@@ -39,6 +39,7 @@ export function DonationPanel({
 }: DonationPanelProps) {
   const { user, profile } = useAuth();
   const [pledged, setPledged] = useState(false);
+  const [hasRSVPd, setHasRSVPd] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isRSVPModalOpen, setIsRSVPModalOpen] = useState(false);
   const [isGoodsPledgeModalOpen, setIsGoodsPledgeModalOpen] = useState(false);
@@ -61,11 +62,16 @@ export function DonationPanel({
     };
   }, []);
 
-  // Check if the user already pledged goods for this event
+  // Check if the user already pledged goods or RSVP'd for this event
   useEffect(() => {
     if (!user) return;
     getUserPledge(eventId, user.uid).then((pledge) => {
       if (pledge) setGoodsPledged(true);
+    });
+    getUserRSVP(eventId, user.uid).then((rsvp) => {
+      if (rsvp && (rsvp.status === 'going' || rsvp.status === 'attended')) {
+        setHasRSVPd(true);
+      }
     });
   }, [user, eventId]);
 
@@ -142,6 +148,7 @@ export function DonationPanel({
     if (!user) return;
     await addEventRSVP(eventId, user.uid, name, email, ticketId, status);
     setPledged(true);
+    setHasRSVPd(true);
     onActionComplete?.();
   };
 
@@ -272,7 +279,7 @@ export function DonationPanel({
               <p className="text-sm mb-6 leading-relaxed" style={{ color: 'var(--cp-text-2)' }}>
                 RSVP to secure your spot. Choose to confirm your attendance and get a ticket, or just mark yourself as interested.
               </p>
-              {!pledged ? (
+              {!hasRSVPd ? (
                 <button 
                   onClick={handleRSVPClick}
                   disabled={loading || !user}
@@ -293,7 +300,7 @@ export function DonationPanel({
                   }}
                 >
                   <CheckCircle2 size={16} />
-                  Your RSVP is confirmed!
+                  Already attending
                 </motion.div>
               )}
             </div>
@@ -358,6 +365,7 @@ export function DonationPanel({
         eventLocation={eventLocation}
         eventTime={eventTime}
         enrolledCount={enrolledCount}
+        eventId={eventId}
       />
 
       <GoodsPledgeModal

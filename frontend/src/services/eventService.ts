@@ -259,6 +259,20 @@ export const getEventRSVPs = async (eventId: string): Promise<EventRSVP[]> => {
   })) as EventRSVP[];
 };
 
+export const getUserRSVP = async (eventId: string, userId: string) => {
+  try {
+    const rsvpRef = doc(db, `${EVENTS_COLLECTION}/${eventId}/rsvps`, userId);
+    const snap = await getDoc(rsvpRef);
+    if (snap.exists()) {
+      return { id: snap.id, ...snap.data() } as EventRSVP;
+    }
+    return null;
+  } catch (error) {
+    console.error('Failed to get user RSVP:', error);
+    return null;
+  }
+};
+
 export const updateRSVPStatus = async (eventId: string, rsvpId: string, status: 'interested' | 'going' | 'attended'): Promise<void> => {
   const response = await fetch('/api/events/scan', {
     method: 'POST',

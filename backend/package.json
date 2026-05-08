@@ -5,5 +5,8 @@
   "description": "Firebase infrastructure and backend scripts for W.Y.A Campus",
   "scripts": {
     "test:api": "node scripts/test-api.mjs"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.9.0"
   }
 }

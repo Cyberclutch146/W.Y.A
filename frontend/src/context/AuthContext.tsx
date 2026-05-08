@@ -2,139 +2,100 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { 
-  User as FirebaseUser, 
   onAuthStateChanged, 
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut as firebaseSignOut,
-  GoogleAuthProvider,
-  signInWithPopup
+  User, 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signOut, 
+  GoogleAuthProvider, 
+  signInWithPopup 
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import { subscribeToUserProfile } from '@/services/userService';
 import { UserProfile } from '@/types';
+import { subscribeToUserProfile } from '@/services/userService';
 
 interface AuthContextType {
-  user: FirebaseUser | null;
+  user: User | null;
   profile: UserProfile | null;
   loading: boolean;
   isOtpVerified: boolean;
-  setOtpVerified: (val: boolean) => void;
-  login: (email: string, pass: string) => Promise<FirebaseUser>;
-  register: (email: string, pass: string) => Promise<FirebaseUser>;
-  loginWithGoogle: () => Promise<FirebaseUser>;
+  setOtpVerified: (verified: boolean) => void;
+  login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string) => Promise<User>;
+  loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType>({} as AuthContextType);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<FirebaseUser | null>(null);
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isOtpVerified, setIsOtpVerified] = useState(false);
 
   useEffect(() => {
-    let unsubscribeProfile: (() => void) | undefined;
+    // Check if OTP was verified in this session
+    const storedVerified = sessionStorage.getItem('otp_verified') === 'true';
+    setIsOtpVerified(storedVerified);
 
-    const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
-      // Reject anonymous sessions immediately
-      if (firebaseUser?.isAnonymous) {
-        await firebaseSignOut(auth);
-        return;
-      }
-
+    const unsubscribeAuth = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
-
-      if (firebaseUser) {
-        // Check if verified via Google or sessionStorage
-        const isGoogle = firebaseUser.providerData.some(p => p.providerId === 'google.com');
-        const sessionVerified = sessionStorage.getItem(`wya_otp_verified_${firebaseUser.uid}`) === 'true';
-        
-        if (isGoogle || sessionVerified) {
-          setIsOtpVerified(true);
-        } else {
-          setIsOtpVerified(false);
-        }
-
-        unsubscribeProfile = subscribeToUserProfile(firebaseUser.uid, async (userProfile) => {
-          if (!userProfile) {
-            const { createUserProfile } = await import('@/services/userService');
-            await createUserProfile(firebaseUser.uid, {
-              email: firebaseUser.email || '',
-              displayName: firebaseUser.displayName || 'Student',
-              bio: '',
-              location: '',
-              phone: '',
-              campusZone: '',
-              avatarUrl: firebaseUser.photoURL || '',
-              role: 'student',
-              eventHours: 0,
-              totalDonated: 0,
-              profileComplete: false,
-              department: '',
-              year: '',
-              rollNumber: '',
-              clubs: [],
-              interests: [],
-              xp: 0,
-              badges: [],
-              eventsAttended: 0,
-              rsvpEventIds: [],
-              savedEventIds: [],
-              dismissedEventIds: []
-            });
-          } else {
-            setProfile(userProfile);
-            setLoading(false);
-          }
-        });
-      } else {
+      
+      if (!firebaseUser) {
         setProfile(null);
-        setIsOtpVerified(false);
-        if (unsubscribeProfile) unsubscribeProfile();
         setLoading(false);
+        setIsOtpVerified(false);
+        sessionStorage.removeItem('otp_verified');
       }
     });
 
-    return () => {
-      unsubscribeAuth();
-      if (unsubscribeProfile) unsubscribeProfile();
-    };
+    return () => unsubscribeAuth();
   }, []);
 
-  const handleSetOtpVerified = (val: boolean) => {
-    setIsOtpVerified(val);
+  useEffect(() => {
+    let unsubscribeProfile: (() => void) | undefined;
+
     if (user) {
-      if (val) {
-        sessionStorage.setItem(`wya_otp_verified_${user.uid}`, 'true');
-      } else {
-        sessionStorage.removeItem(`wya_otp_verified_${user.uid}`);
-      }
+      unsubscribeProfile = subscribeToUserProfile(user.uid, (userProfile) => {
+        setProfile(userProfile);
+        setLoading(false);
+      });
+    } else {
+      setLoading(false);
+    }
+
+    return () => {
+      if (unsubscribeProfile) unsubscribeProfile();
+    };
+  }, [user]);
+
+  const setOtpVerified = (verified: boolean) => {
+    setIsOtpVerified(verified);
+    if (verified) {
+      sessionStorage.setItem('otp_verified', 'true');
+    } else {
+      sessionStorage.removeItem('otp_verified');
     }
   };
 
-  const login = async (email: string, pass: string) => {
-    const cred = await signInWithEmailAndPassword(auth, email, pass);
-    return cred.user;
+  const login = async (email: string, password: string) => {
+    await signInWithEmailAndPassword(auth, email, password);
   };
 
-  const register = async (email: string, pass: string) => {
-    const cred = await createUserWithEmailAndPassword(auth, email, pass);
-    return cred.user;
+  const register = async (email: string, password: string) => {
+    const result = await createUserWithEmailAndPassword(auth, email, password);
+    return result.user;
   };
 
   const loginWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: 'select_account' });
-    const cred = await signInWithPopup(auth, provider);
-    handleSetOtpVerified(true);
-    return cred.user;
+    await signInWithPopup(auth, provider);
   };
 
   const logout = async () => {
-    if (user) sessionStorage.removeItem(`wya_otp_verified_${user.uid}`);
-    await firebaseSignOut(auth);
+    await signOut(auth);
+    sessionStorage.removeItem('otp_verified');
   };
 
   return (
@@ -143,7 +104,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       profile, 
       loading, 
       isOtpVerified, 
-      setOtpVerified: handleSetOtpVerified, 
+      setOtpVerified,
       login, 
       register, 
       loginWithGoogle, 
@@ -152,6 +113,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
-export const useAuth = () => useContext(AuthContext);
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}

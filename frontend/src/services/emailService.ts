@@ -10,13 +10,41 @@ const transporter = process.env.EMAIL && process.env.EMAIL_PASS
     })
   : null;
 
+/**
+ * Helper to send mail with a simple retry strategy (3 attempts)
+ * Handles transient 429 or auth timeouts.
+ */
+const sendWithRetry = async (mailOptions: any, maxRetries = 3) => {
+  if (!transporter) {
+    console.warn("Email skipped: Email credentials missing.");
+    return;
+  }
+
+  let lastError;
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await transporter.sendMail(mailOptions);
+    } catch (err: any) {
+      lastError = err;
+      const isTransient = err.responseCode === 429 || err.code === 'ETIMEDOUT' || err.code === 'ECONNRESET';
+      if (isTransient && i < maxRetries - 1) {
+        console.warn(`Email transient error (attempt ${i + 1}/${maxRetries}): ${err.message}. Retrying in ${1000 * (i + 1)}ms...`);
+        await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+        continue;
+      }
+      throw err;
+    }
+  }
+  throw lastError;
+};
+
 export const sendEmail = async (to: string, message: string) => {
   if (!transporter) {
     console.warn("Email skipped: Email credentials missing in environment variables.");
     return;
   }
   
-  return transporter.sendMail({
+  return sendWithRetry({
     from: `"Campaign Team" <${process.env.EMAIL}>`,
     to,
     subject: "You're invited to support a campaign",
@@ -30,7 +58,7 @@ export const sendOTPEmail = async (to: string, code: string, eventTitle: string)
     return;
   }
 
-  return transporter.sendMail({
+  return sendWithRetry({
     from: `"W.Y.A" <${process.env.EMAIL}>`,
     to,
     subject: `Verification Code: ${code} for ${eventTitle}`,
@@ -57,7 +85,7 @@ export const sendRegistrationEmail = async (to: string, eventTitle: string, tick
 
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(ticketId)}`;
 
-  return transporter.sendMail({
+  return sendWithRetry({
     from: `"W.Y.A" <${process.env.EMAIL}>`,
     to,
     subject: `Your Digital Ticket: ${eventTitle}`,
