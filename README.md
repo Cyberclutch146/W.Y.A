@@ -1,8 +1,7 @@
-<div align="center">
-  <img src="frontend/public/logo.png" alt="W.Y.A Logo" width="120" style="margin-bottom: 20px" />
 
+<center>
 # 🌐 W.Y.A — Where You At?
-### **The Premium Intelligence Engine for Campus Life**
+### **The Premium Intelligence Engine for Campus Life** <center>
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.2-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.2-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
